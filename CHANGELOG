@@ -1,0 +1,92 @@
+v2.0.3.2
+--------
+*First stable release on new codebase
+
+v2.0.3.3
+--------
+*Forced DNS Seeding
+*IRC Removed (now wallet do not stay in memory after exit)
+*Added Peer/Ban tab in Debug console
+
+v2.0.3.4
+--------
+*Reworked IRC is back
+*Fixed bad per connection without uPnP
+*Fixed masternode list page glitch
+*Added "Protocol" column in masternode list page
+*Added context menu in masternode list page
+*Network peer load tuning
+
+v2.0.3.5
+--------
+*Fighting against incorrect masternodes
+Now wallet check connection for each new masternode relay before adding it to masternode list. Delete mncache.dat before updating.
+Update your PoS wallets. Masternodes don't need this update.
+
+v2.0.3.6
+--------
+*Fix network troubles after checking masternodes
+Now bad masternodes will be listed, but with unactive status. This nodes will be excluded from the payout list.
+Update your PoS wallets. Masternodes don't need this update.
+
+v2.0.3.7
+--------
+*New new commandline option for wallet database "-dbwalletcache"
+Give you control of wallet database cache. By default cache database reduced to 1Mb.
+*Blockchain database cache decreased to 10Mb by default
+*New build option for more memory usage optimization
+For masternode holders. Added new buildoption "LOWMEM" (disabled by default). If enabled, usage of memory can be reduced by an additional 37Mb (from ~315Mb to ~277Mb with default database caches). But it brokes compatibility with blockchain database and you will need to resync database. The choice yours.
+Recommended for masternode holders. Update your wallets.
+
+v2.0.3.8
+--------
+*Decreased keypool size (from:1000 to 100)
+*Fixed wrong calculation for incoming connections.
+
+v2.0.4.0
+--------
+*Codebase upgrade and bugfix
+
+v2.0.4.1
+--------
+*Mac OS compilation fix
+*Boost linux_x64 compile fix
+*Removed "Rank" column (no more UI freezes)
+*Decreased maximum inputs in stake combine
+*New feature in advanced coin control (Lock/Unlock inputs) (Resets after wallet reload)
+
+v2.0.4.2
+--------
+*Send blocks tweak
+*New checkpoints
+*Fix "Copy PubKey" crash
+*Remove last "\n" at "Copy Address" and "Copy PubKey"
+*Reward integration stage 1
+
+v2.0.4.3
+--------
+*Old masternode system compatibility fix
+
+v2.1.0.0
+--------
+*Reward system is enabled
+Now you can move your masternore reward to another address.
+Use it carefully.
+
+v2.1.0.1
+--------
+*Removed IRC seeding to prevent fake antivirus warnings.
+
+v2.1.0.2
+--------
+*Network sync fix
+
+v2.1.0.3
+--------
+*Removed IRC 
+*Remove unneeded script
+*Stakethreshold option (new option for controlling stake generation)
+*A little GUI changes
+*Mature calculation fix
+*Rewardaddress fix
+*Masternode stop fix

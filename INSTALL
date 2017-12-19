@@ -1,0 +1,9 @@
+Building Ignition
+
+See doc/readme-qt.rst for instructions on building Ignition QT,
+the intended-for-end-users, nice-graphical-interface, reference
+implementation of Ignition.
+
+See doc/build-*.txt for instructions on building Ignitiond,
+the intended-for-services, no-graphical-interface, reference
+implementation of Ignition.
