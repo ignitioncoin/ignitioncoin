@@ -136,8 +136,8 @@ Value validateaddress(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "validateaddress <Harvestaddress>\n"
-            "Return information about <Harvestaddress>.");
+            "validateaddress <Ignitionaddress>\n"
+            "Return information about <Ignitionaddress>.");
 
     CHarvestcoinAddress address(params[0].get_str());
     bool isValid = address.IsValid();
@@ -208,7 +208,7 @@ Value verifymessage(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 3)
         throw runtime_error(
-            "verifymessage <Harvestaddress> <signature> <message>\n"
+            "verifymessage <Ignitionaddress> <signature> <message>\n"
             "Verify a signed message");
 
     string strAddress  = params[0].get_str();

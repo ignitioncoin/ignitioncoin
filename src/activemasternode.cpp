@@ -45,14 +45,14 @@ void CActiveMasternode::ManageStatus()
 
         LogPrintf("CActiveMasternode::ManageStatus() - Checking inbound connection to '%s'\n", service.ToString().c_str());
 
-                  
+
             if(!ConnectNode((CAddress)service, service.ToString().c_str())){
-                notCapableReason = "Could not connect to " + service.ToString();
+                notCapableReason = "Perhaps using port=<coin-port> is needed, Could not connect to " + service.ToString();
                 status = MASTERNODE_NOT_CAPABLE;
                 LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason.c_str());
                 return;
             }
-        
+
 
         if(pwalletMain->IsLocked()){
             notCapableReason = "Wallet is locked.";
@@ -300,7 +300,7 @@ bool CActiveMasternode::Register(CTxIn vin, CService service, CKey keyCollateral
     if(pmn == NULL)
     {
         LogPrintf("CActiveMasternode::Register() - Adding to masternode list service: %s - vin: %s\n", service.ToString().c_str(), vin.ToString().c_str());
-        CMasternode mn(service, vin, pubKeyCollateralAddress, vchMasterNodeSignature, masterNodeSignatureTime, pubKeyMasternode, PROTOCOL_VERSION, rewardAddress, rewardPercentage); 
+        CMasternode mn(service, vin, pubKeyCollateralAddress, vchMasterNodeSignature, masterNodeSignatureTime, pubKeyMasternode, PROTOCOL_VERSION, rewardAddress, rewardPercentage);
         mn.ChangeNodeStatus(false);
         mn.UpdateLastSeen(masterNodeSignatureTime);
         mnodeman.Add(mn);

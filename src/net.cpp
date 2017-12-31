@@ -36,7 +36,7 @@
 using namespace std;
 using namespace boost;
 
-static const int MAX_OUTBOUND_CONNECTIONS = 12;
+static const int MAX_OUTBOUND_CONNECTIONS = 24;
 
 bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant *grantOutbound = NULL, const char *strDest = NULL, bool fOneShot = false);
 
@@ -371,7 +371,7 @@ bool CheckNode(CAddress addrConnect)
     {
         LogPrint("net", "connected masternode %s\n", addrConnect.ToString());
         closesocket(hSocket);
-        
+
 /*        // Set to non-blocking
 #ifdef WIN32
         u_long nOne = 1;
@@ -384,7 +384,7 @@ bool CheckNode(CAddress addrConnect)
         CNode* pnode = new CNode(hSocket, addrConnect, "", false);
         // Close connection
         pnode->CloseSocketDisconnect();
-*/        
+*/
         return true;
     }
     LogPrint("net", "connecting to masternode %s failed\n", addrConnect.ToString());
@@ -1834,7 +1834,7 @@ void StartNode(boost::thread_group& threadGroup)
     // Map ports with UPnP
     MapPort(GetBoolArg("-upnp", USE_UPNP));
 #endif
-    
+
     // Send and receive from sockets, accept connections
     threadGroup.create_thread(boost::bind(&TraceThread<void (*)()>, "net", &ThreadSocketHandler));
 

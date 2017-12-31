@@ -319,8 +319,8 @@ Value dumpprivkey(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() != 1)
         throw runtime_error(
-            "dumpprivkey <Harvestaddress>\n"
-            "Reveals the private key corresponding to <Harvestaddress>.");
+            "dumpprivkey <Ignitionaddress>\n"
+            "Reveals the private key corresponding to <Ignitionaddress>.");
 
     EnsureWalletIsUnlocked();
 
