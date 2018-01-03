@@ -687,24 +687,8 @@ int64_t GetMinFee(const CTransaction& tx, unsigned int nBytes, bool fAllowFree, 
 {
     // Base fee is either MIN_TX_FEE or MIN_RELAY_TX_FEE
     int64_t nBaseFee = (mode == GMF_RELAY) ? MIN_RELAY_TX_FEE : MIN_TX_FEE;
-
     int64_t nMinFee = (1 + (int64_t)nBytes / 1000) * nBaseFee;
 
-    /*if (fAllowFree)
-    {
-        // There is a free transaction area in blocks created by most miners,
-        // * If we are relaying we allow transactions up to DEFAULT_BLOCK_PRIORITY_SIZE - 1000
-        //   to be considered to fall into this category. We don't want to encourage sending
-        //   multiple transactions instead of one big transaction to avoid fees.
-        // * If we are creating a transaction we allow transactions up to 1,000 bytes
-        //   to be considered safe and assume they can likely make it into this section.
-        if (nBytes < (mode == GMF_SEND ? 1000 : (DEFAULT_BLOCK_PRIORITY_SIZE - 1000)))
-            nMinFee = 0;
-    }*/
-
-    // This code can be removed after enough miners have upgraded to version 0.9.
-    // Until then, be safe when sending and require a fee if any output
-    // is less than CENT:
     if (nMinFee < nBaseFee && mode == GMF_SEND)
     {
         BOOST_FOREACH(const CTxOut& txout, tx.vout)
