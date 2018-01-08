@@ -7,6 +7,8 @@ https://github.com/bitcoin/secp256k1
 
 Ignition is a PoW (Scrypt) / PoS / Master Node hybrid cryptocurrency, with a 5 million coin maximum supply, which is generated slower and slower over 50 years. Master Node cost 3000IC, block size is 20MB, and block time is ~2Minutes.
 
+50% of Blocks are PoW , and 50% are PoS, of which each PoS block is split between Masternode and Staker.
+
 Block Spacing: 120 Seconds
 Diff Retarget: every Blocks
 Maturity: 30 Blocks
