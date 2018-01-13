@@ -191,8 +191,8 @@ Value getdifficulty(const Array& params, bool fHelp)
             "Returns the difficulty as a multiple of the minimum difficulty.");
 
     Object obj;
-    obj.push_back(Pair("proof-of-work",        GetDifficulty()));
-    obj.push_back(Pair("proof-of-stake",       GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    obj.push_back(Pair("proof-of-work", GetDifficulty()));
+    obj.push_back(Pair("proof-of-stake", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
     return obj;
 }
 
