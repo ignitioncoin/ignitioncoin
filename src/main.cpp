@@ -1340,6 +1340,11 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // the yr1 1Mil, yr2-5 1Mil 5-10 1Mil 10-20 1Mil 20-50 1Mil distribution
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
+
+    // if testnet produce more rewards
+    if(TestNet()) return 1000 * COIN;
+    //////////////////////////////////
+
     int64_t nSubsidy = 1 * COIN;
 	  if (nHeight < 2)
     {
@@ -1381,6 +1386,11 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
 {
+
+    // if testnet produce more rewards
+    if(TestNet()) return 2000 * COIN;
+    //////////////////////////////////
+
     int64_t nSubsidy = STATIC_POS_REWARD;
 
     if(nHeight < 200) // live test before launch = 198 coin

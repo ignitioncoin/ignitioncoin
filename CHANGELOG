@@ -1,6 +1,9 @@
 v1.0.0.2
 --------
 Fixed mining/staking seperated difficulty reporting
+Enabling testnet.
+Increasing reward of testnet.
+Maternode pubkey reporting fix.
 
 v1.0.0.1
 --------
@@ -101,7 +104,7 @@ v2.1.0.2
 
 v2.1.0.3
 --------
-*Removed IRC 
+*Removed IRC
 *Remove unneeded script
 *Stakethreshold option (new option for controlling stake generation)
 *A little GUI changes
