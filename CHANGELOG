@@ -1,3 +1,24 @@
+v1.0.0.2
+--------
+Fixed mining/staking seperated difficulty reporting
+Enabled testnet with increased reward.
+Masternode pubkey reporting fix.
+Updated many docs in the github repo
+
+v1.0.0.1
+--------
+GUI Update - New Logo & Graphics Integrated
+
+v1.0.0b
+-------
+Anti-Virus False Positive Fix
+
+v1.0.0a
+-------
+Initial Ignition Release
+
+>>>>>>Forked to Ignition Coin
+
 v2.0.3.2
 --------
 *First stable release on new codebase
@@ -83,7 +104,7 @@ v2.1.0.2
 
 v2.1.0.3
 --------
-*Removed IRC 
+*Removed IRC
 *Remove unneeded script
 *Stakethreshold option (new option for controlling stake generation)
 *A little GUI changes

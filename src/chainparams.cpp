@@ -150,17 +150,17 @@ public:
 
 		// Modify the testnet genesis block so the timestamp is valid for a later start.
 		genesis.nBits = 520159231;
-		genesis.nNonce = 0;
+		genesis.nNonce = 47950;
 
-		//assert(hashGenesisBlock == uint256("0x"));
+		assert(hashGenesisBlock == uint256("0x000088660811c8469e191c629657e36b6d339b9b76ce494cd9f957d59552bb3c"));
 
 		vFixedSeeds.clear();
 		vSeeds.clear();
 
-		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 127);
-		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 196);
-		base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 239);
-		base58Prefixes[STEALTH_ADDRESS] = std::vector<unsigned char>(1, 40);
+		base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1, 28);
+		base58Prefixes[SCRIPT_ADDRESS] = std::vector<unsigned char>(1, 38);
+		base58Prefixes[SECRET_KEY] = std::vector<unsigned char>(1, 88);
+		base58Prefixes[STEALTH_ADDRESS] = std::vector<unsigned char>(1, 98);
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x35)(0x87)(0xCF).convert_to_container<std::vector<unsigned char> >();
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x35)(0x83)(0x94).convert_to_container<std::vector<unsigned char> >();
 
