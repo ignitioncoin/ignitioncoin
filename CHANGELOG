@@ -1,10 +1,9 @@
 v1.0.0.2
 --------
 Fixed mining/staking seperated difficulty reporting
-Enabling testnet.
-Increasing reward of testnet.
-Maternode pubkey reporting fix.
-Updated many docs
+Enabled testnet with increased reward.
+Masternode pubkey reporting fix.
+Updated many docs in the github repo
 
 v1.0.0.1
 --------
