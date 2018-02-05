@@ -16,9 +16,12 @@ Port: 44144
 RPC Port: 44155
 
 Website: https://IgnitionCoin.org
+
 LiveNet Explorer: http://explorer.ignitioncoin.org/
+
 BitcoinTalk Announcement: https://bitcointalk.org/index.php?topic=2612608.0
-White Paper: https://www.ignitioncoin.org/wp-content/uploads/2017/12/Ignition-Coin-White-Paper.pdf
+
+White Paper: https://ignitioncoin.org/wp-content/uploads/2018/01/Ignition-Coin-White-Paper.pdf
 
 For compiling on different architectures, see the docs/build-*os* documents. Otherwise, view releases page for windows qt-wallets.
 
