@@ -176,6 +176,8 @@ ifeq (${USE_WALLET}, 1)
         obj/walletdb.o
 endif
 
+BIN = ../bin
+
 all: ignitiond
 
 # build secp256k1
@@ -211,10 +213,12 @@ obj/%.o: %.c
 	  rm -f $(@:%.o=%.d)
 
 ignitiond: $(OBJS:obj/%=obj/%)
-	$(LINK) $(xCXXFLAGS) -o ../bin/$@ $^ $(xLDFLAGS) $(LIBS)
+	$(LINK) $(xCXXFLAGS) -o $(BIN)/$@ $^ $(xLDFLAGS) $(LIBS)
+
+$(shell mkdir -p $(BIN))
 
 clean:
-	-rm -f ignitiond
+	-rm -f $(BIN)/ignitiond
 	-rm -f obj/*.o
 	-rm -f obj/*.P
 	-rm -f obj/build.h
