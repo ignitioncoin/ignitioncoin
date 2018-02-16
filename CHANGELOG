@@ -1,3 +1,7 @@
+v1.0.0.3
+--------
+Ignitiond binary will now compile out to ignitiond (lower case)
+
 v1.0.0.2
 --------
 Fixed mining/staking seperated difficulty reporting
