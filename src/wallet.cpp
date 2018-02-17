@@ -234,10 +234,10 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly
 {
     SecureString strWalletPassphraseFinal;
 
-    if(!IsLocked())
+    if(!IsLocked() && !fWalletUnlockStakingOnly)
     {
-    fWalletUnlockAnonymizeOnly = anonymizeOnly;
-    return true;
+        fWalletUnlockAnonymizeOnly = anonymizeOnly;
+        return true;
     }
 
     strWalletPassphraseFinal = strWalletPassphrase;
