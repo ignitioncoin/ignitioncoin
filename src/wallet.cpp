@@ -234,6 +234,8 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly
 {
     SecureString strWalletPassphraseFinal;
 
+    // If already fully unlocked, only update fWalletUnlockAnonymizeOnly
+    // If unlocked for staking only, the passphrase is needed
     if(!IsLocked() && !fWalletUnlockStakingOnly)
     {
         fWalletUnlockAnonymizeOnly = anonymizeOnly;
