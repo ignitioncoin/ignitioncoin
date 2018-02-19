@@ -603,24 +603,16 @@ bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphr
 
 bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase, bool anonymizeOnly, bool stakingOnly)
 {
-    bool result = false;
     if(locked)
     {
         // Lock
-        result = wallet->Lock();
+        return wallet->Lock();
     }
     else
     {
         // Unlock
-        result = wallet->Unlock(passPhrase, anonymizeOnly);
+        return wallet->Unlock(passPhrase, anonymizeOnly, stakingOnly);
     }
-
-    if (result)
-    {
-        fWalletUnlockStakingOnly = stakingOnly;
-    }
-
-    return result;
 }
 
 bool WalletModel::isAnonymizeOnlyUnlocked()
