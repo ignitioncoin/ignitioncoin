@@ -227,10 +227,16 @@ bool CWallet::Lock()
             sxAddr.spend_secret = sxAddrTemp.spend_secret;
         };
     }
-    return LockKeyStore();
+    bool result = LockKeyStore();
+    if (result)
+    {
+        // Reset the fWalletUnlockStakingOnly state if wallet is locked
+        fWalletUnlockStakingOnly = false;
+    }
+    return result;
 };
 
-bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly)
+bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly, bool stakingOnly)
 {
     SecureString strWalletPassphraseFinal;
 
@@ -260,10 +266,11 @@ bool CWallet::Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly
         break;
         }
 
-    fWalletUnlockAnonymizeOnly = anonymizeOnly;
-    UnlockStealthAddresses(vMasterKey);
-    SecureMsgWalletUnlocked();
-    return true;
+        fWalletUnlockAnonymizeOnly = anonymizeOnly;
+        fWalletUnlockStakingOnly = stakingOnly;
+        UnlockStealthAddresses(vMasterKey);
+        SecureMsgWalletUnlocked();
+        return true;
     }
     return false;
 }
