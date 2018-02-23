@@ -3,3 +3,7 @@ compile-blk.sh
 .DS_Store
 Ignition.pro
 Ignitiond
+Ignition-qt
+qrc_bitcoin\.cpp
+build/
+*.qm
