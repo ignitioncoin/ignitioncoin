@@ -1,9 +1,11 @@
 # ignore a single file
 compile-blk.sh
 .DS_Store
-Ignition.pro
-Ignitiond
+bin/
+ignition.pro
+ignitiond
 Ignition-qt
 qrc_bitcoin\.cpp
 build/
 *.qm
+
