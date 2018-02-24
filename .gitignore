@@ -4,3 +4,8 @@ compile-blk.sh
 bin/
 ignition.pro
 ignitiond
+Ignition-qt
+qrc_bitcoin\.cpp
+build/
+*.qm
+
