@@ -3557,7 +3557,12 @@ int test_ecdsa_der_parse(const unsigned char *sig, size_t siglen, int certainly_
     sig_openssl = ECDSA_SIG_new();
     const BIGNUM *sig_openssl_r = NULL;
     const BIGNUM *sig_openssl_s = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_get0(sig_openssl, &sig_openssl_r, &sig_openssl_s);
+#else
+    sig_openssl_r = sig_openssl->r;
+    sig_openssl_s = sig_openssl->s;
+#endif
     
     sigptr = sig;
     parsed_openssl = (d2i_ECDSA_SIG(&sig_openssl, &sigptr, siglen) != NULL);

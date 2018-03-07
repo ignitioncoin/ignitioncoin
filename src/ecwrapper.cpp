@@ -76,7 +76,12 @@ int ECDSA_SIG_recover_key_GFp(EC_KEY *eckey, ECDSA_SIG *ecsig, const unsigned ch
 
     const BIGNUM *ecsig_r = NULL;
     const BIGNUM *ecsig_s = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_get0(ecsig, &ecsig_r, &ecsig_s);
+#else
+    ecsig_r = ecsig->r;
+    ecsig_s = ecsig->s;
+#endif
 
     const EC_GROUP *group = EC_KEY_get0_group(eckey);
     if ((ctx = BN_CTX_new()) == NULL) { ret = -1; goto err; }
@@ -204,7 +209,12 @@ bool CECKey::Sign(const uint256 &hash, std::vector<unsigned char>& vchSig) {
 
     const BIGNUM *sig_r = NULL;
     const BIGNUM *sig_s = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_get0(sig, &sig_r, &sig_s);
+#else
+    sig_r = sig->r;
+    sig_s = sig->s;
+#endif
         
     BN_CTX *ctx = BN_CTX_new();
     BN_CTX_start(ctx);
@@ -218,7 +228,12 @@ bool CECKey::Sign(const uint256 &hash, std::vector<unsigned char>& vchSig) {
         BIGNUM *sig_s_new = BN_dup(sig_s);
         BIGNUM *sig_r_new = BN_dup(sig_r);
         BN_sub(sig_s_new, order, sig_s);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
         ECDSA_SIG_set0(sig, sig_r_new, sig_s_new);
+#else
+        sig->r = sig_r_new;
+        sig->s = sig_s_new;
+#endif
     }
     BN_CTX_end(ctx);
     BN_CTX_free(ctx);
@@ -246,7 +261,12 @@ bool CECKey::SignCompact(const uint256 &hash, unsigned char *p64, int &rec) {
 
     const BIGNUM *sig_r = NULL;
     const BIGNUM *sig_s = NULL;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_get0(sig, &sig_r, &sig_s);
+#else
+    sig_r = sig->r;
+    sig_s = sig->s;
+#endif
         
     memset(p64, 0, 64);
     int nBitsR = BN_num_bits(sig_r);
@@ -284,7 +304,12 @@ bool CECKey::Recover(const uint256 &hash, const unsigned char *p64, int rec)
     
     BN_bin2bn(&p64[0],  32, sig_r);
     BN_bin2bn(&p64[32], 32, sig_s);
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_set0(sig, sig_r, sig_s);
+#else
+    sig->r = sig_r;
+    sig->s = sig_s;
+#endif
     bool ret = ECDSA_SIG_recover_key_GFp(pkey, sig, (unsigned char*)&hash, sizeof(hash), rec, 0) == 1;
     ECDSA_SIG_free(sig);
     return ret;

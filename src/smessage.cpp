@@ -3129,7 +3129,12 @@ int SecureMsgValidate(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
     for (int i = 0; i < 32; i+=4)
         memcpy(civ+i, &nonse, 4);
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX *ctx = HMAC_CTX_new();
+#else
+    HMAC_CTX *ctx = new HMAC_CTX();
+    HMAC_CTX_init(ctx);
+#endif
 
     uint32_t nBytes;
     if (!HMAC_Init_ex(ctx, &civ[0], 32, EVP_sha256(), NULL)
@@ -3160,7 +3165,12 @@ int SecureMsgValidate(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
             rv = 3; // checksum mismatch
         }
     }
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX_free(ctx);
+#else
+    HMAC_CTX_cleanup(ctx);
+    delete ctx;
+#endif
 
     return rv;
 };
@@ -3185,7 +3195,12 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
     uint8_t sha256Hash[32];
 
     bool found = false;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX *ctx = HMAC_CTX_new();
+#else
+    HMAC_CTX *ctx = new HMAC_CTX();
+    HMAC_CTX_init(ctx);
+#endif
 
     uint32_t nonse = 0;
 
@@ -3247,7 +3262,12 @@ int SecureMsgSetHash(uint8_t *pHeader, uint8_t *pPayload, uint32_t nPayload)
         nonse++;
     };
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX_free(ctx);
+#else
+    HMAC_CTX_cleanup(ctx);
+    delete ctx;
+#endif
 
     if (!fSecMsgEnabled)
     {
@@ -3389,7 +3409,11 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
     //LogPrint("smessage", "secret_len %d.\n", secret_len);
 
     // -- ECDH_compute_key returns the same P if fed compressed or uncompressed public keys
-    EC_KEY_set_method(pkeyK, EC_KEY_OpenSSL());
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+    EC_KEY_set_method(pkeyr, EC_KEY_OpenSSL());
+#else
+    ECDH_set_method(pkeyr, ECDH_OpenSSL());
+#endif
     int lenP = ECDH_compute_key(&vchP[0], 32, EC_KEY_get0_public_key(pkeyK), pkeyr, NULL);
 
     if (lenP != 32)
@@ -3509,7 +3533,12 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
     //    Message authentication code, (hash of timestamp + destination + payload)
     bool fHmacOk = true;
     uint32_t nBytes = 32;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX *ctx = HMAC_CTX_new();
+#else
+    HMAC_CTX *ctx = new HMAC_CTX();
+    HMAC_CTX_init(ctx);
+#endif
 
     if (!HMAC_Init_ex(ctx, &key_m[0], 32, EVP_sha256(), NULL)
         || !HMAC_Update(ctx, (uint8_t*) &smsg.timestamp, sizeof(smsg.timestamp))
@@ -3518,7 +3547,12 @@ int SecureMsgEncrypt(SecureMessage &smsg, const std::string &addressFrom, const 
         || nBytes != 32)
         fHmacOk = false;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX_free(ctx);
+#else
+    HMAC_CTX_cleanup(ctx);
+    delete ctx;
+#endif
 
     if (!fHmacOk)
     {
@@ -3771,7 +3805,11 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, uint8_t *pHeader, uin
     EC_KEY* pkeyk = ecKeyDest.GetECKey();
     EC_KEY* pkeyR = ecKeyR.GetECKey();
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     EC_KEY_set_method(pkeyk, EC_KEY_OpenSSL());
+#else
+    ECDH_set_method(pkeyk, ECDH_OpenSSL());
+#endif
     int lenPdec = ECDH_compute_key(&vchP[0], 32, EC_KEY_get0_public_key(pkeyR), pkeyk, NULL);
 
     if (lenPdec != 32)
@@ -3793,7 +3831,12 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, uint8_t *pHeader, uin
     uint8_t MAC[32];
     bool fHmacOk = true;
     uint32_t nBytes = 32;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX *ctx = HMAC_CTX_new();
+#else
+    HMAC_CTX *ctx = new HMAC_CTX();
+    HMAC_CTX_init(ctx);
+#endif
 
     if (!HMAC_Init_ex(ctx, &key_m[0], 32, EVP_sha256(), NULL)
         || !HMAC_Update(ctx, (uint8_t*) &psmsg->timestamp, sizeof(psmsg->timestamp))
@@ -3802,7 +3845,12 @@ int SecureMsgDecrypt(bool fTestOnly, std::string &address, uint8_t *pHeader, uin
         || nBytes != 32)
         fHmacOk = false;
 
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
     HMAC_CTX_free(ctx);
+#else
+    HMAC_CTX_cleanup(ctx);
+    delete ctx;
+#endif
 
     if (!fHmacOk)
     {
