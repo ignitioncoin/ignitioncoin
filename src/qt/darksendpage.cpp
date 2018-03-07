@@ -46,11 +46,11 @@ DarksendPage::DarksendPage(QWidget *parent) :
         {
             if (!fEnableDarksend)
             {
-                ui->toggleDarksend->setText(tr("Start Darksend Mixing"));
+                ui->toggleDarksend->setText(tr("Start Mixing"));
             }
             else
             {
-                ui->toggleDarksend->setText(tr("Stop Darksend Mixing"));
+                ui->toggleDarksend->setText(tr("Stop Mixing"));
             }
             timer = new QTimer(this);
             connect(timer, SIGNAL(timeout()), this, SLOT(darkSendStatus()));
@@ -62,9 +62,9 @@ DarksendPage::DarksendPage(QWidget *parent) :
     // start with displaying the "out of sync" warnings
     showOutOfSyncWarning(true);
 
-    //connect(ui->darksendAuto, SIGNAL(clicked()), this, SLOT(darksendAuto()));
-    //connect(ui->darksendReset, SIGNAL(clicked()), this, SLOT(darksendReset()));
-    //connect(ui->toggleDarksend, SIGNAL(clicked()), this, SLOT(toggleDarksend()));
+    connect(ui->darksendAuto, SIGNAL(clicked()), this, SLOT(darksendAuto()));
+    connect(ui->darksendReset, SIGNAL(clicked()), this, SLOT(darksendReset()));
+    connect(ui->toggleDarksend, SIGNAL(clicked()), this, SLOT(toggleDarksend()));
 }
 
 DarksendPage::~DarksendPage()
@@ -94,11 +94,15 @@ void DarksendPage::darkSendStatus()
             updateDarksendProgress();
 
             ui->darksendEnabled->setText(tr("Disabled"));
-            ui->darksendStatus->setText("");
-            ui->toggleDarksend->setText(tr("Start Darksend Mixing"));
+            //ui->darksendStatus->setText("");
+            ui->toggleDarksend->setText(tr("Start Mixing"));
         }
 
         return;
+    }
+    else
+    {
+        ui->darksendEnabled->setText(tr("Enabled"));
     }
 
     // check darksend status and unlock if needed
@@ -115,11 +119,13 @@ void DarksendPage::darkSendStatus()
     QString strStatus = QString(darkSendPool.GetStatus().c_str());
 
     QString s = tr("Last Darksend message:\n") + strStatus;
+    QString sMessageLog = tr(" - ") + strStatus + tr("\n") + ui->messageLog->toPlainText();
 
-    if(s != ui->darksendStatus->text())
-        LogPrintf("Last Darksend message: %s\n", strStatus.toStdString());
+    //if(s != ui->darksendStatus->text())
+        //LogPrintf("Last Darksend message: %s\n", strStatus.toStdString());
 
-    ui->darksendStatus->setText(s);
+    //ui->darksendStatus->setText(s);
+    ui->messageLog->setText(sMessageLog);
 
     if(darkSendPool.sessionDenom == 0){
         ui->labelSubmittedDenom->setText(tr("N/A"));
@@ -133,12 +139,11 @@ void DarksendPage::darkSendStatus()
     // Get DarkSend Denomination Status
 }
 
-/*
-void OverviewPage::darksendAuto(){
+void DarksendPage::darksendAuto(){
     darkSendPool.DoAutomaticDenominating();
 }
 
-void OverviewPage::darksendReset(){
+void DarksendPage::darksendReset(){
     darkSendPool.Reset();
     darkSendStatus();
 
@@ -146,9 +151,7 @@ void OverviewPage::darksendReset(){
         tr("Darksend was successfully reset."),
         QMessageBox::Ok, QMessageBox::Ok);
 }
-*/
 
-/*
 void DarksendPage::toggleDarksend()
 {
     QSettings settings;
@@ -198,12 +201,12 @@ void DarksendPage::toggleDarksend()
 
     if (!fEnableDarksend)
     {
-        ui->toggleDarksend->setText(tr("Start Darksend Mixing"));
+        ui->toggleDarksend->setText(tr("Start Mixing"));
         darkSendPool.UnlockCoins();
     } 
     else 
     {
-        ui->toggleDarksend->setText(tr("Stop Darksend Mixing"));
+        ui->toggleDarksend->setText(tr("Stop Mixing"));
 
         // show darksend configuration if client has defaults set 
 
@@ -216,7 +219,7 @@ void DarksendPage::toggleDarksend()
 
     }
 }
-*/
+
 
 void DarksendPage::setWalletModel(WalletModel *model)
 {
@@ -230,9 +233,9 @@ void DarksendPage::setWalletModel(WalletModel *model)
 
         connect(model->getOptionsModel(), SIGNAL(displayUnitChanged(int)), this, SLOT(updateDisplayUnit()));
 
-        connect(ui->darksendAuto, SIGNAL(clicked()), this, SLOT(darksendAuto()));
-        connect(ui->darksendReset, SIGNAL(clicked()), this, SLOT(darksendReset()));
-        connect(ui->toggleDarksend, SIGNAL(clicked()), this, SLOT(toggleDarksend()));
+        //connect(ui->darksendAuto, SIGNAL(clicked()), this, SLOT(darksendAuto()));
+        //connect(ui->darksendReset, SIGNAL(clicked()), this, SLOT(darksendReset()));
+        //connect(ui->toggleDarksend, SIGNAL(clicked()), this, SLOT(toggleDarksend()));
     }
 
     // update the display unit, to not use the default ("BTC")
@@ -263,7 +266,7 @@ void DarksendPage::updateDarksendProgress()
         ui->darksendProgress->setValue(0);
         ui->darksendProgress->setToolTip(tr("No inputs detected"));
         // when balance is zero just show info from settings
-        strAnonymizeHarvestAmount = strAnonymizeHarvestAmount.remove(strAnonymizeHarvestAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
+        //strAnonymizeHarvestAmount = strAnonymizeHarvestAmount.remove(strAnonymizeHarvestAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
         strAmountAndRounds = strAnonymizeHarvestAmount + " / " + tr("%n Rounds", "", nDarksendRounds);
 
         ui->labelAmountRounds->setToolTip(tr("No inputs detected"));
@@ -299,7 +302,7 @@ void DarksendPage::updateDarksendProgress()
     if(nMaxToAnonymize >= nAnonymizeHarvestAmount * COIN) {
         ui->labelAmountRounds->setToolTip(tr("Found enough compatible inputs to anonymize %1")
                                           .arg(strAnonymizeHarvestAmount));
-        strAnonymizeHarvestAmount = strAnonymizeHarvestAmount.remove(strAnonymizeHarvestAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
+        //strAnonymizeHarvestAmount = strAnonymizeHarvestAmount.remove(strAnonymizeHarvestAmount.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
         strAmountAndRounds = strAnonymizeHarvestAmount + " / " + tr("%n Rounds", "", nDarksendRounds);
     } else {
         QString strMaxToAnonymize = BitcoinUnits::formatHtmlWithUnit(nDisplayUnit, nMaxToAnonymize, false, BitcoinUnits::separatorAlways);
@@ -307,7 +310,7 @@ void DarksendPage::updateDarksendProgress()
                                              "will anonymize <span style='color:red;'>%2</span> instead")
                                           .arg(strAnonymizeHarvestAmount)
                                           .arg(strMaxToAnonymize));
-        strMaxToAnonymize = strMaxToAnonymize.remove(strMaxToAnonymize.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
+        //strMaxToAnonymize = strMaxToAnonymize.remove(strMaxToAnonymize.indexOf("."), BitcoinUnits::decimals(nDisplayUnit) + 1);
         strAmountAndRounds = "<span style='color:red;'>" +
                 QString(BitcoinUnits::factor(nDisplayUnit) == 1 ? "" : "~") + strMaxToAnonymize +
                 " / " + tr("%n Rounds", "", nDarksendRounds) + "</span>";
@@ -357,4 +360,8 @@ void DarksendPage::updateDarksendProgress()
             .arg(progress).arg(denomPart).arg(anonNormPart).arg(anonFullPart)
             .arg(nAverageAnonymizedRounds);
     ui->darksendProgress->setToolTip(strToolPip);
+
+    float denomBalance = this->walletModel->getDenominatedBalance() / COIN;
+    QString strDenomBalance = QString().setNum(denomBalance, 'g', 4) + " IC";
+    ui->denominatedBalanceValue->setText(strDenomBalance);
 }

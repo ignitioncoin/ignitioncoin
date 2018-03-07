@@ -37,9 +37,9 @@ private:
     WalletModel *walletModel;
 
 private slots:
-    //void toggleDarksend();
-    //void darksendAuto();
-    //void darksendReset();
+    void toggleDarksend();
+    void darksendAuto();
+    void darksendReset();
 
 };
 
