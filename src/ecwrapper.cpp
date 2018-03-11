@@ -231,6 +231,8 @@ bool CECKey::Sign(const uint256 &hash, std::vector<unsigned char>& vchSig) {
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
         ECDSA_SIG_set0(sig, sig_r_new, sig_s_new);
 #else
+        BN_clear_free(sig->r);
+        BN_clear_free(sig->s);
         sig->r = sig_r_new;
         sig->s = sig_s_new;
 #endif
@@ -307,6 +309,8 @@ bool CECKey::Recover(const uint256 &hash, const unsigned char *p64, int rec)
 #if OPENSSL_VERSION_NUMBER >= 0x10100000L
     ECDSA_SIG_set0(sig, sig_r, sig_s);
 #else
+    BN_clear_free(sig->r);
+    BN_clear_free(sig->s);
     sig->r = sig_r;
     sig->s = sig_s;
 #endif
