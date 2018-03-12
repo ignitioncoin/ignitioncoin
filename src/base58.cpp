@@ -47,7 +47,7 @@ bool DecodeBase58(const char* psz, std::vector<unsigned char>& vchRet) {
             break;
         }
         bnChar.setulong(p1 - pszBase58);
-        if (!BN_mul(&bn, &bn, &bn58, pctx))
+        if (!BN_mul(bn.to_bignum(), bn.to_bignum(), bn58.to_bignum(), pctx))
             throw bignum_error("DecodeBase58 : BN_mul failed");
         bn += bnChar;
     }
