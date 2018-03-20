@@ -317,7 +317,7 @@ void BitcoinGUI::createActions()
     masternodeManagerAction->setCheckable(true);
     tabGroup->addAction(masternodeManagerAction);
 
-    messageAction = new QAction(QIcon(":/icons/edit"), tr("&Messages"), this);
+    messageAction = new QAction(QIcon(":/icons/messages"), tr("&Messages"), this);
     messageAction->setToolTip(tr("View and Send Encrypted messages"));
     messageAction->setCheckable(true);
     tabGroup->addAction(messageAction);
@@ -453,9 +453,9 @@ void BitcoinGUI::createToolBars()
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
     toolbar->setObjectName("tabs");
     toolbar->setStyleSheet("QToolButton { color: #000000; font-size: 14px; font-family: Georgia,Times,Times New Roman,serif; font-weight: 400; font-variant: small-caps; padding: 3px; border: none;}"
-                           "QToolButton:hover { color: #ffffff; background-color: #3489ba; border: none; padding-top: 3px; padding-bottom: 3px; }"
-                           "QToolButton:checked { color: #ffffff; background-color: #2854a0; border: none; padding-top: 3px; padding-bottom: 3px; }"
-                           "QToolButton:pressed { color: #ffffff; background-color: #1a42af; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:hover { color: #ffffff; background-color: #E3C54D; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:checked { color: #ffffff; background-color: #D1B441; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:pressed { color: #ffffff; background-color: #AB953E; border: none; padding-top: 3px; padding-bottom: 3px; }"
                            "#tabs { color: #000000; background-color: #ffffff; border: none; padding-top: 0px; padding-bottom: 0px; }");
 
     QLabel* header = new QLabel();

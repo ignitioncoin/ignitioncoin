@@ -21,7 +21,7 @@
 
 #define DECORATION_SIZE 64
 #define ICON_OFFSET 16
-#define NUM_ITEMS 6
+#define NUM_ITEMS 8
 
 class TxViewDelegate : public QAbstractItemDelegate
 {
@@ -127,7 +127,7 @@ OverviewPage::OverviewPage(QWidget *parent) :
     // Recent transactions
     ui->listTransactions->setItemDelegate(txdelegate);
     ui->listTransactions->setIconSize(QSize(DECORATION_SIZE, DECORATION_SIZE));
-    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE + 2));
+    ui->listTransactions->setMinimumHeight(NUM_ITEMS * (DECORATION_SIZE /*+ 2*/));
     ui->listTransactions->setAttribute(Qt::WA_MacShowFocusRect, false);
     ui->listTransactions->setMinimumWidth(300);
 

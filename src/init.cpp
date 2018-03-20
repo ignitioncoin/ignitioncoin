@@ -292,7 +292,7 @@ strUsage += "\n" + _("Masternode options:") + "\n";
     strUsage += "\n" + _("Darksend options:") + "\n";
     strUsage += "  -enabledarksend=<n>          " + _("Enable use of automated darksend for funds stored in this wallet (0-1, default: 0)") + "\n";
     strUsage += "  -darksendrounds=<n>          " + _("Use N separate masternodes to anonymize funds  (2-8, default: 2)") + "\n";
-    strUsage += "  -anonymizeharvestamount=<n> " + _("Keep N Ignition anonymized (default: 0)") + "\n";
+    strUsage += "  -anonymizeignitionamount=<n> " + _("Keep N Ignition anonymized (default: 0)") + "\n";
     strUsage += "  -liquidityprovider=<n>       " + _("Provide liquidity to Darksend by infrequently mixing coins on a continual basis (0-100, default: 0, 1=very frequent, high fees, 100=very infrequent, low fees)") + "\n";
 
     strUsage += "\n" + _("InstantX options:") + "\n";
@@ -1047,9 +1047,9 @@ bool AppInit2(boost::thread_group& threadGroup)
         nDarksendRounds = 99999;
     }
 
-    nAnonymizeHarvestAmount = GetArg("-anonymizeharvestamount", 0);
-    if(nAnonymizeHarvestAmount > 999999) nAnonymizeHarvestAmount = 999999;
-    if(nAnonymizeHarvestAmount < 2) nAnonymizeHarvestAmount = 2;
+    nAnonymizeIgnitionAmount = GetArg("-anonymizeignitionamount", 0);
+    if(nAnonymizeIgnitionAmount > 999999) nAnonymizeIgnitionAmount = 999999;
+    if(nAnonymizeIgnitionAmount < 2) nAnonymizeIgnitionAmount = 2;
 
     fEnableInstantX = GetBoolArg("-enableinstantx", fEnableInstantX);
     nInstantXDepth = GetArg("-instantxdepth", nInstantXDepth);
@@ -1064,7 +1064,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     LogPrintf("fLiteMode %d\n", fLiteMode);
     LogPrintf("nInstantXDepth %d\n", nInstantXDepth);
     LogPrintf("Darksend rounds %d\n", nDarksendRounds);
-    LogPrintf("Anonymize Ignition Amount %d\n", nAnonymizeHarvestAmount);
+    LogPrintf("Anonymize Ignition Amount %d\n", nAnonymizeIgnitionAmount);
 
     /* Denominations
        A note about convertability. Within Darksend pools, each denomination

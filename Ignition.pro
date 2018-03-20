@@ -1,6 +1,6 @@
 TEMPLATE = app
 TARGET = Ignition-qt
-VERSION = 1.0.0.2
+VERSION = 1.0.0.3
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
 QT += network printsupport
 DEFINES += ENABLE_WALLET
