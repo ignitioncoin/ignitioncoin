@@ -118,6 +118,9 @@ private:
     QAction *blockAction;
     QAction *TradingAction;
     QAction *showBackupsAction;
+    QAction *editConfigurationAction;
+    QAction *editConfigurationExtAction;
+    QAction *openDataDirAction;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -236,6 +239,12 @@ private slots:
 
     /** Show progress dialog e.g. for verifychain */
     void showProgress(const QString &title, int nProgress);
+
+    /** Edit the Ignition.conf file */
+    void editConfiguration();
+    void editConfigurationExt();
+    /** Open the data directory */
+    void openDataDir();
 };
 
 #endif // BITCOINGUI_H
