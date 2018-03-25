@@ -143,7 +143,7 @@ void OptionsDialog::setMapper()
 
     /* Darksend Rounds */
     mapper->addMapping(ui->darksendRounds, OptionsModel::DarksendRounds);
-    mapper->addMapping(ui->anonymizeHarvest, OptionsModel::AnonymizeHarvestAmount);
+    mapper->addMapping(ui->anonymizeIgnition, OptionsModel::AnonymizeIgnitionAmount);
 }
 
 void OptionsDialog::enableApplyButton()

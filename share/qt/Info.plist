@@ -20,7 +20,7 @@
             <key>CFBundleTypeRole</key>
             <string>Editor</string>
             <key>CFBundleURLName</key>
-            <string>co.Ignition.HarvestPayment</string>
+            <string>co.Ignition.IgnitionPayment</string>
             <key>CFBundleURLSchemes</key>
             <array>
               <string>Ignition</string>

@@ -4,7 +4,7 @@
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
         <source>About Ignition</source>
-        <translation>O Harveste</translation>
+        <translation>O Ignitione</translation>
     </message>
     <message>
         <location line="+39"/>

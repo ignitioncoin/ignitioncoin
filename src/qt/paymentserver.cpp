@@ -32,7 +32,7 @@ const QString BITCOIN_IPC_PREFIX("Ignition:");
 //
 static QString ipcServerName()
 {
-    QString name("HarvestQt");
+    QString name("IgnitionQt");
 
     // Append a simple hash of the datadir
     // Note that GetDataDir(true) returns a different path

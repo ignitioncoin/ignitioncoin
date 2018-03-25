@@ -66,13 +66,13 @@ void OptionsModel::Init()
     if (!settings.contains("nDarksendRounds"))
         settings.setValue("nDarksendRounds", 2);
     nDarksendRounds = settings.value("nDarksendRounds").toLongLong();
-    if (!settings.contains("nAnonymizeHarvestAmount"))
-        settings.setValue("nAnonymizeHarvestAmount", 1000);
-    nAnonymizeHarvestAmount = settings.value("nAnonymizeHarvestAmount").toLongLong();
+    if (!settings.contains("nAnonymizeIgnitionAmount"))
+        settings.setValue("nAnonymizeIgnitionAmount", 1000);
+    nAnonymizeIgnitionAmount = settings.value("nAnonymizeIgnitionAmount").toLongLong();
     if (settings.contains("nDarksendRounds"))
         SoftSetArg("-darksendrounds", settings.value("nDarksendRounds").toString().toStdString());
-    if (settings.contains("nAnonymizeHarvestAmount"))
-        SoftSetArg("-anonymizetraveamount", settings.value("nAnonymizeHarvestAmount").toString().toStdString());
+    if (settings.contains("nAnonymizeIgnitionAmount"))
+        SoftSetArg("-anonymizetraveamount", settings.value("nAnonymizeIgnitionAmount").toString().toStdString());
 
 
 
@@ -206,8 +206,8 @@ QVariant OptionsModel::data(const QModelIndex & index, int role) const
             return fCoinControlFeatures;
         case DarksendRounds:
             return QVariant(nDarksendRounds);
-        case AnonymizeHarvestAmount:
-            return QVariant(nAnonymizeHarvestAmount);
+        case AnonymizeIgnitionAmount:
+            return QVariant(nAnonymizeIgnitionAmount);
         case UseBlackTheme:
             return QVariant(fUseBlackTheme);
         default:
@@ -318,10 +318,10 @@ bool OptionsModel::setData(const QModelIndex & index, const QVariant & value, in
             settings.setValue("nDarksendRounds", nDarksendRounds);
             emit darksendRoundsChanged(nDarksendRounds);
             break;
-        case AnonymizeHarvestAmount:
-            nAnonymizeHarvestAmount = value.toInt();
-            settings.setValue("nAnonymizeHarvestAmount", nAnonymizeHarvestAmount);
-            emit AnonymizeHarvestAmountChanged(nAnonymizeHarvestAmount);
+        case AnonymizeIgnitionAmount:
+            nAnonymizeIgnitionAmount = value.toInt();
+            settings.setValue("nAnonymizeIgnitionAmount", nAnonymizeIgnitionAmount);
+            emit AnonymizeIgnitionAmountChanged(nAnonymizeIgnitionAmount);
             break;
         default:
             break;

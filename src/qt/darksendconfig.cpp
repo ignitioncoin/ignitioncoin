@@ -84,8 +84,8 @@ void DarksendConfig::configure(bool enabled, int coins, int rounds) {
     QSettings settings;
 
     settings.setValue("nDarksendRounds", rounds);
-    settings.setValue("nAnonymizeHarvestAmount", coins);
+    settings.setValue("nAnonymizeIgnitionAmount", coins);
 
     nDarksendRounds = rounds;
-    nAnonymizeHarvestAmount = coins;
+    nAnonymizeIgnitionAmount = coins;
 }

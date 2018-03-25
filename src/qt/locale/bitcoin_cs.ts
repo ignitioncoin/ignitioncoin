@@ -4,12 +4,12 @@
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
         <source>About Ignition</source>
-        <translation>O Harvestu</translation>
+        <translation>O Ignitionu</translation>
     </message>
     <message>
         <location line="+39"/>
         <source>&lt;b&gt;Ignition&lt;/b&gt; version</source>
-        <translation>Verze &lt;b&gt;Harvestu&lt;/b&gt; </translation>
+        <translation>Verze &lt;b&gt;Ignitionu&lt;/b&gt; </translation>
     </message>
     <message>
         <location line="+41"/>
@@ -353,7 +353,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+4"/>
         <source>Show information about Ignition</source>
-        <translation>Zobraz informace a Harvestu</translation>
+        <translation>Zobraz informace a Ignitionu</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -449,7 +449,7 @@ This product includes software developed by the OpenSSL Project for use in the O
     <message>
         <location line="+193"/>
         <source>&amp;About Ignition</source>
-        <translation>&amp;O Harvestu</translation>
+        <translation>&amp;O Ignitionu</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -1250,7 +1250,7 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
     <message>
         <location line="+13"/>
         <source>The user interface language can be set here. This setting will take effect after restarting Ignition.</source>
-        <translation>Zde můžeš nastavit jazyk uživatelského rozhraní. Nastavení se projeví až po restartu Harvestu.</translation>
+        <translation>Zde můžeš nastavit jazyk uživatelského rozhraní. Nastavení se projeví až po restartu Ignitionu.</translation>
     </message>
     <message>
         <location line="+11"/>
@@ -1317,7 +1317,7 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
         <location line="-9"/>
         <location line="+9"/>
         <source>This setting will take effect after restarting Ignition.</source>
-        <translation>Nastavení se projeví až po restartu Harvestu.</translation>
+        <translation>Nastavení se projeví až po restartu Ignitionu.</translation>
     </message>
     <message>
         <location line="+29"/>
@@ -1603,7 +1603,7 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
     <message>
         <location line="+25"/>
         <source>Ignition Core</source>
-        <translation>Jádro Harvestu</translation>
+        <translation>Jádro Ignitionu</translation>
     </message>
     <message>
         <location line="+256"/>
@@ -1613,7 +1613,7 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
     <message>
         <location line="+7"/>
         <source>Open the Ignition debug log file from the current data directory. This can take a few seconds for large log files.</source>
-        <translation>Otevři logovací soubor Harvestu z aktuálního datového adresáře. Pro velké logy to může trvat několik sekund.</translation>
+        <translation>Otevři logovací soubor Ignitionu z aktuálního datového adresáře. Pro velké logy to může trvat několik sekund.</translation>
     </message>
     <message>
         <location line="+102"/>
@@ -2684,7 +2684,7 @@ To znamená, že je potřebný poplatek ve výši nejméně %2.</translation>
     <message>
         <location filename="../bitcoinstrings.cpp" line="+173"/>
         <source>Ignition version</source>
-        <translation>Verze Harvestu</translation>
+        <translation>Verze Ignitionu</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -3221,7 +3221,7 @@ for example: alertnotify=echo %%s | mail -s &quot;Ignition Alert&quot; admin@foo
     <message>
         <location line="+4"/>
         <source>Error loading wallet.dat: Wallet requires newer version of Ignition</source>
-        <translation>Chyba načítání wallet.dat: Peněženka vyžaduje novější verzi Harvestu</translation>
+        <translation>Chyba načítání wallet.dat: Peněženka vyžaduje novější verzi Ignitionu</translation>
     </message>
     <message>
         <location line="+1"/>
