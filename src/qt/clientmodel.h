@@ -53,6 +53,10 @@ public:
     QString clientName() const;
     QString formatClientStartupTime() const;
 
+    //! Get and set the content of the Ignition.conf file
+    QString getConfigFileContent() const;
+    void setConfigFileContent(const QString &content);
+
 private:
     OptionsModel *optionsModel;
     PeerTableModel *peerTableModel;

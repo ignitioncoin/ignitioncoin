@@ -118,8 +118,8 @@ private:
     QAction *blockAction;
     QAction *TradingAction;
     QAction *showBackupsAction;
-    QAction *editConfigurationAction;
-    QAction *editConfigurationExtAction;
+    QAction *editConfigAction;
+    QAction *editConfigExtAction;
     QAction *openDataDirAction;
 
     QSystemTrayIcon *trayIcon;
@@ -241,8 +241,8 @@ private slots:
     void showProgress(const QString &title, int nProgress);
 
     /** Edit the Ignition.conf file */
-    void editConfiguration();
-    void editConfigurationExt();
+    void editConfig();
+    void editConfigExt();
     /** Open the data directory */
     void openDataDir();
 };
