@@ -237,7 +237,7 @@ public:
     bool LoadWatchOnly(const CScript &dest);
 
     bool Lock();
-    bool Unlock(const SecureString& strWalletPassphrase, bool anonimizeOnly = false);
+    bool Unlock(const SecureString& strWalletPassphrase, bool anonymizeOnly = false, bool stakingOnly = false);
     bool ChangeWalletPassphrase(const SecureString& strOldWalletPassphrase, const SecureString& strNewWalletPassphrase);
     bool EncryptWallet(const SecureString& strWalletPassphrase);
 

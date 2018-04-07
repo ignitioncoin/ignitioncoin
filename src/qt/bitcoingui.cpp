@@ -23,6 +23,7 @@
 #include "addresstablemodel.h"
 #include "transactionview.h"
 #include "overviewpage.h"
+#include "darksendpage.h"
 #include "bitcoinunits.h"
 #include "guiconstants.h"
 #include "askpassphrasedialog.h"
@@ -123,7 +124,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
 
     // Create tabs
     overviewPage = new OverviewPage();
-
+    darksendPage = new DarksendPage();
     transactionsPage = new QWidget(this);
     QVBoxLayout *vbox = new QVBoxLayout();
     transactionView = new TransactionView(this);
@@ -149,6 +150,7 @@ BitcoinGUI::BitcoinGUI(QWidget *parent):
     centralStackedWidget = new QStackedWidget(this);
     centralStackedWidget->setContentsMargins(0, 0, 0, 0);
     centralStackedWidget->addWidget(overviewPage);
+    centralStackedWidget->addWidget(darksendPage);
     centralStackedWidget->addWidget(transactionsPage);
     centralStackedWidget->addWidget(addressBookPage);
     centralStackedWidget->addWidget(receiveCoinsPage);
@@ -281,6 +283,11 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
+    darksendAction = new QAction(QIcon(":/icons/res/icons/darksend.png"), tr("&Darksend"), this);
+    darksendAction->setToolTip(tr("Mix coins anonymously"));
+    darksendAction->setCheckable(true);
+    tabGroup->addAction(darksendAction);
+
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setToolTip(tr("Show the list of addresses for receiving payments"));
     receiveCoinsAction->setCheckable(true);
@@ -310,7 +317,7 @@ void BitcoinGUI::createActions()
     masternodeManagerAction->setCheckable(true);
     tabGroup->addAction(masternodeManagerAction);
 
-    messageAction = new QAction(QIcon(":/icons/edit"), tr("&Messages"), this);
+    messageAction = new QAction(QIcon(":/icons/messages"), tr("&Messages"), this);
     messageAction->setToolTip(tr("View and Send Encrypted messages"));
     messageAction->setCheckable(true);
     tabGroup->addAction(messageAction);
@@ -335,6 +342,8 @@ void BitcoinGUI::createActions()
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(gotoDarksendPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -444,9 +453,9 @@ void BitcoinGUI::createToolBars()
     toolbar->setContextMenuPolicy(Qt::PreventContextMenu);
     toolbar->setObjectName("tabs");
     toolbar->setStyleSheet("QToolButton { color: #000000; font-size: 14px; font-family: Georgia,Times,Times New Roman,serif; font-weight: 400; font-variant: small-caps; padding: 3px; border: none;}"
-                           "QToolButton:hover { color: #ffffff; background-color: #3489ba; border: none; padding-top: 3px; padding-bottom: 3px; }"
-                           "QToolButton:checked { color: #ffffff; background-color: #2854a0; border: none; padding-top: 3px; padding-bottom: 3px; }"
-                           "QToolButton:pressed { color: #ffffff; background-color: #1a42af; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:hover { color: #ffffff; background-color: #E3C54D; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:checked { color: #ffffff; background-color: #D1B441; border: none; padding-top: 3px; padding-bottom: 3px; }"
+                           "QToolButton:pressed { color: #ffffff; background-color: #AB953E; border: none; padding-top: 3px; padding-bottom: 3px; }"
                            "#tabs { color: #000000; background-color: #ffffff; border: none; padding-top: 0px; padding-bottom: 0px; }");
 
     QLabel* header = new QLabel();
@@ -459,6 +468,7 @@ void BitcoinGUI::createToolBars()
 
     //QMenu *toolbarMenu = new QMenu();
     toolbar->addAction(overviewAction);
+    toolbar->addAction(darksendAction);
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(sendCoinsAction);
     toolbar->addAction(historyAction);
@@ -553,6 +563,7 @@ void BitcoinGUI::setWalletModel(WalletModel *walletModel)
         // Put transaction list in tabs
         transactionView->setModel(walletModel);
         overviewPage->setWalletModel(walletModel);
+        darksendPage->setWalletModel(walletModel);
         addressBookPage->setModel(walletModel->getAddressTableModel());
         receiveCoinsPage->setModel(walletModel->getAddressTableModel());
         sendCoinsPage->setModel(walletModel);
@@ -688,6 +699,7 @@ void BitcoinGUI::setNumBlocks(int count)
         labelBlocksIcon->setPixmap(QIcon(fUseBlackTheme ? ":/icons/black/synced" : ":/icons/synced").pixmap(STATUSBAR_ICONSIZE, STATUSBAR_ICONSIZE));
 
         overviewPage->showOutOfSyncWarning(false);
+        darksendPage->showOutOfSyncWarning(false);
 
         progressBarLabel->setVisible(false);
         progressBar->setVisible(false);
@@ -953,6 +965,15 @@ void BitcoinGUI::gotoOverviewPage()
 {
     overviewAction->setChecked(true);
     centralStackedWidget->setCurrentWidget(overviewPage);
+
+    exportAction->setEnabled(false);
+    disconnect(exportAction, SIGNAL(triggered()), 0, 0);
+}
+
+void BitcoinGUI::gotoDarksendPage()
+{
+    darksendAction->setChecked(true);
+    centralStackedWidget->setCurrentWidget(darksendPage);
 
     exportAction->setEnabled(false);
     disconnect(exportAction, SIGNAL(triggered()), 0, 0);

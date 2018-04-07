@@ -121,7 +121,7 @@ extern bool fLiteMode;
 extern bool fEnableInstantX;
 extern int nInstantXDepth;
 extern int nDarksendRounds;
-extern int nAnonymizeHarvestAmount;
+extern int nAnonymizeIgnitionAmount;
 extern int nLiquidityProvider;
 extern bool fEnableDarksend;
 extern int64_t enforceMasternodePaymentsTime;

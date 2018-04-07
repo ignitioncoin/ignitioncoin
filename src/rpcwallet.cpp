@@ -105,7 +105,7 @@ CScript _createmultisig(const Array& params)
         const std::string& ks = keys[i].get_str();
 #ifdef ENABLE_WALLET
         // Case 1: Bitcoin address and we have full public key:
-        CHarvestcoinAddress address(ks);
+        CIgnitioncoinAddress address(ks);
         if (pwalletMain && address.IsValid())
         {
             CKeyID keyID;
@@ -175,7 +175,7 @@ Value createmultisig(const Array& params, bool fHelp)
     // Construct using pay-to-script-hash:
     CScript inner = _createmultisig(params);
     CScriptID innerID = inner.GetID();
-    CHarvestcoinAddress address(innerID);
+    CIgnitioncoinAddress address(innerID);
 
     Object result;
     result.push_back(Pair("address", address.ToString()));
@@ -246,11 +246,11 @@ Value getnewaddress(const Array& params, bool fHelp)
 
     pwalletMain->SetAddressBookName(keyID, strAccount);
 
-    return CHarvestcoinAddress(keyID).ToString();
+    return CIgnitioncoinAddress(keyID).ToString();
 }
 
 
-CHarvestcoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
+CIgnitioncoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
 {
     CWalletDB walletdb(pwalletMain->strWalletFile);
 
@@ -285,7 +285,7 @@ CHarvestcoinAddress GetAccountAddress(string strAccount, bool bForceNew=false)
         walletdb.WriteAccount(strAccount, account);
     }
 
-    return CHarvestcoinAddress(account.vchPubKey.GetID());
+    return CIgnitioncoinAddress(account.vchPubKey.GetID());
 }
 
 Value getaccountaddress(const Array& params, bool fHelp)
@@ -331,7 +331,7 @@ Value setaccount(const Array& params, bool fHelp)
             + HelpExampleRpc("setaccount", "\"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\", \"tabby\"")
         );
 
-    CHarvestcoinAddress address(params[0].get_str());
+    CIgnitioncoinAddress address(params[0].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
 
@@ -374,7 +374,7 @@ Value getaccount(const Array& params, bool fHelp)
             + HelpExampleRpc("getaccount", "\"TfFxcTN7BJQp88cPJYRvFpUAAKefTib9uh\"")
         );
 
-    CHarvestcoinAddress address(params[0].get_str());
+    CIgnitioncoinAddress address(params[0].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
 
@@ -408,9 +408,9 @@ Value getaddressesbyaccount(const Array& params, bool fHelp)
 
     // Find all addresses that have the given account
     Array ret;
-    BOOST_FOREACH(const PAIRTYPE(CHarvestcoinAddress, string)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CIgnitioncoinAddress, string)& item, pwalletMain->mapAddressBook)
     {
-        const CHarvestcoinAddress& address = item.first;
+        const CIgnitioncoinAddress& address = item.first;
         const string& strName = item.second;
         if (strName == strAccount)
             ret.push_back(address.ToString());
@@ -447,7 +447,7 @@ Value sendtoaddress(const Array& params, bool fHelp)
         && IsStealthAddress(params[0].get_str()))
         return sendtostealthaddress(params, false);
 
-    CHarvestcoinAddress address(params[0].get_str());
+    CIgnitioncoinAddress address(params[0].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
 
@@ -508,12 +508,12 @@ Value listaddressgroupings(const Array& params, bool fHelp)
         BOOST_FOREACH(CTxDestination address, grouping)
         {
             Array addressInfo;
-            addressInfo.push_back(CHarvestcoinAddress(address).ToString());
+            addressInfo.push_back(CIgnitioncoinAddress(address).ToString());
             addressInfo.push_back(ValueFromAmount(balances[address]));
             {
                 LOCK(pwalletMain->cs_wallet);
-                if (pwalletMain->mapAddressBook.find(CHarvestcoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
-                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CHarvestcoinAddress(address).Get())->second);
+                if (pwalletMain->mapAddressBook.find(CIgnitioncoinAddress(address).Get()) != pwalletMain->mapAddressBook.end())
+                    addressInfo.push_back(pwalletMain->mapAddressBook.find(CIgnitioncoinAddress(address).Get())->second);
             }
             jsonGrouping.push_back(addressInfo);
         }
@@ -550,7 +550,7 @@ Value signmessage(const Array& params, bool fHelp)
     string strAddress = params[0].get_str();
     string strMessage = params[1].get_str();
 
-    CHarvestcoinAddress addr(strAddress);
+    CIgnitioncoinAddress addr(strAddress);
     if (!addr.IsValid())
         throw JSONRPCError(RPC_TYPE_ERROR, "Invalid address");
 
@@ -596,7 +596,7 @@ Value getreceivedbyaddress(const Array& params, bool fHelp)
        );
 
     // Bitcoin address
-    CHarvestcoinAddress address = CHarvestcoinAddress(params[0].get_str());
+    CIgnitioncoinAddress address = CIgnitioncoinAddress(params[0].get_str());
     CScript scriptPubKey;
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
@@ -902,7 +902,7 @@ Value sendfrom(const Array& params, bool fHelp)
     EnsureWalletIsUnlocked();
 
     string strAccount = AccountFromValue(params[0]);
-    CHarvestcoinAddress address(params[1].get_str());
+    CIgnitioncoinAddress address(params[1].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
     CAmount nAmount = AmountFromValue(params[2]);
@@ -979,13 +979,13 @@ Value sendmany(const Array& params, bool fHelp)
     if (params.size() > 3 && params[3].type() != null_type && !params[3].get_str().empty())
         wtx.mapValue["comment"] = params[3].get_str();
 
-    set<CHarvestcoinAddress> setAddress;
+    set<CIgnitioncoinAddress> setAddress;
     vector<pair<CScript, int64_t> > vecSend;
 
     int64_t totalAmount = 0;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CHarvestcoinAddress address(s.name_);
+        CIgnitioncoinAddress address(s.name_);
         if (!address.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Ignition address: ")+s.name_);
 
@@ -1080,7 +1080,7 @@ Value addmultisigaddress(const Array& params, bool fHelp)
         const std::string& ks = keys[i].get_str();
 
         // Case 1: Bitcoin address and we have full public key:
-        CHarvestcoinAddress address(ks);
+        CIgnitioncoinAddress address(ks);
         if (pwalletMain && address.IsValid())
         {
             CKeyID keyID;
@@ -1118,7 +1118,7 @@ Value addmultisigaddress(const Array& params, bool fHelp)
         throw runtime_error("AddCScript() failed");
 
     pwalletMain->SetAddressBookName(innerID, strAccount);
-    return CHarvestcoinAddress(innerID).ToString();
+    return CIgnitioncoinAddress(innerID).ToString();
 }
 
 Value addredeemscript(const Array& params, bool fHelp)
@@ -1143,7 +1143,7 @@ Value addredeemscript(const Array& params, bool fHelp)
         throw runtime_error("AddCScript() failed");
 
     pwalletMain->SetAddressBookName(innerID, strAccount);
-    return CHarvestcoinAddress(innerID).ToString();
+    return CIgnitioncoinAddress(innerID).ToString();
 }
 
 struct tallyitem
@@ -1180,7 +1180,7 @@ Value ListReceived(const Array& params, bool fByAccounts)
             filter = filter | ISMINE_WATCH_ONLY;
 
     // Tally
-    map<CHarvestcoinAddress, tallyitem> mapTally;
+    map<CIgnitioncoinAddress, tallyitem> mapTally;
     for (map<uint256, CWalletTx>::iterator it = pwalletMain->mapWallet.begin(); it != pwalletMain->mapWallet.end(); ++it)
     {
         const CWalletTx& wtx = (*it).second;
@@ -1216,11 +1216,11 @@ Value ListReceived(const Array& params, bool fByAccounts)
     // Reply
     Array ret;
     map<string, tallyitem> mapAccountTally;
-    BOOST_FOREACH(const PAIRTYPE(CHarvestcoinAddress, string)& item, pwalletMain->mapAddressBook)
+    BOOST_FOREACH(const PAIRTYPE(CIgnitioncoinAddress, string)& item, pwalletMain->mapAddressBook)
     {
-        const CHarvestcoinAddress& address = item.first;
+        const CIgnitioncoinAddress& address = item.first;
         const string& strAccount = item.second;
-        map<CHarvestcoinAddress, tallyitem>::iterator it = mapTally.find(address);
+        map<CIgnitioncoinAddress, tallyitem>::iterator it = mapTally.find(address);
         if (it == mapTally.end() && !fIncludeEmpty)
             continue;
 
@@ -1357,7 +1357,7 @@ Value listreceivedbyaccount(const Array& params, bool fHelp)
 
 static void MaybePushAddress(Object & entry, const CTxDestination &dest)
 {
-    CHarvestcoinAddress addr;
+    CIgnitioncoinAddress addr;
     if (addr.Set(dest))
         entry.push_back(Pair("address", addr.ToString()));
 }
@@ -1963,6 +1963,14 @@ Value walletpassphrase(const Array& params, bool fHelp)
     pwalletMain->TopUpKeyPool();
 
     int64_t nSleepTime = params[1].get_int64();
+    // If the timeout value is too large or negative, the conversion from nSleepTime to seconds
+    // results in a negative value and the wallet unlocking will fail.
+    if (nSleepTime > INT32_MAX || nSleepTime < 0)
+    {
+        pwalletMain->Lock();
+        throw JSONRPCError(RPC_INVALID_PARAMETER, "Error: The timeout value entered was incorrect.");
+    }
+
     LOCK(cs_nWalletUnlockTime);
     nWalletUnlockTime = GetTime() + nSleepTime;
     RPCRunLater("lockwallet", boost::bind(LockWallet, pwalletMain), nSleepTime);

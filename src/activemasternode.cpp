@@ -246,7 +246,7 @@ bool CActiveMasternode::Register(std::string strService, std::string strKeyMaste
         LogPrintf("CActiveMasternode::Register() - Error: %s\n", errorMessage.c_str());
         return false;
     }
-    CHarvestcoinAddress address;
+    CIgnitioncoinAddress address;
     if (strRewardAddress != "")
     {
         if(!address.SetString(strRewardAddress))
@@ -410,7 +410,7 @@ bool CActiveMasternode::GetVinFromOutput(COutput out, CTxIn& vin, CPubKey& pubke
 
 	CTxDestination address1;
     ExtractDestination(pubScript, address1);
-    CHarvestcoinAddress address2(address1);
+    CIgnitioncoinAddress address2(address1);
 
     CKeyID keyID;
     if (!address2.GetKeyID(keyID)) {
@@ -449,7 +449,7 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
 // get all possible outputs for running masternode for a specific pubkey
 vector<COutput> CActiveMasternode::SelectCoinsMasternodeForPubKey(std::string collateralAddress)
 {
-    CHarvestcoinAddress address(collateralAddress);
+    CIgnitioncoinAddress address(collateralAddress);
     CScript scriptPubKey;
     scriptPubKey.SetDestination(address.Get());
     vector<COutput> vCoins;

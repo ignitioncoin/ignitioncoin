@@ -98,17 +98,17 @@ public:
  * Script-hash-addresses have version 5 (or 196 testnet).
  * The data vector contains RIPEMD160(SHA256(cscript)), where cscript is the serialized redemption script.
  */
-class CHarvestcoinAddress : public CBase58Data {
+class CIgnitioncoinAddress : public CBase58Data {
 public:
     bool Set(const CKeyID &id);
     bool Set(const CScriptID &id);
     bool Set(const CTxDestination &dest);
     bool IsValid() const;
 
-    CHarvestcoinAddress() {}
-    CHarvestcoinAddress(const CTxDestination &dest) { Set(dest); }
-    CHarvestcoinAddress(const std::string& strAddress) { SetString(strAddress); }
-    CHarvestcoinAddress(const char* pszAddress) { SetString(pszAddress); }
+    CIgnitioncoinAddress() {}
+    CIgnitioncoinAddress(const CTxDestination &dest) { Set(dest); }
+    CIgnitioncoinAddress(const std::string& strAddress) { SetString(strAddress); }
+    CIgnitioncoinAddress(const char* pszAddress) { SetString(pszAddress); }
 
     CTxDestination Get() const;
     bool GetKeyID(CKeyID &keyID) const;
@@ -118,7 +118,7 @@ public:
 /**
  * A base58-encoded secret key
  */
-class CHarvestcoinSecret : public CBase58Data
+class CIgnitioncoinSecret : public CBase58Data
 {
 public:
     void SetKey(const CKey& vchSecret);
@@ -127,11 +127,11 @@ public:
     bool SetString(const char* pszSecret);
     bool SetString(const std::string& strSecret);
 
-    CHarvestcoinSecret(const CKey& vchSecret) { SetKey(vchSecret); }
-    CHarvestcoinSecret() {}
+    CIgnitioncoinSecret(const CKey& vchSecret) { SetKey(vchSecret); }
+    CIgnitioncoinSecret() {}
 };
 
-template<typename K, int Size, CChainParams::Base58Type Type> class CHarvestcoinExtKeyBase : public CBase58Data
+template<typename K, int Size, CChainParams::Base58Type Type> class CIgnitioncoinExtKeyBase : public CBase58Data
 {
 public:
     void SetKey(const K &key) {
@@ -146,15 +146,15 @@ public:
         return ret;
     }
 
-    CHarvestcoinExtKeyBase(const K &key) {
+    CIgnitioncoinExtKeyBase(const K &key) {
         SetKey(key);
     }
 
-    CHarvestcoinExtKeyBase() {}
+    CIgnitioncoinExtKeyBase() {}
 };
 
-typedef CHarvestcoinExtKeyBase<CExtKey, 74, CChainParams::EXT_SECRET_KEY> CHarvestcoinExtKey;
-typedef CHarvestcoinExtKeyBase<CExtPubKey, 74, CChainParams::EXT_PUBLIC_KEY> CHarvestcoinExtPubKey;
+typedef CIgnitioncoinExtKeyBase<CExtKey, 74, CChainParams::EXT_SECRET_KEY> CIgnitioncoinExtKey;
+typedef CIgnitioncoinExtKeyBase<CExtPubKey, 74, CChainParams::EXT_PUBLIC_KEY> CIgnitioncoinExtPubKey;
 
 /** base58-encoded Bitcoin addresses.
  * Public-key-hash-addresses have version 0 (or 111 testnet).

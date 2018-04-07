@@ -86,7 +86,7 @@ Value darksend(const Array& params, bool fHelp)
             "<amount> is type \"real\" and will be rounded to the nearest 0.1"
             + HelpRequiringPassphrase());
 
-    CHarvestcoinAddress address(params[0].get_str());
+    CIgnitioncoinAddress address(params[0].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Ignition address");
 
@@ -136,7 +136,7 @@ Value masternode(const Array& params, bool fHelp)
     if (fHelp  ||
         (strCommand != "count" && strCommand != "current" && strCommand != "debug" && strCommand != "genkey" && strCommand != "enforce" && strCommand != "list" && strCommand != "list-conf"
         	&& strCommand != "start" && strCommand != "start-alias" && strCommand != "start-many" && strCommand != "status" && strCommand != "stop" && strCommand != "stop-alias"
-                && strCommand != "stop-many" && strCommand != "winners" && strCommand != "connect" && strCommand != "outputs" && strCommand != "vote-many" && strCommand != "vote"))
+                && strCommand != "stop-many" /*&& strCommand != "winners"*/ && strCommand != "connect" && strCommand != "outputs" && strCommand != "vote-many" && strCommand != "vote"))
         throw runtime_error(
                 "masternode \"command\"... ( \"passphrase\" )\n"
                 "Set of commands to execute masternode related actions\n"
@@ -159,7 +159,7 @@ Value masternode(const Array& params, bool fHelp)
                 "  stop         - Stop masternode configured in Ignition.conf\n"
                 "  stop-alias   - Stop single masternode by assigned alias configured in masternode.conf\n"
                 "  stop-many    - Stop all masternodes configured in masternode.conf\n"
-                "  winners      - Print list of masternode winners\n"
+                //"  winners      - Print list of masternode winners\n"
                 "  vote-many    - Vote on a Ignition initiative\n"
                 "  vote         - Vote on a Ignition initiative\n"
                 );
@@ -508,7 +508,7 @@ Value masternode(const Array& params, bool fHelp)
             pubkey.SetDestination(winner->pubkey.GetID());
             CTxDestination address1;
             ExtractDestination(pubkey, address1);
-            CHarvestcoinAddress address2(address1);
+            CIgnitioncoinAddress address2(address1);
 
             obj.push_back(Pair("IP:port",       winner->addr.ToString().c_str()));
             obj.push_back(Pair("protocol",      (int64_t)winner->protocolVersion));
@@ -527,38 +527,39 @@ Value masternode(const Array& params, bool fHelp)
         CKey secret;
         secret.MakeNewKey(false);
 
-        return CHarvestcoinSecret(secret).ToString();
+        return CIgnitioncoinSecret(secret).ToString();
     }
 
-    if (strCommand == "winners")
-    {
-        Object obj;
-        std::string strMode = "addr";
-
-        if (params.size() >= 1) strMode = params[0].get_str();
-
-        for(int nHeight = pindexBest->nHeight-10; nHeight < pindexBest->nHeight+20; nHeight++)
-        {
-            CScript payee;
-            CTxIn vin;
-            if(masternodePayments.GetBlockPayee(nHeight, payee, vin)){
-                CTxDestination address1;
-                ExtractDestination(payee, address1);
-                CHarvestcoinAddress address2(address1);
-
-                if(strMode == "addr")
-                    obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       address2.ToString().c_str()));
-
-                if(strMode == "vin")
-                    obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       vin.ToString().c_str()));
-
-            } else {
-                obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       ""));
-            }
-        }
-
-        return obj;
-    }
+    // if (strCommand == "winners")
+    // {
+    //     Object obj;
+    //     std::string strMode = "addr";
+    //
+    //     if (params.size() >= 1) strMode = params[0].get_str();
+    //     obj.push_back(Pair("mode: ", strMode));
+    //
+    //     for(int nHeight = pindexBest->nHeight-10; nHeight < pindexBest->nHeight+20; nHeight++)
+    //     {
+    //         CScript payee;
+    //         CTxIn vin;
+    //         if(masternodePayments.GetBlockPayee(nHeight, payee, vin)){
+    //             CTxDestination address1;
+    //             ExtractDestination(payee, address1);
+    //             CIgnitioncoinAddress address2(address1);
+    //
+    //             if(strMode == "addr")
+    //                 obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       address2.ToString().c_str()));
+    //
+    //             if(strMode == "vin")
+    //                 obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       vin.ToString().c_str()));
+    //
+    //         } else {
+    //             obj.push_back(Pair(boost::lexical_cast<std::string>(nHeight),       ""));
+    //         }
+    //     }
+    //
+    //     return obj;
+    // }
 
     if(strCommand == "enforce")
     {
@@ -734,7 +735,7 @@ Value masternode(const Array& params, bool fHelp)
         pubkey = GetScriptForDestination(activeMasternode.pubKeyMasternode.GetID());
         CTxDestination address1;
         ExtractDestination(pubkey, address1);
-        CHarvestcoinAddress address2(address1);
+        CIgnitioncoinAddress address2(address1);
 
         Object mnObj;
         CMasternode *pmn = mnodeman.Find(activeMasternode.vin);
@@ -803,7 +804,7 @@ Value masternodelist(const Array& params, bool fHelp)
             } else if (strMode == "reward") {
                 CTxDestination address1;
                 ExtractDestination(mn.rewardAddress, address1);
-                CHarvestcoinAddress address2(address1);
+                CIgnitioncoinAddress address2(address1);
 
                 if(strFilter !="" && address2.ToString().find(strFilter) == string::npos &&
                     strVin.find(strFilter) == string::npos) continue;
@@ -821,7 +822,7 @@ Value masternodelist(const Array& params, bool fHelp)
                 pubkey.SetDestination(mn.pubkey.GetID());
                 CTxDestination address1;
                 ExtractDestination(pubkey, address1);
-                CHarvestcoinAddress address2(address1);
+                CIgnitioncoinAddress address2(address1);
 
                 std::ostringstream addrStream;
                 addrStream << setw(21) << strVin;
@@ -852,7 +853,7 @@ Value masternodelist(const Array& params, bool fHelp)
                 pubkey.SetDestination(mn.pubkey.GetID());
                 CTxDestination address1;
                 ExtractDestination(pubkey, address1);
-                CHarvestcoinAddress address2(address1);
+                CIgnitioncoinAddress address2(address1);
 
                 if(strFilter !="" && address2.ToString().find(strFilter) == string::npos &&
                     strVin.find(strFilter) == string::npos) continue;

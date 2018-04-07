@@ -1,3 +1,12 @@
+v1.0.0.3
+--------
+Ignitiond binary will now compile out to ignitiond (lower case)
+Unlock Bugs Fixed - For issue https://github.com/ignitioncoin/ignitioncoin/issues/10
+GitIgnore ignores more files
+Fixed bug with a help response repeating itself
+Removing depricated "masternode winners" command
+UI improvement
+
 v1.0.0.2
 --------
 Fixed mining/staking seperated difficulty reporting

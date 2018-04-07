@@ -1,6 +1,10 @@
 # ignore a single file
 compile-blk.sh
 Ignitiond
+ignitiond
+Ignition-qt
+bin/
+
 
 # Qt files
 *.qm
@@ -11,3 +15,4 @@ qrc_bitcoin.cpp
 # Mac files
 Ignition-Qt.app/
 .DS_Store
+

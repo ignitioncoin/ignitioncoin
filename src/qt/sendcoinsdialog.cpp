@@ -537,7 +537,7 @@ bool SendCoinsDialog::handleURI(const QString &uri)
     // URI has to be valid
     if (GUIUtil::parseBitcoinURI(uri, &rv))
     {
-        CHarvestcoinAddress address(rv.address.toStdString());
+        CIgnitioncoinAddress address(rv.address.toStdString());
         if (!address.IsValid())
             return false;
         pasteEntry(rv);
@@ -847,7 +847,7 @@ void SendCoinsDialog::coinControlChangeEdited(const QString& text)
         CoinControlDialog::coinControl->destChange = CNoDestination();
         ui->labelCoinControlChangeLabel->setStyleSheet("QLabel{color:red;}");
 
-        CHarvestcoinAddress addr = CHarvestcoinAddress(text.toStdString());
+        CIgnitioncoinAddress addr = CIgnitioncoinAddress(text.toStdString());
 
         if (text.isEmpty()) // Nothing entered
         {
