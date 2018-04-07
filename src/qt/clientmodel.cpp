@@ -16,6 +16,7 @@
 #include <QDateTime>
 #include <QTimer>
 #include <QDebug>
+#include <QFile>
 
 static const int64_t nClientStartupTime = GetTime();
 
@@ -211,6 +212,47 @@ QString ClientModel::clientName() const
 QString ClientModel::formatClientStartupTime() const
 {
     return QDateTime::fromTime_t(nClientStartupTime).toString();
+}
+
+QString ClientModel::getConfigFileContent() const
+{
+    QString result;
+
+    boost::filesystem::path path = GetConfigFile();
+    QString pathString = QString::fromStdString(path.string());
+    QFile file(pathString);
+    
+    if (file.exists())
+    {
+        QString line;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+        {
+            QTextStream stream(&file);
+            while (!stream.atEnd())
+            {
+                line = stream.readLine();
+                result += line + "\n";
+            }   
+        }
+    }
+
+    file.close();
+    return result;
+}
+
+void ClientModel::setConfigFileContent(const QString &content)
+{
+    boost::filesystem::path path = GetConfigFile();
+    QString pathString = QString::fromStdString(path.string());
+    QFile file(pathString);
+    
+    if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+    {
+        QTextStream stream(&file);
+        stream << content;
+    }
+
+    file.close();
 }
 
 void ClientModel::updateBanlist()
