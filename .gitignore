@@ -1,7 +1,13 @@
 # ignore a single file
 compile-blk.sh
-.DS_Store
-Ignition.pro
 Ignitiond
+
+# Qt files
 *.qm
 .qmake.stash
+build/
+qrc_bitcoin.cpp
+
+# Mac files
+Ignition-Qt.app/
+.DS_Store
