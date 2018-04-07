@@ -1,4 +1,7 @@
 # ignore a single file
 compile-blk.sh
+.DS_Store
 Ignition.pro
 Ignitiond
+*.qm
+.qmake.stash

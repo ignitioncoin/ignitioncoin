@@ -9,20 +9,21 @@
 CXX=clang++
 C=clang
 DEPSDIR=/usr/local
+# MACPORTSDIR=/opt/local
 
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/Cellar/boost/1.59.0/include" \
- -I"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/include" \
- -I"$(DEPSDIR)/openssl-1.0.1p/include"
+ -I"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/include" \
+ -I"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/include" \
+ -I"$(DEPSDIR)/Cellar/openssl/1.0.2n/include"
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/Cellar/boost/1.59.0/lib" \
- -L"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/lib" \
- -L"$(DEPSDIR)/openssl-1.0.1p/lib"
+ -L"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/lib" \
+ -L"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/lib" \
+ -L"$(DEPSDIR)/Cellar/openssl/1.0.2n/lib"
 
 USE_UPNP:=1
 USE_WALLET:=1
