@@ -14,8 +14,12 @@ To Build
 --------
 #Installing Dependencies In One Line (For Debian/Ubuntu Based Distributions Only)
 sudo apt-get -y update && sudo apt-get -y install build-essential libssl-dev libdb++-dev libboost-all-dev libcrypto++-dev libqrencode-dev libminiupnpc-dev libgmp-dev libgmp3-dev autoconf autogen automake libtool
+
+then run the following commands:
+
 cd src/
 make -f makefile.unix            # Headless Ignition
+cd ../bins/                #Output of bins now goes to repo-root/bins folder
 
 See readme-qt.rst for instructions on building Ignition QT,
 the graphical Ignition.
