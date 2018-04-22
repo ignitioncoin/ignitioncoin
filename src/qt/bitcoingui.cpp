@@ -18,6 +18,7 @@
 #include "clientmodel.h"
 #include "walletmodel.h"
 #include "editaddressdialog.h"
+#include "editconfigdialog.h"
 #include "optionsmodel.h"
 #include "transactiondescdialog.h"
 #include "addresstablemodel.h"
@@ -389,6 +390,13 @@ void BitcoinGUI::createActions()
     openRPCConsoleAction = new QAction(QIcon(":/icons/debugwindow"), tr("&Debug window"), this);
     openRPCConsoleAction->setToolTip(tr("Open debugging and diagnostic console"));
 
+    editConfigAction = new QAction(QIcon(":/icons/editconf"), tr("&Edit Ignition.conf"), this);
+    editConfigAction->setToolTip(tr("Edit the configuration file for Ignition"));
+    editConfigExtAction = new QAction(QIcon(":/icons/editconf"), tr("&Edit Ignition.conf (external)"), this);
+    editConfigExtAction->setToolTip(tr("Edit the configuration file for Ignition (external editor)"));
+    openDataDirAction = new QAction(QIcon(":/icons/folder"), tr("&Open data dir"), this);
+    openDataDirAction->setToolTip(tr("Open the directory where Ignition data is stored"));
+
     connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
     connect(aboutAction, SIGNAL(triggered()), this, SLOT(aboutClicked()));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
@@ -401,6 +409,9 @@ void BitcoinGUI::createActions()
     connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
     connect(signMessageAction, SIGNAL(triggered()), this, SLOT(gotoSignMessageTab()));
     connect(verifyMessageAction, SIGNAL(triggered()), this, SLOT(gotoVerifyMessageTab()));
+    connect(editConfigAction, SIGNAL(triggered()), this, SLOT(editConfig()));
+    connect(editConfigExtAction, SIGNAL(triggered()), this, SLOT(editConfigExt()));
+    connect(openDataDirAction, SIGNAL(triggered()), this, SLOT(openDataDir()));
 }
 
 void BitcoinGUI::createMenuBar()
@@ -431,6 +442,9 @@ void BitcoinGUI::createMenuBar()
 
     QMenu *help = appMenuBar->addMenu(tr("&Help"));
     help->addAction(openRPCConsoleAction);
+    help->addAction(openDataDirAction);
+    help->addAction(editConfigAction);
+    help->addAction(editConfigExtAction);
     help->addSeparator();
     help->addAction(aboutAction);
     help->addAction(aboutQtAction);
@@ -1322,4 +1336,25 @@ void BitcoinGUI::showProgress(const QString &title, int nProgress)
     }
     else if (progressDialog)
         progressDialog->setValue(nProgress);
+}
+
+void BitcoinGUI::editConfig()
+{
+    EditConfigDialog dlg;
+    dlg.setModel(clientModel);
+    dlg.exec();
+}
+
+void BitcoinGUI::editConfigExt()
+{
+    filesystem::path path = GetConfigFile();
+    QString pathString = QString::fromStdString(path.string());
+    QDesktopServices::openUrl(QUrl::fromLocalFile(pathString));
+}
+
+void BitcoinGUI::openDataDir()
+{
+    filesystem::path path = GetDataDir();
+    QString pathString = QString::fromStdString(path.string());
+    QDesktopServices::openUrl(QUrl::fromLocalFile(pathString));
 }
