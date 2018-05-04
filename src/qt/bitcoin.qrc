@@ -53,6 +53,8 @@
         <file alias="onionblack">res/icons/onion-black.png</file>
         <file alias="browse">res/icons/browse.png</file>
         <file alias="trade">res/icons/trade.png</file>
+        <file alias="editconf">res/icons/editconf.png</file>
+        <file alias="folder">res/icons/folder.png</file>
         <file>res/icons/darksend.png</file>
     </qresource>
     <qresource prefix="/icons/black">
