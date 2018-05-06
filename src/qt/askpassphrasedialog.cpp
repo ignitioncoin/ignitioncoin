@@ -146,7 +146,7 @@ void AskPassphraseDialog::accept()
         }
         } break;
     case UnlockStaking:
-    case Unlock:
+    case Unlock: {
         bool stakingOnly = ui->stakingCheckBox->isChecked();
         if(!model->setWalletLocked(false, oldpass, false, stakingOnly))
         {
@@ -157,7 +157,7 @@ void AskPassphraseDialog::accept()
         {
             QDialog::accept(); // Success
         }
-        break;
+        } break;
     case Decrypt:
         if(!model->setWalletEncrypted(false, oldpass))
         {
