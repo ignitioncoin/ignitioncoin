@@ -77,6 +77,12 @@ inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 /** "reject" message codes **/
 static const unsigned char REJECT_INVALID = 0x10;
 
+/* Livenet hard forks */ 
+static const int nForkOne = 50; 
+ 
+/* Testnet hard forks */ 
+static const int nTestnetForkOne = 50; 
+
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }
 
 extern CScript COINBASE_FLAGS;

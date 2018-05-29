@@ -30,7 +30,7 @@ static const int DATABASE_VERSION = 70509;
 // network protocol versioning
 //
 
-static const int PROTOCOL_VERSION = 60028;
+static const int PROTOCOL_VERSION = 60029;
 
 // intial proto version, to be increased after version/verack negotiation
 static const int INIT_PROTO_VERSION = 209;
@@ -47,7 +47,7 @@ static const int MIN_INSTANTX_PROTO_VERSION = 60028;
 // V1 - Last protocol version before update
 // V2 - Newest protocol version
 static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_1 = 60028;
-static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2 = 60028;
+static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2 = 60029;
 
 // nTime field added to CAddress, starting with this version;
 // if possible, avoid requesting addresses nodes older than this
@@ -55,7 +55,7 @@ static const int CADDR_TIME_VERSION = 31402;
 
 // only request blocks from nodes outside this range of versions
 static const int NOBLKS_VERSION_START = 0;
-static const int NOBLKS_VERSION_END = 60028;
+static const int NOBLKS_VERSION_END = 60029;
 
 // BIP 0031, pong message, is enabled for all versions AFTER this one
 static const int BIP0031_VERSION = 60000;
