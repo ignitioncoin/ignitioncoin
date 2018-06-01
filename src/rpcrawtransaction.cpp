@@ -43,7 +43,7 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out, bool fIncludeH
 
     Array a;
     BOOST_FOREACH(const CTxDestination& addr, addresses)
-        a.push_back(CHarvestcoinAddress(addr).ToString());
+        a.push_back(CIgnitioncoinAddress(addr).ToString());
     out.push_back(Pair("addresses", a));
 }
 
@@ -162,13 +162,13 @@ Value listunspent(const Array& params, bool fHelp)
     if (params.size() > 1)
         nMaxDepth = params[1].get_int();
 
-    set<CHarvestcoinAddress> setAddress;
+    set<CIgnitioncoinAddress> setAddress;
     if (params.size() > 2)
     {
         Array inputs = params[2].get_array();
         BOOST_FOREACH(Value& input, inputs)
         {
-            CHarvestcoinAddress address(input.get_str());
+            CIgnitioncoinAddress address(input.get_str());
             if (!address.IsValid())
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Ignition address: ")+input.get_str());
             if (setAddress.count(address))
@@ -204,7 +204,7 @@ Value listunspent(const Array& params, bool fHelp)
         CTxDestination address;
         if (ExtractDestination(out.tx->vout[out.i].scriptPubKey, address))
         {
-            entry.push_back(Pair("address", CHarvestcoinAddress(address).ToString()));
+            entry.push_back(Pair("address", CIgnitioncoinAddress(address).ToString()));
             if (pwalletMain->mapAddressBook.count(address))
                 entry.push_back(Pair("account", pwalletMain->mapAddressBook[address]));
         }
@@ -271,10 +271,10 @@ Value createrawtransaction(const Array& params, bool fHelp)
         rawTx.vin.push_back(in);
     }
 
-    set<CHarvestcoinAddress> setAddress;
+    set<CIgnitioncoinAddress> setAddress;
     BOOST_FOREACH(const Pair& s, sendTo)
     {
-        CHarvestcoinAddress address(s.name_);
+        CIgnitioncoinAddress address(s.name_);
         if (!address.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid Ignition address: ")+s.name_);
 
@@ -339,7 +339,7 @@ Value decodescript(const Array& params, bool fHelp)
     }
     ScriptPubKeyToJSON(script, r, false);
 
-    r.push_back(Pair("p2sh", CHarvestcoinAddress(script.GetID()).ToString()));
+    r.push_back(Pair("p2sh", CIgnitioncoinAddress(script.GetID()).ToString()));
     return r;
 }
 
@@ -419,7 +419,7 @@ Value signrawtransaction(const Array& params, bool fHelp)
         Array keys = params[2].get_array();
         BOOST_FOREACH(Value k, keys)
         {
-            CHarvestcoinSecret vchSecret;
+            CIgnitioncoinSecret vchSecret;
             bool fGood = vchSecret.SetString(k.get_str());
             if (!fGood)
                 throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid private key");
@@ -605,7 +605,7 @@ Value searchrawtransactions(const Array &params, bool fHelp)
         throw runtime_error(
             "searchrawtransactions <address> [verbose=1] [skip=0] [count=100]\n");
 
-    CHarvestcoinAddress address(params[0].get_str());
+    CIgnitioncoinAddress address(params[0].get_str());
     if (!address.IsValid())
         throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Invalid Bitcoin address");
     CTxDestination dest = address.Get();

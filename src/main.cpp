@@ -1340,6 +1340,11 @@ static CBigNum GetProofOfStakeLimit(int nHeight)
 // the yr1 1Mil, yr2-5 1Mil 5-10 1Mil 10-20 1Mil 20-50 1Mil distribution
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 {
+
+    // if testnet produce more rewards
+    if(TestNet()) return 1000 * COIN;
+    //////////////////////////////////
+
     int64_t nSubsidy = 1 * COIN;
 	  if (nHeight < 2)
     {
@@ -1381,6 +1386,11 @@ int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
 // miner's coin stake reward
 int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
 {
+
+    // if testnet produce more rewards
+    if(TestNet()) return 2000 * COIN;
+    //////////////////////////////////
+
     int64_t nSubsidy = STATIC_POS_REWARD;
 
     if(nHeight < 200) // live test before launch = 198 coin
@@ -2565,7 +2575,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
 
                     CTxDestination address1;
                     ExtractDestination(payee, address1);
-                    CHarvestcoinAddress address2(address1);
+                    CIgnitioncoinAddress address2(address1);
 
                     if(!foundPaymentAndPayee) {
                         if(fDebug) { LogPrintf("CheckBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }

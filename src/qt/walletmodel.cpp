@@ -73,6 +73,12 @@ CAmount WalletModel::getBalance(const CCoinControl *coinControl) const
     return wallet->GetBalance();
 }
 
+CAmount WalletModel::getDenominatedBalance() const
+{
+
+    return wallet->GetDenominatedBalance();
+}
+
 CAmount WalletModel::getStake() const
 {
     return wallet->GetStake();
@@ -220,7 +226,7 @@ bool WalletModel::validateAddress(const QString &address)
             return true;
     };
 
-    CHarvestcoinAddress addressParsed(sAddr);
+    CIgnitioncoinAddress addressParsed(sAddr);
     return addressParsed.IsValid();
 }
 
@@ -257,7 +263,7 @@ WalletModel::SendCoinsReturn WalletModel::prepareTransaction(WalletModelTransact
         setAddress.insert(rcp.address);
         ++nAddresses;
 
-        CScript scriptPubKey = GetScriptForDestination(CHarvestcoinAddress(rcp.address.toStdString()).Get());
+        CScript scriptPubKey = GetScriptForDestination(CIgnitioncoinAddress(rcp.address.toStdString()).Get());
         vecSend.push_back(std::pair<CScript, CAmount>(scriptPubKey, rcp.amount));
 
         total += rcp.amount;
@@ -378,7 +384,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
 
                     CKeyID ckidTo = cpkTo.GetID();
 
-                    CHarvestcoinAddress addrTo(ckidTo);
+                    CIgnitioncoinAddress addrTo(ckidTo);
 
                     if (SecretToPublicKey(ephem_secret, ephem_pubkey) != 0)
                     {
@@ -444,7 +450,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
             }
 
             CScript scriptPubKey;
-            scriptPubKey.SetDestination(CHarvestcoinAddress(sAddr).Get());
+            scriptPubKey.SetDestination(CIgnitioncoinAddress(sAddr).Get());
             vecSend.push_back(make_pair(scriptPubKey, rcp.amount));
 
             if (rcp.narration.length() > 0)
@@ -522,7 +528,7 @@ WalletModel::SendCoinsReturn WalletModel::sendCoins(WalletModelTransaction &tran
     foreach(const SendCoinsRecipient &rcp, recipients)
     {
         std::string strAddress = rcp.address.toStdString();
-        CTxDestination dest = CHarvestcoinAddress(strAddress).Get();
+        CTxDestination dest = CIgnitioncoinAddress(strAddress).Get();
         std::string strLabel = rcp.label.toStdString();
         {
             LOCK(wallet->cs_wallet);
@@ -575,7 +581,7 @@ WalletModel::EncryptionStatus WalletModel::getEncryptionStatus() const
     }
     else if(fWalletUnlockStakingOnly)
     {
-    return Locked;
+        return Locked;
     }
     else if (wallet->fWalletUnlockAnonymizeOnly)
     {
@@ -601,7 +607,7 @@ bool WalletModel::setWalletEncrypted(bool encrypted, const SecureString &passphr
     }
 }
 
-bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase, bool anonymizeOnly)
+bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase, bool anonymizeOnly, bool stakingOnly)
 {
     if(locked)
     {
@@ -611,7 +617,7 @@ bool WalletModel::setWalletLocked(bool locked, const SecureString &passPhrase, b
     else
     {
         // Unlock
-        return wallet->Unlock(passPhrase, anonymizeOnly);
+        return wallet->Unlock(passPhrase, anonymizeOnly, stakingOnly);
     }
 }
 
@@ -658,7 +664,7 @@ static void NotifyAddressBookChanged(WalletModel *walletmodel, CWallet *wallet,
                                   Q_ARG(int, status));
     } else
     {
-    QString strAddress = QString::fromStdString(CHarvestcoinAddress(address).ToString());
+    QString strAddress = QString::fromStdString(CIgnitioncoinAddress(address).ToString());
     QString strLabel = QString::fromStdString(label);
 
     qDebug() << "NotifyAddressBookChanged : " + strAddress + " " + strLabel + " isMine=" + QString::number(isMine) + " status=" + QString::number(status);
@@ -841,7 +847,7 @@ void WalletModel::listCoins(std::map<QString, std::vector<COutput> >& mapCoins) 
         CTxDestination address;
         if(!out.fSpendable || !ExtractDestination(cout.tx->vout[cout.i].scriptPubKey, address))
             continue;
-        mapCoins[QString::fromStdString(CHarvestcoinAddress(address).ToString())].push_back(out);
+        mapCoins[QString::fromStdString(CIgnitioncoinAddress(address).ToString())].push_back(out);
     }
 }
 

@@ -1,5 +1,6 @@
-Ignition 0.4.4 BETA
-
+Ignition 1.0.0 Release
+Copyright (c) 2018 Ignition Developers
+*Note* Other Developers were likely here and lost in doc updates
 Copyright (c) 2013 NovaCoin Developers
 Copyright (c) 2011-2013 PPCoin Developers
 Distributed under the MIT/X11 software license, see the accompanying
@@ -16,3 +17,4 @@ the goal of providing a long-term energy-efficient scrypt-based crypto-currency.
 Built on the foundation of Bitcoin, PPCoin and NovaCoin, innovations such as proof-of-stake and scrypt
 help further advance the field of crypto-currency.
 
+The latest Windows binaries (.exe of qt-wallet) are available on Github, at https://github.com/ignitioncoin/ignitioncoin/releases

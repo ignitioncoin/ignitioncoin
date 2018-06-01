@@ -50,7 +50,7 @@ void ProcessMessageMasternodePayments(CNode* pfrom, std::string& strCommand, CDa
 
         CTxDestination address1;
         ExtractDestination(winner.payee, address1);
-        CHarvestcoinAddress address2(address1);
+        CIgnitioncoinAddress address2(address1);
 
         uint256 hash = winner.GetHash();
         if(mapSeenMasternodeVotes.count(hash)) {
@@ -300,11 +300,11 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
 
     CTxDestination address1;
     ExtractDestination(newWinner.payee, address1);
-    CHarvestcoinAddress address2(address1);
+    CIgnitioncoinAddress address2(address1);
 
     CTxDestination address3;
     ExtractDestination(payeeSource, address3);
-    CHarvestcoinAddress address4(address3);
+    CIgnitioncoinAddress address4(address3);
 
     LogPrintf("Winner payee %s nHeight %d vin source %s. \n", address2.ToString().c_str(), newWinner.nBlockHeight, address4.ToString().c_str());
 

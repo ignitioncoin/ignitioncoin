@@ -1,5 +1,6 @@
 INPUT(
 ./build/txdb-leveldb.o
+./build/darksendpage.o
 ./build/bitcoin.o
 ./build/bitcoingui.o
 ./build/transactiontablemodel.o
@@ -164,4 +165,5 @@ INPUT(
 ./build/moc_mrichtextedit.o
 ./build/moc_qvalidatedtextedit.o
 ./build/moc_tradingdialog.o
+./build/moc_darksendpage.o
 );
