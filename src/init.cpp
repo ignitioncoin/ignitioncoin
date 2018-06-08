@@ -800,7 +800,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!LoadBlockIndex())
         return InitError(_("Error loading block database"));
 
-
     // as LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill bitcoin-qt during the last operation. If so, exit.
     // As the program has not fully started yet, Shutdown() is possibly overkill.
@@ -837,6 +836,27 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (nFound == 0)
             LogPrintf("No blocks matching %s were found\n", strMatch);
         return false;
+    }
+
+    if (mapArgs.count("-backtoblockindex"))
+    {
+        int nNewHeight = GetArg("-backtoblockindex", 5000);
+        CBlockIndex* pindex = pindexBest;
+        while (pindex != NULL && pindex->nHeight > nNewHeight)
+        {
+            pindex = pindex->pprev;
+        }
+
+        if (pindex != NULL)
+        {
+            LogPrintf("Back to block index %d\n", nNewHeight);
+	        CTxDB txdbAddr("rw");
+            CBlock block;
+            block.ReadFromDisk(pindex);
+            block.SetBestChain(txdbAddr, pindex);
+        }
+        else
+            LogPrintf("Block %d not found\n", nNewHeight);
     }
 
     // ********************************************************* Step 8: load wallet
