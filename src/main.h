@@ -147,7 +147,8 @@ void ResendWalletTransactions(bool fForce = false);
 int GetMinPoolPeerProto();
 // Disconnect from peers older than this proto version
 int GetMinPeerProto();
-
+// Minimum InstantX Proto Version Accepted 
+int GetMinInstantXProto();
 
 /** Register with a network node to receive its signals */
 void RegisterNodeSignals(CNodeSignals& nodeSignals);

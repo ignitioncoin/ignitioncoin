@@ -108,6 +108,16 @@ int GetMinPeerProto() {
     return MIN_PEER_PROTO_VERSION_1;
 }
 
+int GetMinInstantXProto() { 
+    if (pindexBest == NULL) { 
+        return MIN_INSTANTX_PROTO_VERSION_1; 
+    } 
+    if(pindexBest->nHeight >= getForkHeightOne()-5) { 
+        return MIN_INSTANTX_PROTO_VERSION_2; 
+    } 
+    return MIN_INSTANTX_PROTO_VERSION_1; 
+} 
+
 // Fork heights
 const int getForkHeightOne()
 {
