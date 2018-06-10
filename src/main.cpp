@@ -85,6 +85,16 @@ const string strMessageMagic = "Ignition Signed Message:\n";
 
 std::set<uint256> setValidatedTx;
 
+// Fork heights
+const int getForkHeightOne()
+{
+    if (fTestNet)
+    {
+        return nTestnetForkOne;
+    }
+    return nForkOne;
+}
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // dispatching functions
