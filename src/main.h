@@ -143,6 +143,13 @@ void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool f
 /** Ask wallets to resend their transactions */
 void ResendWalletTransactions(bool fForce = false);
 
+// Minimum peer version accepted by DarkSendPool
+int GetMinPoolPeerProto();
+// Disconnect from peers older than this proto version
+int GetMinPeerProto();
+// Minimum InstantX Proto Version Accepted 
+int GetMinInstantXProto();
+
 /** Register with a network node to receive its signals */
 void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */

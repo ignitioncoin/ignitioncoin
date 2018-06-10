@@ -36,12 +36,16 @@ static const int PROTOCOL_VERSION = 60029;
 static const int INIT_PROTO_VERSION = 209;
 
 // disconnect from peers older than this proto version
-static const int MIN_PEER_PROTO_VERSION = 60028;
+static const int MIN_PEER_PROTO_VERSION_1 = 60028;
+static const int MIN_PEER_PROTO_VERSION_2 = 60029;
 
 // minimum peer version accepted by DarkSendPool
-static const int MIN_POOL_PEER_PROTO_VERSION = 60028; 
+static const int MIN_POOL_PEER_PROTO_VERSION_1 = 60028;
+static const int MIN_POOL_PEER_PROTO_VERSION_2 = 60029; 
 
-static const int MIN_INSTANTX_PROTO_VERSION = 60028;
+// minimum peer version accepted for InstantX
+static const int MIN_INSTANTX_PROTO_VERSION_1 = 60028;
+static const int MIN_INSTANTX_PROTO_VERSION_2 = 60029;
 
 //! minimum peer version that can receive masternode payments
 // V1 - Last protocol version before update
@@ -53,7 +57,7 @@ static const int MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2 = 60029;
 // if possible, avoid requesting addresses nodes older than this
 static const int CADDR_TIME_VERSION = 31402;
 
-// only request blocks from nodes outside this range of versions
+// only request blocks from nodes outside or equal to the end of this range of versions
 static const int NOBLKS_VERSION_START = 0;
 static const int NOBLKS_VERSION_END = 60029;
 
