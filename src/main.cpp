@@ -85,6 +85,29 @@ const string strMessageMagic = "Ignition Signed Message:\n";
 
 std::set<uint256> setValidatedTx;
 
+// Protocol version enforcement
+int GetMinPoolPeerProto() {
+    if (pindexBest == NULL) {
+        return MIN_POOL_PEER_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= getForkHeightOne()-5)
+    {
+        return MIN_POOL_PEER_PROTO_VERSION_2;
+    }
+    return MIN_POOL_PEER_PROTO_VERSION_1;
+}
+
+int GetMinPeerProto() {
+    if (pindexBest == NULL) {
+        return MIN_PEER_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= getForkHeightOne()-5)
+    {
+        return MIN_PEER_PROTO_VERSION_2;
+    }
+    return MIN_PEER_PROTO_VERSION_1;
+}
+
 // Fork heights
 const int getForkHeightOne()
 {
@@ -3582,7 +3605,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+        if (pfrom->nVersion < GetMinPeerProto())
         {
             // disconnect from peers older than this proto version
             LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);

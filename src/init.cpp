@@ -546,7 +546,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
 
     //ignore masternodes below protocol version
-    nMasternodeMinProtocol = GetArg("-masternodeminprotocol", MIN_POOL_PEER_PROTO_VERSION);
+    nMasternodeMinProtocol = GetArg("-masternodeminprotocol", GetMinPoolPeerProto());
 
     if (fDaemon)
         fprintf(stdout, "Ignition server starting\n"); 
