@@ -3705,6 +3705,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         return false;
     }
 
+    else if (pfrom->nVersion < GetMinPeerProto())
+    {
+        // Disconnect from peers older than this proto version
+        LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);
+        pfrom->fDisconnect = true;
+        return false;
+    }
 
     else if (strCommand == "verack")
     {
