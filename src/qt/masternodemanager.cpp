@@ -73,7 +73,16 @@ MasternodeManager::MasternodeManager(QWidget *parent) :
     if(!GetBoolArg("-reindexaddr", false))
         timer->start(30000);
 
-    updateNodeList();
+    updateNodeList();  
+
+}
+
+void MasternodeManager::on_tabWidget_currentChanged(int index)
+{
+    if (index == 1)
+    {
+        on_UpdateButton_clicked();
+    }
 }
 
 MasternodeManager::~MasternodeManager()
@@ -209,26 +218,45 @@ void MasternodeManager::on_createButton_clicked()
 
 void MasternodeManager::on_startButton_clicked()
 {
+    std::string statusObj;
+
     // start the node
     QItemSelectionModel* selectionModel = ui->tableWidget_2->selectionModel();
     QModelIndexList selected = selectionModel->selectedRows();
     if(selected.count() == 0)
+    {
+        statusObj += "<br>Select a Masternode alias to start" ;
+        QMessageBox msg;
+        msg.setText(QString::fromStdString(statusObj));
+        msg.exec();
         return;
+    }
 
     QModelIndex index = selected.at(0);
     int r = index.row();
     std::string sAlias = ui->tableWidget_2->item(r, 0)->text().toStdString();
 
     if(pwalletMain->IsLocked()) {
+
+        statusObj += "<br>Please unlock your wallet to start Masternode" ;
+        QMessageBox msg;
+        msg.setText(QString::fromStdString(statusObj));
+        msg.exec();
+        return;
     }
 
-    std::string statusObj;
+    
     statusObj += "<center>Alias: " + sAlias;
 
     BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
-        if(mne.getAlias() == sAlias) {
-            std::string errorMessage;
-            bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), mne.getRewardAddress(), mne.getRewardPercentage(), errorMessage);
+        if(mne.getAlias() == sAlias)
+        {
+
+        std::string errorMessage;
+        std::string strRewardAddress = mne.getRewardAddress();
+        std::string strRewardPercentage = mne.getRewardPercentage();
+
+        bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), strRewardAddress, strRewardPercentage, errorMessage);
 
             if(result) {
                 statusObj += "<br>Successfully started masternode." ;
@@ -238,13 +266,14 @@ void MasternodeManager::on_startButton_clicked()
             break;
         }
     }
-    statusObj += "</center>";
-    pwalletMain->Lock();
 
+    pwalletMain->Lock();
+    statusObj += "</center>";
     QMessageBox msg;
     msg.setText(QString::fromStdString(statusObj));
-
     msg.exec();
+
+    MasternodeManager::on_UpdateButton_clicked();
 }
 
 void MasternodeManager::on_startAllButton_clicked()
@@ -286,6 +315,7 @@ void MasternodeManager::on_startAllButton_clicked()
     QMessageBox msg;
     msg.setText(QString::fromStdString(returnObj));
     msg.exec();
+    MasternodeManager::on_UpdateButton_clicked();
 }
 
 void MasternodeManager::on_UpdateButton_clicked()
