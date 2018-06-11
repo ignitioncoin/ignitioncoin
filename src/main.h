@@ -650,7 +650,6 @@ class CBlock
 {
 public:
     // header
-    static const int CURRENT_VERSION = 7;
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -699,9 +698,20 @@ public:
         }
     )
 
+    static const int GetCurrentBlockVersion() {
+        if (nBestHeight == 0) {
+            return CURRENT_BLOCK_VERSION_1;
+        }
+        if(nBestHeight >= getForkHeightOne()-5)
+        {
+            return CURRENT_BLOCK_VERSION_2;
+        }
+        return CURRENT_BLOCK_VERSION_1;
+    }
+
     void SetNull()
     {
-        nVersion = CBlock::CURRENT_VERSION;
+        nVersion = CBlock::GetCurrentBlockVersion();
         hashPrevBlock = 0;
         hashMerkleRoot = 0;
         nTime = 0;
