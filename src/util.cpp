@@ -102,6 +102,10 @@ bool fNoListen = false;
 bool fLogTimestamps = false;
 volatile bool fReopenDebugLog = false;
 
+/* NeoScrypt related */
+bool fNeoScrypt = false;
+uint nNeoScryptOptions = 0;
+
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;
 void locking_callback(int mode, int i, const char* file, int line)

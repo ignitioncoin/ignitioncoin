@@ -98,6 +98,8 @@ OBJS= \
     obj/rpcsmessage.o \
     obj/script.o \
     obj/scrypt.o \
+    obj/neoscrypt.o \
+    obj/neoscrypt_asm.o \
     obj/sync.o \
     obj/txmempool.o \
     obj/util.o \
@@ -186,6 +188,12 @@ obj/%.o: %.c
 	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
+
+obj/neoscrypt.o: neoscrypt.c
+	$(CC) $(CFLAGS) -DSHA256 -DASM -DOPT -c -o $@ $^
+
+obj/neoscrypt_asm.o: neoscrypt_asm.S
+	$(CC) -c -DSHA256 -DASM -DOPT -DMOVQ_FIX -o $@ $^
 
 Ignitiond: $(OBJS:obj/%=obj/%)
 	$(CXX) $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)
