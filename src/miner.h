@@ -15,8 +15,8 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake=false, int64_
 /** Modify the extranonce in a block */
 void IncrementExtraNonce(CBlock* pblock, CBlockIndex* pindexPrev, unsigned int& nExtraNonce);
 
-/** Do mining precalculation */
-void FormatHashBuffers(CBlock* pblock, char* pmidstate, char* pdata, char* phash1);
+/* Prepares a block header for transmission using RPC getwork */
+void FormatDataBuffer(CBlock *pblock, uint *pdata);
 
 /** Check mined proof-of-work block */
 bool CheckWork(CBlock* pblock, CWallet& wallet, CReserveKey& reservekey);
