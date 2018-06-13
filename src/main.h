@@ -44,7 +44,7 @@ class CNode;
 class CReserveKey;
 class CWallet;
 
-static const int nNeoScryptFork = 50;
+static const int nNeoScryptFork = 40;
 
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
 static const unsigned int MAX_BLOCK_SIZE = 3000000;
