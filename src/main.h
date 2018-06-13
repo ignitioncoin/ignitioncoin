@@ -88,7 +88,7 @@ static const unsigned char REJECT_INVALID = 0x10;
 static const int nForkOne = 200000; 
  
 /* Testnet hard forks */ 
-static const int nTestnetForkOne = 500; 
+static const int nTestnetForkOne = 40; 
 
 /* Fork testing function */
 const int getForkHeightOne();
