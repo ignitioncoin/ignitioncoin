@@ -11,7 +11,8 @@
 #include "txmempool.h"
 #include "net.h"
 #include "script.h"
-#include "scrypt.h"
+
+#include "neoscrypt.h"
 
 #include <list>
 
@@ -43,6 +44,8 @@ class CNode;
 class CReserveKey;
 class CWallet;
 
+static const int nNeoScryptFork = 195000;
+
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
 static const unsigned int MAX_BLOCK_SIZE = 3000000;
 /** The maximum size for mined blocks */
@@ -71,7 +74,10 @@ inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MO
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 
+static const uint BLOCK_LIMITER_TIME = 240;
+
 static const int64_t DRIFT = 120;
+inline int64_t PastDrift(int64_t nTime) { return nTime - DRIFT; }
 inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 
 /** "reject" message codes **/
@@ -718,9 +724,43 @@ public:
             return GetPoWHash();
     }
 
-    uint256 GetPoWHash() const
-    {
-        return scrypt_blockhash(CVOIDBEGIN(nVersion));
+    uint256 GetPoWHash() const {
+        uint256 hashPoW;
+        uint profile = 0x0;
+
+        /* All these blocks must be v2+ with valid nHeight */
+        if(GetBlockHeight() < nNeoScryptFork)
+          profile = 0x3;
+
+        profile |= nNeoScryptOptions;
+
+        neoscrypt((uchar *) &nVersion, (uchar *) &hashPoW, profile);
+
+        return(hashPoW);
+    }
+
+    /* Extracts block height from v2+ coin base;
+     * ignores nVersion because it's unreliable */
+    int GetBlockHeight() const {
+        /* Prevents a crash if called on a block header alone */
+        if(vtx.size()) {
+            /* Serialised CScript */
+            std::vector<uchar>::const_iterator scriptsig = vtx[0].vin[0].scriptSig.begin();
+            uchar i, scount = scriptsig[0];
+            /* Optimise: nTime is 4 bytes always,
+             * nHeight must be less for a long time;
+             * check against a threshold when the time comes */
+            if(scount < 4) {
+                int height = 0;
+                uchar *pheight = (uchar *) &height;
+                for(i = 0; i < scount; i++)
+                  pheight[i] = scriptsig[i + 1];
+                /* v2+ block with nHeight in coin base */
+                return(height);
+            }
+        }
+        /* Not found */
+        return(-1);
     }
 
     int64_t GetBlockTime() const
@@ -1079,6 +1119,44 @@ public:
 
         std::sort(pbegin, pend);
         return pbegin[(pend - pbegin)/2];
+    }
+
+    /* Advanced average block time calculator */
+    uint GetAverageTimePast(uint nAvgTimeSpan, uint nMinDelay) const {
+        uint avg[nAvgTimeSpan];
+        uint nTempTime, i;
+        uint64 nAvgAccum;
+        const CBlockIndex *pindex = this;
+
+        /* Keep it fail safe */
+        if(!nAvgTimeSpan) return(0);
+
+        /* Initialise the elements to zero */
+        for(i = 0; i < nAvgTimeSpan; i++)
+          avg[i] = 0;
+
+        /* Fill with the time stamps */
+        for(i = nAvgTimeSpan; i && pindex; i--, pindex = pindex->pprev)
+          avg[i - 1] = pindex->nTime;
+
+        /* Not enough input blocks */
+        if(!avg[0]) return(0);
+
+        /* Time travel aware accumulator */
+        nTempTime = avg[0];
+        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) { 
+            /* Update the accumulator either with an actual or minimal
+             * delay supplied to prevent extremely fast blocks */
+            if(avg[i] < (nTempTime + nMinDelay))
+              nTempTime += nMinDelay;
+            else
+              nTempTime  = avg[i];
+            nAvgAccum += nTempTime;
+        }
+
+        nTempTime = (uint)(nAvgAccum / (uint64)nAvgTimeSpan);
+
+        return(nTempTime);
     }
 
     bool IsProofOfWork() const
