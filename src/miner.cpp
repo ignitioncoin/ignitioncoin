@@ -577,6 +577,9 @@ void ThreadStakeMiner(CWallet *pwallet)
     CReserveKey reservekey(pwallet);
 
     bool fTryToSync = true;
+    int nMinNodesForStaking = 4;
+    if (fTestNet)
+        nMinNodesForStaking = 1;
 
     while (true)
     {
@@ -586,7 +589,7 @@ void ThreadStakeMiner(CWallet *pwallet)
             MilliSleep(1000);
         }
 
-        while (vNodes.size() < 4 || IsInitialBlockDownload())
+        while (vNodes.size() < nMinNodesForStaking || IsInitialBlockDownload())
         {
             nLastCoinStakeSearchInterval = 0;
             fTryToSync = true;
@@ -596,7 +599,7 @@ void ThreadStakeMiner(CWallet *pwallet)
         if (fTryToSync)
         {
             fTryToSync = false;
-            if (vNodes.size() < 4 || pindexBest->GetBlockTime() < GetTime() - 10 * 60)
+            if (vNodes.size() < nMinNodesForStaking || pindexBest->GetBlockTime() < GetTime() - 10 * 60)
             {
                 MilliSleep(10000);
                 continue;
