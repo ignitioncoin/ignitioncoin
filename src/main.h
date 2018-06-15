@@ -85,7 +85,7 @@ static const unsigned char REJECT_INVALID = 0x10;
 
 /** Forks **/
 /* Livenet hard forks */ 
-static const int nForkOne = 200000; 
+static const int nForkOne = 215000; 
  
 /* Testnet hard forks */ 
 static const int nTestnetForkOne = 500; 
