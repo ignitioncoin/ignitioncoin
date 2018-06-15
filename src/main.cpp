@@ -2213,7 +2213,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                 {
                     return DoS(1, error("Connect() : nNonce&~2047 (%X) != iAddrHash(%X)", (nNonce & (~2047)), iAddrHash));
                 }
-                CBlockIndex* pIndexWork = pindex->pprev;
+                const CBlockIndex* pIndexWork = GetLastBlockIndex(pindex->pprev, true); // previous PoS block;
                 unsigned int iLastPaid = 0;
 
                 for (iLastPaid = 1; iLastPaid < 4095; iLastPaid++)
@@ -2222,7 +2222,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                     {
                         if ((pIndexWork->nNonce & (~2047)) == iAddrHash)
                             break;
-                        pIndexWork = pIndexWork->pprev;
+                        pIndexWork = GetLastBlockIndex(pIndexWork->pprev, true); // previous PoS block;
                     }
                 }
                 iWinerAge = iLastPaid;
