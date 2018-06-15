@@ -1538,13 +1538,23 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         /* The short averaging window */
         const CBlockIndex *pindexShort = pindexPrev;
         for(i = 0; pindexShort && (i < nIntervalShort); i++)
-          pindexShort = GetLastBlockIndex(pindexShort->pprev, fProofOfStake);
+        {
+            const CBlockIndex *pindex = GetLastBlockIndex(pindexShort->pprev, fProofOfStake);
+            if (pindex == NULL)
+                break;
+            pindexShort = pindex;
+        }
         nActualTimespanShort = (int64)pindexPrev->nTime - (int64)pindexShort->nTime;
 
         /* The long averaging window */
         const CBlockIndex *pindexLong = pindexShort;
         for(i = 0; pindexLong && (i < (nIntervalLong - nIntervalShort)); i++)
-          pindexLong = GetLastBlockIndex(pindexLong->pprev, fProofOfStake);
+        {
+            const CBlockIndex *pindex = GetLastBlockIndex(pindexLong->pprev, fProofOfStake);
+            if (pindex == NULL)
+                break;
+            pindexLong = pindex;
+        }
         nActualTimespanLong = (int64)pindexPrev->nTime - (int64)pindexLong->nTime;
 
         /* Time warp protection */
