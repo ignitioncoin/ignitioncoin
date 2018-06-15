@@ -25,11 +25,11 @@
             ]
         },
         {
-            "name": "ignitiond staking",
+            "name": "Ignition-qt TESTNET NEOSCRYPT",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/ignitiond",
-            "args": ["walletpassphrase", "nemetouchepaslabite", "9999", "true", "-datadir=/src/icdata"],
+            "program": "${workspaceFolder}/Ignition-qt",
+            "args": ["--datadir=/home/jere/ic-data/testnet-neoscrypt"],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
             "environment": [],
