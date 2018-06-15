@@ -189,14 +189,14 @@ uint256 CMasternode::CalculateScore(int mod, int64_t nBlockHeight)
         memcpy(&iAddrHash, &hash4, 4);
         iAddrHash = iAddrHash << 11;
         LogPrintf("CalculateScore():MN addr:%s, AddrHash:%X\n", strAddr.c_str(), iAddrHash); //for Debug
-        CBlockIndex* pIndexWork = pindexBest;
+        const CBlockIndex* pIndexWork = pindexBest;
         for (iLastPaid = 1; iLastPaid < 4095; iLastPaid++)
         {
             if (pIndexWork)
             {
                 if ((pIndexWork->nNonce & (~2047)) == iAddrHash)
                     break;
-                pIndexWork = pIndexWork->pprev;
+                pIndexWork = GetLastBlockIndex(pIndexWork->pprev, true); // previous PoS block
             }
         }
         rInt32 = (rInt32 >> 12);
