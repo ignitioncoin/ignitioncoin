@@ -633,6 +633,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
         aMutable.push_back("time");
         aMutable.push_back("transactions");
         aMutable.push_back("prevblock");
+        aMutable.push_back("version/force");
     }
 
     Object result;
