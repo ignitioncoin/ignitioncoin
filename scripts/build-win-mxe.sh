@@ -1,8 +1,13 @@
 #!/bin/bash
+MXE_PATH=/mnt/mxe-build/mxe
+export PATH=$MXE_PATH/usr/bin:$PATH
+
+NB_CORES=`nproc`
+
 cd ..
 
-MXE_INCLUDE_PATH=/src/mxe/usr/i686-w64-mingw32.static/include
-MXE_LIB_PATH=/src/mxe/usr/i686-w64-mingw32.static/lib
+MXE_INCLUDE_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/include
+MXE_LIB_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/lib
 
 i686-w64-mingw32.static-qmake-qt5 \
 	BOOST_LIB_SUFFIX=-mt \
@@ -15,6 +20,6 @@ i686-w64-mingw32.static-qmake-qt5 \
 	BDB_LIB_PATH=$MXE_LIB_PATH \
 	MINIUPNPC_INCLUDE_PATH=$MXE_INCLUDE_PATH \
 	MINIUPNPC_LIB_PATH=$MXE_LIB_PATH \
-	QMAKE_LRELEASE=/src/mxe/usr/i686-w64-mingw32.static/qt5/bin/lrelease Ignition.pro
+	QMAKE_LRELEASE=$MXE_PATH/usr/i686-w64-mingw32.static/qt5/bin/lrelease Ignition.pro
 
-make -j5 -f Makefile.Release
+make -j$NB_CORES -f Makefile.Release

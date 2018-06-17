@@ -1,6 +1,8 @@
 #!/bin/bash
+NB_CORES=`nproc`
+
 cd ../src
-make -j5 -f makefile.unix
+make -j$NB_CORES -f makefile.unix
 cd ..
 qmake CONFIG+=debug
-make -j5
+make -j$NB_CORES
