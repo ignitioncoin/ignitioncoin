@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "slist": "cpp",
+        "chrono": "cpp",
+        "functional": "cpp"
+    }
+}
