@@ -3536,7 +3536,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         if(!masternodePayments.GetBlockPayee(pindexPrev->nHeight+1, payee, vin)){
             CMasternode* winningNode = mnodeman.GetCurrentMasterNode(1);
             if(winningNode){
-                if (pindexPrev->nHeight+1 < getForkHeightOne())
+                if (pindexPrev->nHeight+1 < GetForkHeightOne())
                 {
                     payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     payeerewardaddress = winningNode->rewardAddress;
@@ -3585,7 +3585,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
         }
     }
 
-    if (pindexPrev->nHeight+1 < getForkHeightOne())
+    if (pindexPrev->nHeight+1 < GetForkHeightOne())
     {
         // If reward percent is 0 then send all to masternode address
         if(hasPayment && payeerewardpercent == 0){
