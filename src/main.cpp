@@ -1461,7 +1461,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
     /* The next block */
     int nHeight = pindexLast->nHeight + 1;
 
-    if(nHeight < nNeoScryptFork) {
+    if(nHeight < getForkHeightOne()) {
 
         /* Legacy every block retargets of the PPC style */
 
@@ -1486,7 +1486,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         if(!fNeoScrypt) fNeoScrypt = true;
 
         /* PoW difficulty reset after the switch */
-        if(!fProofOfStake && (pindexPrev->nHeight < nNeoScryptFork))
+        if(!fProofOfStake && (pindexPrev->nHeight < getForkHeightOne()))
           return(bnNeoScryptSwitch.GetCompact());
 
         /* Orbitcoin Super Shield (OSS);
@@ -2761,7 +2761,7 @@ bool CBlock::AcceptBlock()
       return(DoS(5, error("AcceptBlock() : block %s height %d has a time stamp too far in the future",
         hash.ToString().substr(0,20).c_str(), nHeight)));
 
-    if(nHeight > nNeoScryptFork) {
+    if(nHeight > getForkHeightOne()) {
 
         /* Check for time stamp (past limit #1) */
         if(nTime <= (uint)pindexPrev->GetMedianTimePast())
@@ -2781,7 +2781,7 @@ bool CBlock::AcceptBlock()
 
     }
 
-    if((nHeight > nNeoScryptFork) && IsProofOfWork() && !IsInitialBlockDownload()) {
+    if((nHeight > getForkHeightOne()) && IsProofOfWork() && !IsInitialBlockDownload()) {
 
         /* PoW block limiter */
         if(nTime <= ((uint)pindexPrev->GetMedianTimePast() + BLOCK_LIMITER_TIME)) {
@@ -2871,7 +2871,7 @@ uint256 CBlockIndex::GetBlockTrust() const {
 
     /* Old protocol */
 
-    if(nHeight < nNeoScryptFork)
+    if(nHeight < getForkHeightOne())
       return(((CBigNum(1) << 256) / (bnTarget + 1)).getuint256());
 
     /* New protocol derived from Halcyon */

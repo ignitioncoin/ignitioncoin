@@ -44,8 +44,6 @@ class CNode;
 class CReserveKey;
 class CWallet;
 
-static const int nNeoScryptFork = 195000;
-
 /** The maximum allowed size for a serialized block, in bytes (network rule) */
 static const unsigned int MAX_BLOCK_SIZE = 3000000;
 /** The maximum size for mined blocks */
@@ -729,7 +727,7 @@ public:
         uint profile = 0x0;
 
         /* All these blocks must be v2+ with valid nHeight */
-        if(GetBlockHeight() < nNeoScryptFork)
+        if(GetBlockHeight() < getForkHeightOne())
           profile = 0x3;
 
         profile |= nNeoScryptOptions;
