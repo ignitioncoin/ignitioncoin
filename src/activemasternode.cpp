@@ -61,53 +61,56 @@ void CActiveMasternode::ManageStatus()
             return;
         }
 
-        // Set defaults
-        status = MASTERNODE_NOT_CAPABLE;
-        notCapableReason = "Unknown. Check debug.log for more information.\n";
+        if (status != MASTERNODE_REMOTELY_ENABLED)
+        {
+            // Set defaults
+            status = MASTERNODE_NOT_CAPABLE;
+            notCapableReason = "Unknown. Check debug.log for more information.\n";
 
-        // Choose coins to use
-        CPubKey pubKeyCollateralAddress;
-        CKey keyCollateralAddress;
+            // Choose coins to use
+            CPubKey pubKeyCollateralAddress;
+            CKey keyCollateralAddress;
 
-        if(GetMasterNodeVin(vin, pubKeyCollateralAddress, keyCollateralAddress)) {
+            if(GetMasterNodeVin(vin, pubKeyCollateralAddress, keyCollateralAddress)) {
 
-            if(GetInputAge(vin) < MASTERNODE_MIN_CONFIRMATIONS){
-                notCapableReason = "Input must have least " + boost::lexical_cast<string>(MASTERNODE_MIN_CONFIRMATIONS) +
+                if(GetInputAge(vin) < MASTERNODE_MIN_CONFIRMATIONS){
+                    notCapableReason = "Input must have least " + boost::lexical_cast<string>(MASTERNODE_MIN_CONFIRMATIONS) +
                         " confirmations - " + boost::lexical_cast<string>(GetInputAge(vin)) + " confirmations";
-                LogPrintf("CActiveMasternode::ManageStatus() - %s\n", notCapableReason.c_str());
-                status = MASTERNODE_INPUT_TOO_NEW;
+                    LogPrintf("CActiveMasternode::ManageStatus() - %s\n", notCapableReason.c_str());
+                    status = MASTERNODE_INPUT_TOO_NEW;
+                    return;
+                }
+
+                LogPrintf("CActiveMasternode::ManageStatus() - Is capable master node!\n");
+
+                status = MASTERNODE_IS_CAPABLE;
+                notCapableReason = "";
+
+                pwalletMain->LockCoin(vin.prevout);
+
+                // send to all nodes
+                CPubKey pubKeyMasternode;
+                CKey keyMasternode;
+
+                if(!darkSendSigner.SetKey(strMasterNodePrivKey, errorMessage, keyMasternode, pubKeyMasternode))
+                {
+            	    LogPrintf("ActiveMasternode::Dseep() - Error upon calling SetKey: %s\n", errorMessage.c_str());
+            	    return;
+                }
+
+                /* rewards are not supported in Ignition.conf */
+                CScript rewardAddress = CScript();
+                int rewardPercentage = 0;
+
+                if(!Register(vin, service, keyCollateralAddress, pubKeyCollateralAddress, keyMasternode, pubKeyMasternode, rewardAddress, rewardPercentage, errorMessage)) {
+                    LogPrintf("CActiveMasternode::ManageStatus() - Error on Register: %s\n", errorMessage.c_str());
+                }
+
                 return;
+            } else {
+                notCapableReason = "Could not find suitable coins!";
+        	    LogPrintf("CActiveMasternode::ManageStatus() - Could not find suitable coins!\n");
             }
-
-            LogPrintf("CActiveMasternode::ManageStatus() - Is capable master node!\n");
-
-            status = MASTERNODE_IS_CAPABLE;
-            notCapableReason = "";
-
-            pwalletMain->LockCoin(vin.prevout);
-
-            // send to all nodes
-            CPubKey pubKeyMasternode;
-            CKey keyMasternode;
-
-            if(!darkSendSigner.SetKey(strMasterNodePrivKey, errorMessage, keyMasternode, pubKeyMasternode))
-            {
-            	LogPrintf("ActiveMasternode::Dseep() - Error upon calling SetKey: %s\n", errorMessage.c_str());
-            	return;
-            }
-
-            /* rewards are not supported in Ignition.conf */
-            CScript rewardAddress = CScript();
-            int rewardPercentage = 0;
-
-            if(!Register(vin, service, keyCollateralAddress, pubKeyCollateralAddress, keyMasternode, pubKeyMasternode, rewardAddress, rewardPercentage, errorMessage)) {
-                LogPrintf("CActiveMasternode::ManageStatus() - Error on Register: %s\n", errorMessage.c_str());
-            }
-
-            return;
-        } else {
-            notCapableReason = "Could not find suitable coins!";
-        	LogPrintf("CActiveMasternode::ManageStatus() - Could not find suitable coins!\n");
         }
     }
 
@@ -474,6 +477,7 @@ bool CActiveMasternode::EnableHotColdMasterNode(CTxIn& newVin, CService& newServ
     if(!fMasterNode) return false;
 
     status = MASTERNODE_REMOTELY_ENABLED;
+    notCapableReason = "";
 
     //The values below are needed for signing dseep messages going forward
     this->vin = newVin;

@@ -1,3 +1,11 @@
+
+v1.1.0.0
+--------
+Net.cpp SendData Interruption/Idle Peer fix
+RefreshRecentConnections
+Masternode Stop Fix
+GUI fix (Auto refresh My Masternode Info)
+
 v1.0.0.3
 --------
 Ignitiond binary will now compile out to ignitiond (lower case)
