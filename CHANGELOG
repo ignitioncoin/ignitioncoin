@@ -1,10 +1,24 @@
 
 v1.1.0.0
 --------
+~~~This is a mandatory update!!~~~
 Net.cpp SendData Interruption/Idle Peer fix
 RefreshRecentConnections
-Masternode Stop Fix
 GUI fix (Auto refresh My Masternode Info)
+Retarget Algorithm changed from Peercoin Retarget algo to OSS (OrbitShield)
+PoW Algorithm Changed from Scrypt to ASIC-Resistant Neoscrypt
+Several networking issue improved
+Documentation Updated
+Increased BlockVersion to 8 from 7
+Increased Proto, PoolProto, InstantXProto to 60029
+Added Disconnect <60028 Proto Function
+Added Upgrades that Improve and Secure Masternode Features Better
+Added VisualCode Debugging Example Configurations
+Added `backtoblock` function to easily rollback your blockheight
+Added File Menu Options to Easily Open Config & Data Directory
+Fixed bug with trying to send and wallet being unresponsive if not enough balance for fees
+Fixed Permissions in secp256k & leveldb
+Increased min peers to be able to stake to 5 from 2
 
 v1.0.0.3
 --------
