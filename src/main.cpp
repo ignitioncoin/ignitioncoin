@@ -94,7 +94,7 @@ int GetMinPoolPeerProto() {
     if (pindexBest == NULL) {
         return MIN_POOL_PEER_PROTO_VERSION_1;
     }
-    if(pindexBest->nHeight >= getForkHeightOne()-5)
+    if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_POOL_PEER_PROTO_VERSION_2;
     }
@@ -105,7 +105,7 @@ int GetMinPeerProto() {
     if (pindexBest == NULL) {
         return MIN_PEER_PROTO_VERSION_1;
     }
-    if(pindexBest->nHeight >= getForkHeightOne()-5)
+    if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_PEER_PROTO_VERSION_2;
     }
@@ -116,14 +116,14 @@ int GetMinInstantXProto() {
     if (pindexBest == NULL) {
         return MIN_INSTANTX_PROTO_VERSION_1;
     }
-    if(pindexBest->nHeight >= getForkHeightOne()-5) {
+    if(pindexBest->nHeight >= GetForkHeightOne()-5) {
         return MIN_INSTANTX_PROTO_VERSION_2;
     }
     return MIN_INSTANTX_PROTO_VERSION_1;
 }
 
 // Fork heights
-const int getForkHeightOne()
+const int GetForkHeightOne()
 {
     if (fTestNet)
     {
@@ -1495,7 +1495,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
     /* The next block */
     int nHeight = pindexLast->nHeight + 1;
 
-    if(nHeight < nNeoScryptFork) {
+    if(nHeight < GetForkHeightOne()) {
 
         /* Legacy every block retargets of the PPC style */
 
@@ -1520,7 +1520,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         if(!fNeoScrypt) fNeoScrypt = true;
 
         /* PoW difficulty reset after the switch */
-        if(!fProofOfStake && (pindexPrev->nHeight < nNeoScryptFork))
+        if(!fProofOfStake && (pindexPrev->nHeight < GetForkHeightOne()))
           return(bnNeoScryptSwitch.GetCompact());
 
         /* Orbitcoin Super Shield (OSS);
@@ -2160,7 +2160,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
 
-        if (pindex->nHeight >= getForkHeightOne())
+        if (pindex->nHeight >= GetForkHeightOne())
         {
             int64_t masternodePaymentShouldMax = GetMasternodePayment(pindex->nHeight, nCalculatedStakeReward);
             int64_t masternodePaymentShouldActual = masternodePaymentShouldMax;
@@ -2825,7 +2825,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     }
 
                     for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
-                        if (pindex->nHeight >= getForkHeightOne())
+                        if (pindex->nHeight >= GetForkHeightOne())
                         {
                             // Deviant fix - makes the checks useless because checks are done in the ConnectBlock function
                             LogPrintf("CheckBlock() : payee before - %s, payee after %s", payee.ToString(), vtx[1].vout[i].scriptPubKey.ToString());
@@ -2943,7 +2943,7 @@ bool CBlock::AcceptBlock()
       return(DoS(5, error("AcceptBlock() : block %s height %d has a time stamp too far in the future",
         hash.ToString().substr(0,20).c_str(), nHeight)));
 
-    if(nHeight > nNeoScryptFork) {
+    if(nHeight > GetForkHeightOne()) {
 
         /* Check for time stamp (past limit #1) */
         if(nTime <= (uint)pindexPrev->GetMedianTimePast())
@@ -2963,7 +2963,7 @@ bool CBlock::AcceptBlock()
 
     }
 
-    if((nHeight > nNeoScryptFork) && IsProofOfWork() && !IsInitialBlockDownload()) {
+    if((nHeight > GetForkHeightOne()) && IsProofOfWork() && !IsInitialBlockDownload()) {
 
         /* PoW block limiter */
         if(nTime <= ((uint)pindexPrev->GetMedianTimePast() + BLOCK_LIMITER_TIME)) {
@@ -3053,7 +3053,7 @@ uint256 CBlockIndex::GetBlockTrust() const {
 
     /* Old protocol */
 
-    if(nHeight < nNeoScryptFork)
+    if(nHeight < GetForkHeightOne())
       return(((CBigNum(1) << 256) / (bnTarget + 1)).getuint256());
 
     /* New protocol derived from Halcyon */

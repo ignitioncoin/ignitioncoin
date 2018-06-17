@@ -159,7 +159,7 @@ CMasternode::CMasternode(CService newAddr, CTxIn newVin, CPubKey newPubkey, std:
 uint256 CMasternode::CalculateScore(int mod, int64_t nBlockHeight)
 {
     if(pindexBest == NULL) return 0;
-    if (nBlockHeight == 0 && pindexBest->nHeight >= getForkHeightOne()) {
+    if (nBlockHeight == 0 && pindexBest->nHeight >= GetForkHeightOne()) {
         nBlockHeight = pindexBest->nHeight;
     }
     uint256 hash = 0;
@@ -172,7 +172,7 @@ uint256 CMasternode::CalculateScore(int mod, int64_t nBlockHeight)
 
     uint256 r = (hash3 > hash2 ? hash3 - hash2 : hash2 - hash3);
 
-    if (nBlockHeight >= getForkHeightOne())
+    if (nBlockHeight >= GetForkHeightOne())
     {
         unsigned int rInt32 = 0;
         memcpy(&rInt32, &r, 4);

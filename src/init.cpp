@@ -272,6 +272,7 @@ std::string HelpMessage()
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
     strUsage += "  -maxorphanblocks=<n>   " + strprintf(_("Keep at most <n> unconnectable blocks in memory (default: %u)"), DEFAULT_MAX_ORPHAN_BLOCKS) + "\n";
+    strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
     strUsage += "  -blockminsize=<n>      "   + _("Set minimum block size in bytes (default: 0)") + "\n";
@@ -854,9 +855,9 @@ bool AppInit2(boost::thread_group& threadGroup)
         return false;
     }
 
-    if (mapArgs.count("-backtoblockindex"))
+    if (mapArgs.count("-backtoblock"))
     {
-        int nNewHeight = GetArg("-backtoblockindex", 5000);
+        int nNewHeight = GetArg("-backtoblock", 5000);
         CBlockIndex* pindex = pindexBest;
         while (pindex != NULL && pindex->nHeight > nNewHeight)
         {
