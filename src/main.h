@@ -165,7 +165,7 @@ bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindex
 std::string GetWarnings(std::string strFor);
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock);
 uint256 WantedByOrphan(const COrphanBlock* pblockOrphan);
-const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
+const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange, bool fProofOfStake);
 void ThreadStakeMiner(CWallet *pwallet);
 
 
