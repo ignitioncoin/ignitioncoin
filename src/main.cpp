@@ -1434,12 +1434,27 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
     return nSubsidy + nFees;
 }
 
-// ppcoin: find last block index up to pindex
-const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
-{
-    while (pindex && pindex->pprev && (pindex->IsProofOfStake() != fProofOfStake))
-        pindex = pindex->pprev;
-    return pindex;
+/* Locate a block meeting the range and type specified down the block index;
+ * for example, PoW distance 1 means nRange set to 1 and fProofOfStake set to 0,
+ * search for the nearest PoW block down from and including *pindex,
+ * then continue looking for another PoW one and return its block index position
+ * or return a NULL pointer in case of any error */
+const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange,
+  const bool fProofOfStake) {
+
+    if(!pindex) return(NULL);
+
+    nRange++;
+
+    while(nRange) {
+        if(pindex->IsProofOfStake() == fProofOfStake) {
+            if(!(--nRange)) return(pindex);
+        }
+        if(pindex->pprev) pindex = pindex->pprev;
+        else break;
+    }
+
+    return(NULL);
 }
 
 unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfStake) {
@@ -1452,16 +1467,19 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
 
     /* The genesis block */
     if(!pindexLast) return(bnTargetLimit.GetCompact());
-    const CBlockIndex *pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
-    /* The 1st block */
-    if(!pindexPrev->pprev) return(bnTargetLimit.GetCompact());
-    const CBlockIndex *pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
-    /* The 2nd block */
-    if(!pindexPrevPrev->pprev) return(bnTargetLimit.GetCompact());
-    /* The next block */
+
+    /* The nearest block to the chain top of the type requested */
+    const CBlockIndex *pindexPrev = GetPrevBlockIndex(pindexLast, 0, fProofOfStake);
+    if(!pindexPrev) return(bnTargetLimit.GetCompact());
+
+    /* The next target block */
     int nHeight = pindexLast->nHeight + 1;
 
     if(nHeight < getForkHeightOne()) {
+
+        /* The next down to the nearest block of the type requested */
+        const CBlockIndex *pindexPrevPrev = GetPrevBlockIndex(pindexPrev, 1, fProofOfStake);
+        if(!pindexPrevPrev) return(bnTargetLimit.GetCompact());
 
         /* Legacy every block retargets of the PPC style */
 
@@ -1502,15 +1520,15 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         nTargetTimespan = nTargetSpacing * nIntervalLong;
 
         /* The short averaging window */
-        const CBlockIndex *pindexShort = pindexPrev;
-        for(i = 0; pindexShort && (i < nIntervalShort); i++)
-          pindexShort = GetLastBlockIndex(pindexShort->pprev, fProofOfStake);
+        const CBlockIndex *pindexShort = GetPrevBlockIndex(pindexPrev,
+          nIntervalShort, fProofOfStake);
+        if(!pindexShort) return(bnTargetLimit.GetCompact());
         nActualTimespanShort = (int64)pindexPrev->nTime - (int64)pindexShort->nTime;
 
         /* The long averaging window */
-        const CBlockIndex *pindexLong = pindexShort;
-        for(i = 0; pindexLong && (i < (nIntervalLong - nIntervalShort)); i++)
-          pindexLong = GetLastBlockIndex(pindexLong->pprev, fProofOfStake);
+        const CBlockIndex *pindexLong = GetPrevBlockIndex(pindexShort,
+          nIntervalLong - nIntervalShort, fProofOfStake);
+        if(!pindexLong) return(bnTargetLimit.GetCompact());
         nActualTimespanLong = (int64)pindexPrev->nTime - (int64)pindexLong->nTime;
 
         /* Time warp protection */
