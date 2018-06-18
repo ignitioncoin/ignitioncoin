@@ -2,7 +2,7 @@ TEMPLATE = app
 TARGET = Ignition-qt
 VERSION = 1.1.0.0
 INCLUDEPATH += src src/json src/qt src/qt/plugins/mrichtexteditor
-QT += network printsupport widgets gui
+QT += network printsupport
 DEFINES += ENABLE_WALLET
 DEFINES += BOOST_THREAD_USE_LIB BOOST_SPIRIT_THREADSAFE
 CONFIG += no_include_pwd
@@ -13,7 +13,7 @@ CONFIG += openssl
 QMAKE_CFLAGS += -DSHA256 -DASM -DOPT
 
 greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
+    QT += widgets gui
     DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0
 }
 
@@ -34,7 +34,7 @@ macx:BDB_LIB_PATH = /usr/local/Cellar/berkeley-db@4/4.8.30/lib
 macx:OPENSSL_INCLUDE_PATH = /usr/local/Cellar/openssl/1.0.2n/include
 macx:OPENSSL_LIB_PATH = /usr/local/Cellar/openssl/1.0.2n/lib
 macx:MINIUPNPC_INCLUDE_PATH = /usr/local/Cellar/miniupnpc/include
-macx:MINIUPNPC_LIB_PATH = /usr/local/Cellar/miniupnpc
+macx:MINIUPNPC_LIB_PATH = /usr/local/Cellar/miniupnpc/lib
 
 # workaround for boost 1.58
 DEFINES += BOOST_VARIANT_USE_RELAXED_GET_BY_DEFAULT
@@ -587,7 +587,7 @@ windows:!contains(MINGW_THREAD_BUGFIX, 0) {
 macx:HEADERS += src/qt/macdockiconhandler.h src/qt/macnotificationhandler.h
 macx:OBJECTIVE_SOURCES += src/qt/macdockiconhandler.mm src/qt/macnotificationhandler.mm
 macx:LIBS += -framework Foundation -framework ApplicationServices -framework AppKit -framework CoreServices
-macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0
+macx:DEFINES += MAC_OSX MSG_NOSIGNAL=0 Q_OS_MAC
 macx:ICON = src/qt/res/icons/Ignition.icns
 macx:TARGET = "Ignition-Qt"
 macx:QMAKE_CFLAGS_THREAD += -pthread
