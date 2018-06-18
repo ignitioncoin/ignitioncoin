@@ -47,9 +47,6 @@ set<pair<COutPoint, unsigned int> > setStakeSeen;
 
 CBigNum bnProofOfStakeLimit(~uint256(0) >> 20);
 
-/* The initial difficulty after switching to NeoScrypt (0.0625) */
-static CBigNum bnNeoScryptSwitch(~uint256(0) >> 28);
-
 unsigned int nStakeMinAge = 30 * 60; // 30 minutes
 unsigned int nModifierInterval = 8 * 60; // time to elapse before new modifier is computed
 
@@ -1505,7 +1502,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
 
         /* PoW difficulty reset after the switch */
         if(!fProofOfStake && (pindexPrev->nHeight < getForkHeightOne()))
-          return(bnNeoScryptSwitch.GetCompact());
+          return(Params().NeoScryptFirstTarget().GetCompact());
 
         /* Orbitcoin Super Shield (OSS);
          * retargets every block using two averaging windows of 5 and 20 blocks,

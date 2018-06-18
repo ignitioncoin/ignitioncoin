@@ -82,11 +82,12 @@ inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 static const unsigned char REJECT_INVALID = 0x10;
 
 /** Forks **/
+/* IMPORTANT: fork one should never be before block 17 */
 /* Livenet hard forks */ 
 static const int nForkOne = 50; 
  
 /* Testnet hard forks */ 
-static const int nTestnetForkOne = 50; 
+static const int nTestnetForkOne = 17; 
 
 /* Fork testing function */
 const int getForkHeightOne();
