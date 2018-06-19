@@ -7,15 +7,14 @@ software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
 Thomas Bernard.
 
 
-Mac OS X Ignitiond build instructions
-Laszlo Hanyecz <solar@heliacal.net>
-Douglas Huff <dhuff@jrbobdobbs.org>
+MacOS Ignitiond BUILD NOTES
+===========================
 
 
 See readme-qt.rst for instructions on building Ignition QT, the
 graphical user interface.
 
-Tested on 10.5 and 10.6 intel.  PPC is not supported because it's big-endian.
+Tested on MacOS High Sierra 10.13.2 - Darwin Kernel Version 17.3.0.  PPC is not supported because it's big-endian.
 
 All of the commands should be executed in Terminal.app.. it's in
 /Applications/Utilities
@@ -27,19 +26,18 @@ but you can get the current version from http://developer.apple.com
 
 1.  Clone the github tree to get the source code:
 
-git clone git@github.com:rat4/Ignition.git Ignition
+git clone https://github.com/ignitioncoin/ignitioncoin
 
-2.  Download and install MacPorts from http://www.macports.org/
+2.  Install XCode and it's command line tools
 
-2a. (for 10.7 Lion)
-    Edit /opt/local/etc/macports/macports.conf and uncomment "build_arch i386"
+3.  Download and install Homebrew from https://brew.sh/
 
-3.  Install dependencies from MacPorts
+4.  Install dependencies from Homebrew
 
-sudo port install boost db48 openssl miniupnpc
+brew install qt autoconf automake libtool boost@1.59 berkeley-db@4 openssl miniupnpc gmp
 
 Optionally install qrencode (and set USE_QRCODE=1):
-sudo port install qrencode
+brew install qrencode
 
 4.  Now you should be able to build Ignitiond:
 
