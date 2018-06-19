@@ -196,7 +196,7 @@ uint256 CMasternode::CalculateScore(int mod, int64_t nBlockHeight)
             {
                 if ((pIndexWork->nNonce & (~2047)) == iAddrHash)
                     break;
-                pIndexWork = GetLastBlockIndex(pIndexWork->pprev, true); // previous PoS block
+                pIndexWork = GetPrevBlockIndex(pIndexWork->pprev, 0, true); // previous PoS block
             }
         }
         rInt32 = (rInt32 >> 12);

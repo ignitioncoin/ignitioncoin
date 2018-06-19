@@ -87,15 +87,17 @@ Value getmininginfo(const Array& params, bool fHelp)
     if (pwalletMain)
         nWeight = pwalletMain->GetStakeWeight();
 
+    const CBlockIndex *pindexLastPoW = GetPrevBlockIndex(pindexBest, 0, false);
+    const CBlockIndex *pindexLastPoS = GetPrevBlockIndex(pindexBest, 0, true);
+
     Object obj, diff, weight;
     obj.push_back(Pair("blocks",        (int)nBestHeight));
     obj.push_back(Pair("currentblocksize",(uint64_t)nLastBlockSize));
     obj.push_back(Pair("currentblocktx",(uint64_t)nLastBlockTx));
 
-    diff.push_back(Pair("proof-of-work", GetDifficulty()));
-    diff.push_back(Pair("proof-of-stake", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    diff.push_back(Pair("proof-of-work", (float)GetDifficulty(pindexLastPoW)));
+    diff.push_back(Pair("proof-of-stake", (float)GetDifficulty(pindexLastPoS)));
     diff.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
-    //obj.push_back(Pair("difficulty", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
     obj.push_back(Pair("difficulty", diff));
 
     obj.push_back(Pair("blockvalue", (int64_t)GetProofOfStakeReward(pindexBest->nHeight, 0, 0))); //pprev
@@ -144,7 +146,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
     obj.push_back(Pair("currentblocktx", (uint64_t)nLastBlockTx));
     obj.push_back(Pair("pooledtx", (uint64_t)mempool.size()));
 
-    obj.push_back(Pair("difficulty", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    obj.push_back(Pair("difficulty", GetDifficulty(GetPrevBlockIndex(pindexBest, 0, true))));
     obj.push_back(Pair("search-interval", (int)nLastCoinStakeSearchInterval));
 
     obj.push_back(Pair("weight", (uint64_t)nWeight));
