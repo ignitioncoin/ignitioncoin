@@ -75,7 +75,7 @@ int GetMidMasternodes()
         if (pBlockCurr)
         {
             vecNodes.push_back(pBlockCurr->nNonce & 2047);
-            pBlockCurr = GetLastBlockIndex(pBlockCurr->pprev, true); // previous PoS block
+            pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block
         }
         else
             vecNodes.push_back(0);
@@ -92,13 +92,13 @@ int GetMidMasternodesUntilPrev()
     int inNonce;
     const CBlockIndex *pBlockCurr = pindexBest;
     if (pBlockCurr)
-        pBlockCurr = GetLastBlockIndex(pBlockCurr->pprev, true); // previous PoS block;
+        pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block;
     for (int i = 0; i < 361; i++)
     {
         if (pBlockCurr)
         {
             vecNodes.push_back(pBlockCurr->nNonce & 2047);
-            pBlockCurr = GetLastBlockIndex(pBlockCurr->pprev, true); // previous PoS block
+            pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block
         }
         else
             vecNodes.push_back(0);
