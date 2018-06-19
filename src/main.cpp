@@ -1535,7 +1535,7 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         if(!fNeoScrypt) fNeoScrypt = true;
 
         /* PoW difficulty reset after the switch */
-        if(!fProofOfStake && (pindexPrev->nHeight < getForkHeightOne()))
+        if(!fProofOfStake && (pindexPrev->nHeight < GetForkHeightOne()))
           return(Params().NeoScryptFirstTarget().GetCompact());
 
         /* Orbitcoin Super Shield (OSS);
