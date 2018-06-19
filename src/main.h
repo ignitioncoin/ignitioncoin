@@ -82,6 +82,7 @@ inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 static const unsigned char REJECT_INVALID = 0x10;
 
 /** Forks **/
+/* IMPORTANT: fork one should never be before block 17 */
 /* Livenet hard forks */ 
 static const int nForkOne = 215000; 
  
@@ -181,7 +182,7 @@ bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindex
 std::string GetWarnings(std::string strFor);
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock);
 uint256 WantedByOrphan(const COrphanBlock* pblockOrphan);
-const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
+const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange, bool fProofOfStake);
 void ThreadStakeMiner(CWallet *pwallet);
 
 
