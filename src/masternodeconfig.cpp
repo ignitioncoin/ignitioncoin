@@ -7,7 +7,7 @@ CMasternodeConfig masternodeConfig;
 
 
 void CMasternodeConfig::add(std::string alias, std::string ip, std::string privKey, std::string txHash, std::string outputIndex, std::string rewardAddress, std::string rewardPercent) {
-    CMasternodeEntry cme(alias, ip, privKey, txHash, outputIndex, rewardAddress, rewardPercent);
+    CMasternodeEntry cme(alias, ip, privKey, txHash, outputIndex, "", "");
     entries.push_back(cme);
 }
 
