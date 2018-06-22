@@ -84,8 +84,8 @@ void AddEditAdrenalineNode::on_okButton_clicked()
         std::string sMasternodePrivKey = ui->privkeyLineEdit->text().toStdString();
         std::string sTxHash = ui->txhashLineEdit->text().toStdString();
         std::string sOutputIndex = ui->outputindexLineEdit->text().toStdString();
-        //std::string sRewardAddress = ui->rewardaddressLineEdit->text().toStdString();
-        //std::string sRewardPercentage = ui->rewardpercentageLineEdit->text().toStdString();
+        std::string sRewardAddress = ""
+        std::string sRewardPercentage = ""
 
         boost::filesystem::path pathConfigFile = GetDataDir() / "masternode.conf";
         boost::filesystem::ofstream stream (pathConfigFile.string(), ios::out | ios::app);
