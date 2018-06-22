@@ -1,14 +1,14 @@
 Ignition Release Tree
 
-Ignition is a PoW (Scrypt) / PoS / Master Node hybrid cryptocurrency, with a 5 million coin maximum supply, which is generated at a slower rate every 1 Million IC, until it's limit is reached. Master Node cost 3000IC, block size is 20MB, and block time is ~2Minutes.
+Ignition is a PoW (NeoScrypt) / PoS / Master Node hybrid cryptocurrency, with a 5 million coin maximum supply, which is generated at a slower rate every 1 Million IC, until it's limit is reached. Master Node cost 3000IC, block size is 20MB, and block time is ~2Minutes.
 
-50% of Blocks are PoW , and 50% are PoS, of which each PoS block is split between Masternode and Staker.
+The block production is 50% PoW and 50% PoS, of which each PoS block is split between Masternode and Staker evenly.
 
 Block Spacing: 120 Seconds
 
-Maturity: 30 Blocks
+Maturity: 15 Blocks
 
-Stake Minimum Age: 1/2 Hours
+Stake Minimum Age: 30 Minutes
 
 Default Main-Net Network Ports:
 Port: 44144
@@ -16,7 +16,7 @@ RPC Port: 44155
 
 Website: https://IgnitionCoin.org
 
-LiveNet Explorer: http://explorer.ignitioncoin.org/
+LiveNet Explorer: http://explorer.ignitioncoin.org/  -- https://blockchain.ignitioncoin.org
 
 BitcoinTalk Announcement: https://bitcointalk.org/index.php?topic=2612608.0
 

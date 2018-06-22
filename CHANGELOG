@@ -19,6 +19,7 @@ Added File Menu Options to Easily Open Config & Data Directory
 Fixed bug with trying to send and wallet being unresponsive if not enough balance for fees
 Fixed Permissions in secp256k & leveldb
 Increased min peers to be able to stake to 5 from 2
+Masternodes are no longer capable of setting an external reward address
 
 v1.0.0.3
 --------
