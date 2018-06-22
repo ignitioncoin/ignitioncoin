@@ -269,6 +269,7 @@ std::string HelpMessage()
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
     strUsage += "  -maxorphanblocks=<n>   " + strprintf(_("Keep at most <n> unconnectable blocks in memory (default: %u)"), DEFAULT_MAX_ORPHAN_BLOCKS) + "\n";
+    strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
     strUsage += "  -blockminsize=<n>      "   + _("Set minimum block size in bytes (default: 0)") + "\n";
@@ -800,7 +801,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!LoadBlockIndex())
         return InitError(_("Error loading block database"));
 
-
     // as LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill bitcoin-qt during the last operation. If so, exit.
     // As the program has not fully started yet, Shutdown() is possibly overkill.
@@ -837,6 +837,27 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (nFound == 0)
             LogPrintf("No blocks matching %s were found\n", strMatch);
         return false;
+    }
+
+    if (mapArgs.count("-backtoblock"))
+    {
+        int nNewHeight = GetArg("-backtoblock", 5000);
+        CBlockIndex* pindex = pindexBest;
+        while (pindex != NULL && pindex->nHeight > nNewHeight)
+        {
+            pindex = pindex->pprev;
+        }
+
+        if (pindex != NULL)
+        {
+            LogPrintf("Back to block index %d\n", nNewHeight);
+	        CTxDB txdbAddr("rw");
+            CBlock block;
+            block.ReadFromDisk(pindex);
+            block.SetBestChain(txdbAddr, pindex);
+        }
+        else
+            LogPrintf("Block %d not found\n", nNewHeight);
     }
 
     // ********************************************************* Step 8: load wallet
