@@ -11,6 +11,7 @@ if [ ! -d "./test1" ]; then
       sudo chmod +x "test$i"/*.sh
     done
 else
+  sudo killall -9 ignitiond
   rm -r test1 && rm -r test2 && rm -r test3 && rm -r test4 && rm -r test5 && rm -r test6 && rm -r test7
   for i in {1..7}
     do
