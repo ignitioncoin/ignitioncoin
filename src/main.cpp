@@ -1375,11 +1375,6 @@ void static PruneOrphanBlocks()
     mapOrphanBlocks.erase(hash);
 }
 
-static CBigNum GetProofOfStakeLimit(int nHeight)
-{
-    return bnProofOfStakeLimit;
-}
-
 // miner's coin base reward
 // the yr1 1Mil, yr2-5 1Mil 5-10 1Mil 10-20 1Mil 20-50 1Mil distribution
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
@@ -1491,7 +1486,6 @@ const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange,
 unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfStake) {
     CBigNum bnTargetLimit, bnNew;
     int64 nTargetSpacing, nTargetTimespan;
-    uint i;
 
     if(fProofOfStake) bnTargetLimit = bnProofOfStakeLimit;
     else bnTargetLimit = Params().ProofOfWorkLimit();

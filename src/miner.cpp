@@ -68,7 +68,6 @@ int GetMidMasternodes()
 {
     int iMasternodes = 0;
     vector <unsigned int> vecNodes;
-    int inNonce;
     const CBlockIndex *pBlockCurr = pindexBest;
     for (int i = 0; i < 361; i++)
     {
@@ -89,7 +88,6 @@ int GetMidMasternodesUntilPrev()
 {
     int iMasternodes = 0;
     vector <unsigned int> vecNodes;
-    int inNonce;
     const CBlockIndex *pBlockCurr = pindexBest;
     if (pBlockCurr)
         pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block;
