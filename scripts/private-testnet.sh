@@ -11,6 +11,9 @@ else
     do
       mkdir "test$i"
       printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\n" >> "test$i"/Ignition.conf
+      printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
+      printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
+      sudo chmod +x "test$i"/mine-*.sh
     done
 fi
 
@@ -21,3 +24,7 @@ fi
 ./ignitiond --datadir=./test5 -port=33137 -rpcport=33169 -connect=127.0.0.1:33136 &
 ./ignitiond --datadir=./test6 -port=33138 -rpcport=33170 -connect=127.0.0.1:33137 &
 ./ignitiond --datadir=./test7 -port=33139 -rpcport=33171 -connect=127.0.0.1:33138 &
+
+wget https://github.com/pooler/cpuminer/releases/download/v2.5.0/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz && tar -xvf pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
+wget https://github.com/ghostlander/cpuminer-neoscrypt/releases/download/v2.4.3/cpuminer-neoscrypt-lin-2.4.3.tar.gz && tar -xvf cpuminer-neoscrypt-lin-2.4.3.tar.gz
+cp cpuminer-neoscrypt-lin-2.4.3/64bit/minerd ./minerdn && rm pooler-cpuminer-2.5.0-linux-x86_64.tar.gz && rm cpuminer-neoscrypt-lin-2.4.3.tar.gz && rm -r cpuminer-neoscrypt-lin-2.4.3/
