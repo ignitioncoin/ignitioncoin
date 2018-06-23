@@ -2,20 +2,24 @@
 if [ ! -d "./test1" ]; then
   for i in {1..7}
     do
+      portoffset=$((33154+$i))
+      connectOffset=$((33133+$i))
       mkdir "test$i"
-      printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\n" >> "test$i"/Ignition.conf
-      printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
-      printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
+      printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\nconnect=127.0.0.1:$connectOffset\n" >> "test$i"/Ignition.conf
+      printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:$portoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
+      printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:$portoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
       sudo chmod +x "test$i"/*.sh
     done
 else
   rm -r test1 && rm -r test2 && rm -r test3 && rm -r test4 && rm -r test5 && rm -r test6 && rm -r test7
   for i in {1..7}
     do
+      portoffset=$((33154+$i))
+      connectOffset=$((33137+$i))
       mkdir "test$i"
-      printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\n" >> "test$i"/Ignition.conf
-      printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
-      printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:33155 --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
+      printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\nconnect=127.0.0.1:$connectOffset\n" >> "test$i"/Ignition.conf
+      printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:$portoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
+      printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:$portoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
       sudo chmod +x "test$i"/*.sh
     done
 fi
