@@ -367,7 +367,6 @@ bool CheckNode(CAddress addrConnect)
 
     // Connect
     SOCKET hSocket;
-    bool proxyConnectionFailed = false;
     if (ConnectSocket(addrConnect, hSocket))
     {
         LogPrint("net", "connected masternode %s\n", addrConnect.ToString());
