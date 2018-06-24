@@ -1569,17 +1569,15 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
         nActualTimespan = nActualTimespanAvg + 3 * nTargetTimespan;
         nActualTimespan /= 4;
 
-        if(fDebug) {
-            fProofOfStake ? printf("RETARGET PoS ") : printf("RETARGET PoW ");
-            printf("heights: Last = %d, Prev = %d, Short = %d, Long = %d\n",
-              pindexLast->nHeight, pindexPrev->nHeight, pindexShort->nHeight, pindexLong->nHeight);
-            printf("RETARGET time stamps: Last = %u, Prev = %u, Short = %u, Long = %u\n",
-              pindexLast->nTime, pindexPrev->nTime, pindexShort->nTime, pindexLong->nTime);
-            printf("RETARGET windows: short = %" PRI64d " (%" PRI64d "), long = %" PRI64d \
-              ", average = %" PRI64d ", damped = %" PRI64d "\n",
-              nActualTimespanShort, nActualTimespanShort * (nIntervalLong / nIntervalShort),
-              nActualTimespanLong, nActualTimespanAvg, nActualTimespan);
-        }
+        fProofOfStake ? LogPrint("retarget", "RETARGET PoS ") : LogPrint("oss", "RETARGET PoW ");
+        LogPrint("retarget", "heights: Last = %d, Prev = %d, Short = %d, Long = %d\n",
+            pindexLast->nHeight, pindexPrev->nHeight, pindexShort->nHeight, pindexLong->nHeight);
+        LogPrint("retarget", "RETARGET time stamps: Last = %u, Prev = %u, Short = %u, Long = %u\n",
+            pindexLast->nTime, pindexPrev->nTime, pindexShort->nTime, pindexLong->nTime);
+        LogPrint("retarget", "RETARGET windows: short = %" PRI64d " (%" PRI64d "), long = %" PRI64d \
+            ", average = %" PRI64d ", damped = %" PRI64d "\n",
+            nActualTimespanShort, nActualTimespanShort * (nIntervalLong / nIntervalShort),
+            nActualTimespanLong, nActualTimespanAvg, nActualTimespan);
 
         /* Oscillation limiters */
         nActualTimespanMin = nTargetTimespan * 100 / 110; /* +10% */
@@ -1594,18 +1592,15 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
 
         if(bnNew > bnTargetLimit) bnNew = bnTargetLimit;
 
-        if(fDebug)
-          printf("RETARGET nTargetTimespan = %" PRI64d ", nActualTimespan = %" PRI64d \
+        LogPrint("retarget", "RETARGET nTargetTimespan = %" PRI64d ", nActualTimespan = %" PRI64d \
             ", nTargetTimespan / nActualTimespan = %.4f\n",
             nTargetTimespan, nActualTimespan, (float)nTargetTimespan / nActualTimespan);
 
     }
 
-    if(fDebug) {
-        printf("Before: %08x  %s\n", pindexPrev->nBits,
-          CBigNum().SetCompact(pindexPrev->nBits).getuint256().ToString().c_str());
-        printf("After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
-    }
+    LogPrint("retarget", "Before: %08x  %s\n", pindexPrev->nBits,
+        CBigNum().SetCompact(pindexPrev->nBits).getuint256().ToString().c_str());
+    LogPrint("retarget", "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
 
     return(bnNew.GetCompact());
 }
@@ -2206,7 +2201,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                 memcpy(&iAddrHash, &hash4, 4);
                 iAddrHash = iAddrHash << 11; //max 2047 (11b) for record current numbers of masternode
 
-                LogPrintf("ConnectBlock():MN addr:%s, AddrHash:%X, nNonce&~2047:%X, nNonce:%X\n", strAddr.c_str(), iAddrHash, (nNonce & (~2047)), nNonce); //for Debug
+                LogPrint("coinstake", "ConnectBlock():MN addr:%s, AddrHash:%X, nNonce&~2047:%X, nNonce:%X\n", strAddr.c_str(), iAddrHash, (nNonce & (~2047)), nNonce); //for Debug
 
                 if ((nNonce & (~2047)) != iAddrHash)
                 {
@@ -2227,7 +2222,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                 iWinerAge = iLastPaid;
                 iMidMNCount = (unsigned int)GetMidMasternodesUntilPrev();
 
-                LogPrintf("ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
+                LogPrint("coinstake", "ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
 
                 if (iWinerAge > (iMidMNCount*0.6))
                 {
@@ -2255,13 +2250,13 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                 }
                 if (nStakeReward > nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount))
                 {
-                    LogPrintf("ConnectBlock() : coinstake pays too much V3 (actual=%ld vs calculated=%ld).\n", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount)); //for Debug
-                    return error("ConnectBlock() : coinstake pays too much V3 (actual=%ld vs calculated=%ld)", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount));
+                    LogPrintf("ConnectBlock() : coinstake pays too much (actual=%ld vs calculated=%ld).\n", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount)); //for Debug
+                    return error("ConnectBlock() : coinstake pays too much (actual=%ld vs calculated=%ld)", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount));
                 }
                 if (GetBlockTime() > (GetAdjustedTime() - 180))
                 {
                     if (mnodeman.IsMNReal(strAddr))
-                        LogPrintf("ConnectBlock() : Masternode %s checked.\n", strAddr.c_str()); //for Debug
+                        LogPrint("coinstake", "ConnectBlock() : Masternode %s checked.\n", strAddr.c_str()); //for Debug
                     else
                     {
                         LogPrintf("ConnectBlock() : ERROR : Can't find masternode %s !!!!\n", strAddr.c_str()); //for Debug
@@ -2816,14 +2811,14 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
-                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1); }
+                        LogPrint("coinstake", "CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1);
                     }
 
                     for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
                         if (pindex->nHeight >= GetForkHeightOne())
                         {
                             // Deviant fix - makes the checks useless because checks are done in the ConnectBlock function
-                            LogPrintf("CheckBlock() : payee before - %s, payee after %s", payee.ToString(), vtx[1].vout[i].scriptPubKey.ToString());
+                            LogPrint("coinstake", "CheckBlock() : payee before - %s, payee after %s", payee.ToString(), vtx[1].vout[i].scriptPubKey.ToString());
                             payee = vtx[1].vout[i].scriptPubKey;
                         }
 
@@ -2840,22 +2835,22 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     CIgnitioncoinAddress address2(address1);
 
                     if(!foundPaymentAndPayee) {
-                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
+                        LogPrintf("CheckBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                         return DoS(100, error("CheckBlock() : Couldn't find masternode payment or payee"));
                     } else {
-                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
+                        LogPrint("coinstake", "CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                     }
                 } else {
-                    if(fDebug) { LogPrintf("CheckBlock() : Skipping masternode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
+                    LogPrint("coinstake", "CheckBlock() : Skipping masternode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str());
                 }
             } else {
-                if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping masternode payment check\n"); }
+                LogPrint("coinstake", "CheckBlock() : pindex is null, skipping masternode payment check\n");
             }
         } else {
-            if(fDebug) { LogPrintf("CheckBlock() : skipping masternode payment checks\n"); }
+            LogPrint("coinstake", "CheckBlock() : skipping masternode payment checks\n");
         }
     } else {
-        if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping masternode payment check %d\n", pindexBest->nHeight+1); }
+        LogPrint("coinstake", "CheckBlock() : Is initial download, skipping masternode payment check %d\n", pindexBest->nHeight+1);
     }
 
 
