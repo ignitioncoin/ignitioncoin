@@ -2941,7 +2941,7 @@ bool CBlock::AcceptBlock()
     if(nHeight > GetForkHeightOne()) {
 
         /* Check for time stamp (past limit #1) */
-        if(nTime <= (uint)pindexPrev->GetMedianTimePast())
+        if(nTime <= (uint)pindexPrev->GetMedianTimePast(IsProofOfStake()))
           return(DoS(20, error("AcceptBlock() : block %s height %d has a time stamp behind the median",
             hash.ToString().substr(0,20).c_str(), nHeight)));
 
@@ -2952,23 +2952,23 @@ bool CBlock::AcceptBlock()
 
     } else {
 
-    // Check timestamp against prev
-    if (GetBlockTime() <= pindexPrev->GetPastTimeLimit() || FutureDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
-        return error("AcceptBlock() : block's timestamp is too early");
+        // Check timestamp against prev
+        if (GetBlockTime() <= pindexPrev->GetPastTimeLimit() || FutureDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
+            return error("AcceptBlock() : block's timestamp is too early");
 
     }
 
     if((nHeight > GetForkHeightOne()) && IsProofOfWork() && !IsInitialBlockDownload()) {
 
         /* PoW block limiter */
-        if(nTime <= ((uint)pindexPrev->GetMedianTimePast() + BLOCK_LIMITER_TIME)) {
+        if(nTime <= ((uint)pindexPrev->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME)) {
             return(DoS(5, error("AcceptBlock() : block %s height %d rejected by the block limiter",
               hash.ToString().substr(0,20).c_str(), nHeight)));
         }
 
         /* Future travel detector for the PoW block limiter */
         if((nTime > (nOurTime + 60)) &&
-          ((pindexPrev->GetAverageTimePast(5, 40) + BLOCK_LIMITER_TIME) > nOurTime)) {
+          ((pindexPrev->GetAverageTimePast(5, 40, IsProofOfStake()) + BLOCK_LIMITER_TIME) > nOurTime)) {
             return(DoS(5, error("AcceptBlock() : block %s height %d rejected by the future travel detector",
               hash.ToString().substr(0,20).c_str(), nHeight)));
         }
@@ -3268,14 +3268,28 @@ bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
         int64_t nSearchInterval = 1;
         if (wallet.CreateCoinStake(wallet, nBits, nSearchInterval, nFees, txCoinStake, key, &nNonce))
         {
-            if(txCoinStake.nTime >= max((pindexBest->GetMedianTimePast() + BLOCK_LIMITER_TIME + 1),
-              PastDrift(pindexBest->GetBlockTime()))) {
+            unsigned int nPastLimit;
+            if (GetHeight() >= GetForkHeightOne())
+            {
+                nPastLimit = max((pindexBest->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME + 1),
+                    PastDrift(pindexBest->GetBlockTime()));
+            }
+            else
+            {
+                nPastLimit = pindexBest->GetPastTimeLimit()+1;
+            }
+
+            if(txCoinStake.nTime >= nPastLimit) {
 
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
                 vtx[0].nTime = nTime = txCoinStake.nTime;
-                nTime = max((pindexBest->GetMedianTimePast() + BLOCK_LIMITER_TIME + 1), GetMaxTransactionTime());
-                nTime = max(GetBlockTime(), PastDrift(pindexBest->GetBlockTime()));
+                
+                if (GetHeight() >= GetForkHeightOne())
+                {
+                    nTime = max((pindexBest->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME + 1), GetMaxTransactionTime());
+                    nTime = max(GetBlockTime(), PastDrift(pindexBest->GetBlockTime()));
+                }
 
                 // we have to make sure that we have no future timestamps in
                 //    our transactions set

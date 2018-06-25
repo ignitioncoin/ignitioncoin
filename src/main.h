@@ -1124,14 +1124,14 @@ public:
 
     enum { nMedianTimeSpan=11 };
 
-    int64_t GetMedianTimePast() const
+    int64_t GetMedianTimePast(bool fProofOfStake) const
     {
         int64_t pmedian[nMedianTimeSpan];
         int64_t* pbegin = &pmedian[nMedianTimeSpan];
         int64_t* pend = &pmedian[nMedianTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
+        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex, 0, fProofOfStake))
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
@@ -1139,7 +1139,7 @@ public:
     }
 
     /* Advanced average block time calculator */
-    uint GetAverageTimePast(uint nAvgTimeSpan, uint nMinDelay) const {
+    uint GetAverageTimePast(uint nAvgTimeSpan, uint nMinDelay, bool fProofOfStake) const {
         uint avg[nAvgTimeSpan];
         uint nTempTime, i;
         uint64 nAvgAccum;
@@ -1153,7 +1153,7 @@ public:
           avg[i] = 0;
 
         /* Fill with the time stamps */
-        for(i = nAvgTimeSpan; i && pindex; i--, pindex = pindex->pprev)
+        for(i = nAvgTimeSpan; i && pindex; i--, pindex = GetPrevBlockIndex(pindex, 0, fProofOfStake))
           avg[i - 1] = pindex->nTime;
 
         /* Not enough input blocks */
