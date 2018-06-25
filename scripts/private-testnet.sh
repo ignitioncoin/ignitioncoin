@@ -6,7 +6,7 @@ if [ ! -d "./test1" ]; then
       portoffset=$((33132+$i))
       connectOffset=$((33133+$i))
       mkdir "test$i"
-      printf "rpcuser=ICrpc\nrpcpassword=123\nrpcallowip=127.0.0.1\nport=$portoffset\nrpcport=$rpcportoffset\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\nconnect=127.0.0.1:$connectOffset\n" >> "test$i"/Ignition.conf
+      printf "rpcuser=rpc\nrpcpassword=123\nrpcallowip=127.0.0.1\nport=$portoffset\nrpcport=$rpcportoffset\ntestnet=1\ndaemon=1\nserver=1\nlisten=1\nconnect=127.0.0.1:$connectOffset\n" >> "test$i"/Ignition.conf
       printf "cd ../ && ./minerd --algo=scrypt --url=127.0.0.1:$rpcportoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-scrypt.sh
       printf "cd ../ && ./minerdn --no-gbt --url=127.0.0.1:$rpcportoffset --userpass=rpc:123 --threads=1" >> "test$i"/mine-neoscrypt.sh
       sudo chmod +x "test$i"/*.sh
