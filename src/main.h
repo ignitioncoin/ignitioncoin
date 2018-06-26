@@ -1131,7 +1131,7 @@ public:
         int64_t* pend = &pmedian[nMedianTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex, 0, fProofOfStake))
+        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
@@ -1153,7 +1153,7 @@ public:
           avg[i] = 0;
 
         /* Fill with the time stamps */
-        for(i = nAvgTimeSpan; i && pindex; i--, pindex = GetPrevBlockIndex(pindex, 0, fProofOfStake))
+        for(i = nAvgTimeSpan; i && pindex; i--, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
           avg[i - 1] = pindex->nTime;
 
         /* Not enough input blocks */
