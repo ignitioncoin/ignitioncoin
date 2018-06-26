@@ -366,7 +366,17 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-        pblock->nTime          = max(pindexPrev->GetPastTimeLimit()+1, pblock->GetMaxTransactionTime());
+        
+        if (pindexPrev->nHeight + 1 >= GetForkHeightOne())
+        {
+            pblock->nTime          = max((pindexPrev->GetMedianTimePast(false) + BLOCK_LIMITER_TIME + 1),
+                pblock->GetMaxTransactionTime());
+            pblock->nTime          = max(pblock->GetBlockTime(), PastDrift(pindexPrev->GetBlockTime()));
+        }
+        else
+        {
+            pblock->nTime          = max(pindexPrev->GetPastTimeLimit()+1, pblock->GetMaxTransactionTime());
+        }
         
         if (!fProofOfStake)
             pblock->UpdateTime(pindexPrev);
