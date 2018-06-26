@@ -84,10 +84,10 @@ static const unsigned char REJECT_INVALID = 0x10;
 /** Forks **/
 /* IMPORTANT: fork one should never be before block 17 */
 /* Livenet hard forks */ 
-static const int nForkOne = 215000; 
+static const int nForkOne = 225000; 
  
 /* Testnet hard forks */ 
-static const int nTestnetForkOne = 40; 
+static const int nTestnetForkOne = 250; 
 
 /* Fork testing function */
 const int GetForkHeightOne();
