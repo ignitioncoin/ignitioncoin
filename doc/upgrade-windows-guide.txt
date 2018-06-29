@@ -21,4 +21,4 @@ synced using the explorer, https://chainz.cryptoid.info/ic/
 Then, copy the backed up wallet and configuration files into the new Ignition data directory, by dragging your backed up
 files into %appdata%\Ignition folder.
 
-Now, run ignitiond again, and your all set , with old wallet and configurations.
+Now, run Ignition-qt again, and your all set , with old wallet and configurations.
