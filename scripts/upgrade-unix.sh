@@ -27,7 +27,12 @@ NC='\033[0m'
 NB_CORES=`nproc`
 
 # Install Git
-sudo apt-get install git
+# Install Git
+if [ -n "$(command -v yum)" ]; then
+    sudo yum install git
+elif [ -n "$(command -v apt-get)" ]; then
+    sudo apt-get install git
+fi
 
 # Clone / update repo if executing the script as a standalone script
 if [ -d .git ]; then
@@ -107,6 +112,8 @@ if [ -d "$HOME/.Ignition/" ]; then
 	rm -f blk*
 	rm -rf database
 	rm -rf txleveldb
+	rm peers.dat
+	rm mncache.dat
 	cp -r * $HOME/ignitionbackup
 fi
 
