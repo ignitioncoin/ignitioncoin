@@ -11,4 +11,4 @@ del -r database
 del -r txleveldb
 del peers.dat
 del mncache.dat
-xcopy /E ./ ~/Desktop
+xcopy /E ./ ~/Desktop/ignitionbackup
