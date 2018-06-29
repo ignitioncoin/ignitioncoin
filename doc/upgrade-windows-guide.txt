@@ -1,0 +1,24 @@
+:::: Upgrading on Windows 7/8.1/10 ::::
+
+Your default data directory is in the folder %AppData%\Ignition, you can reach it by pasting %AppData% into your windows
+explorer address bar - This folder contains your wallet*, the chain data, and your configuration files.
+
+First, we want to backup the important files from the data directory. Turn off any running Ignition wallet on your PC, and
+make a new folder on your desktop or elsewhere to store your backup files.
+
+Then, go to %appdata%\Ignition\ folder, and copy these important files to your backup folder:
+wallet.dat, Ignition.conf, and masternode.conf (if it exists)
+
+Now, you can delete the data directory. Click the Folder ^up button or type %appdata% in the address bar. Then,
+delete the Ignition folder. (Make sure you have backed up your wallet.dat or you WILL LOSE YOUR COINS!!)
+
+Now that your data directory is deleted, you can run the latest wallet. It is a `.exe` file and you can get the latest here:
+https://github.com/ignitioncoin/ignitioncoin/releases  (use the one with the highest version number)
+
+When you run it, it will then sync, this may take a while. Once fully synced, shut it down. You can check if it is
+synced using the explorer, https://chainz.cryptoid.info/ic/
+
+Then, copy the backed up wallet and configuration files into the new Ignition data directory, by dragging your backed up
+files into %appdata%\Ignition folder.
+
+Now, run ignitiond again, and your all set , with old wallet and configurations.
