@@ -2259,7 +2259,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                         LogPrint("coinstake", "ConnectBlock() : Masternode %s checked.\n", strAddr.c_str()); //for Debug
                     else
                     {
-                        LogPrintf("ConnectBlock() : ERROR : Can't find masternode %s !!!!\n", strAddr.c_str()); //for Debug
+                        LogPrint("coinstake", "ConnectBlock() : Can't find masternode %s !!!!\n", strAddr.c_str()); //for Debug
                     }
                 }
             }
