@@ -1,6 +1,6 @@
 taskkill /F /IM Ignition-qt.exe
 mkdir "%USERPROFILE%"\Desktop\ignitionbackup
-cd $env:APPDATA\Ignition\
+cd "%USERPROFILE%"\Ignition\
 del -r smsgStore
 del -r smsgDB
 del *.log
