@@ -55,6 +55,10 @@ if [ -d "../.git" ]; then
 		rm -f $SOURCES_PATH/bin/ignitiond
 		echo -e "${BLUE}Removed old binary in $SOURCES_PATH/bin/${NC}"
 	fi
+	if [ -f "../bin/ignitiond" ]; then
+      rm ../bin/ignitiond
+      echo "Removed old binary in ../bin/"
+    fi
 else
 	# Standalone mode
 	echo -e "\n${GREEN}Standalone mode${NC}"
@@ -88,8 +92,12 @@ fi
 cd $SOURCES_PATH/scripts
 
 # Install dependencies
-echo -e "\n${GREEN}Installing dependencies${NC}"
-./install-dependencies.sh
+read -p "Install Dependencies for Ubuntu? This will NOT install any dependencies if you say no! - Y/n: " -n 1 -r
+echo    # (optional) move to a new line
+if [[ $REPLY =~ ^[Yy]$ ]]; then
+    echo -e "\n${GREEN}Installing dependencies${NC}"
+    ./install-dependencies.sh
+fi
 
 # Cleaning repo
 echo -e "\n${GREEN}Cleaning repo${NC}"
