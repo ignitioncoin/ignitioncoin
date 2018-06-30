@@ -11,7 +11,7 @@ readYesNo()
 		case $ANSWER in
 			[Yy]* ) return 1;;
 			[Nn]* ) return 0;;
-			* ) echo -e "${BLUE}Please answer Y or N.${NC}";;
+			* ) echo "Please answer Y or N.";;
 		esac
 	done
 }
@@ -19,6 +19,8 @@ readYesNo()
 # Options
 SOURCES_PATH_DEFAULT=$HOME
 SOURCES_PATH="$SOURCES_PATH_DEFAULT/ignitioncoin"
+BACKUP_PATH_DEFAULT=$HOME/ignitionbackup
+BACKUP_PATH=$BACKUP_PATH_DEFAULT
 REPO="https://github.com/TechniumUnlimited/ignitioncoin"
 BRANCH="v1.1"
 #REPO="https://github.com/ignitioncoin/ignitioncoin"
@@ -80,6 +82,11 @@ else
 	fi
 fi
 
+if [ ! -d $SOURCES_PATH ]; then
+	echo -e "\n${RED}ERROR: installation folder could not be created${NC}"
+	exit -1
+fi
+
 # Kill and remove existing daemons
 echo -e "\n${GREEN}Removing existing daemons${NC}"
 sudo killall -9 ignitiond
@@ -92,11 +99,11 @@ fi
 cd $SOURCES_PATH/scripts
 
 # Install dependencies
-read -p "Install Dependencies for Ubuntu? This will NOT install any dependencies if you say no! - Y/n: " -n 1 -r
-echo    # (optional) move to a new line
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-    echo -e "\n${GREEN}Installing dependencies${NC}"
-    ./install-dependencies.sh
+echo -e "\n${GREEN}Installing dependencies${NC}"
+readYesNo "Install dependencies for Ubuntu? This will NOT install any dependencies if you say no!" "N"
+INSTALL_DEPS=$?
+if [ "$INSTALL_DEPS" = 1 ]; then
+	./install-dependencies.sh
 fi
 
 # Cleaning repo
@@ -116,11 +123,16 @@ echo -e "\n${GREEN}Building daemon${NC}"
 cd $SOURCES_PATH/src
 make -j$NB_CORES -f makefile.unix
 
+if [ ! -f $SOURCES_PATH/bin/ignitiond ]; then
+	echo -e "\n${RED}ERROR: ignitiond binary could not be created${NC}"
+	exit -2
+fi
+
 # Build QT GUI
+echo -e "\n${GREEN}Building GUI${NC}"
 readYesNo "Build GUI" "N"
 BUILD_GUI=$?
 if [ "$BUILD_GUI" = 1 ]; then
-	echo -e "\n${GREEN}Building GUI${NC}"
 	cd $SOURCES_PATH
 	qmake CONFIG+=debug
 	make -j$NB_CORES
@@ -139,9 +151,28 @@ sudo strip /usr/local/bin/ignitiond
 
 # Backup data dir
 if [ -d "$HOME/.Ignition/" ]; then
-	echo -e "\n${GREEN}Backing up ~/Ignition (including wallet.dat) in ~/ignitionbackup${NC}"
-	mkdir $HOME/ignitionbackup
-	cd $HOME/.Ignition/
+	echo -e "\n${GREEN}Backing up ~/Ignition (including wallet.dat)${NC}"
+
+	# Ask for the install path
+	read -e -p "${BLUE_READ}Backup directory [$BACKUP_PATH_DEFAULT]: ${NC_READ}" BACKUP_PATH
+	BACKUP_PATH="${BACKUP_PATH:-$BACKUP_PATH_DEFAULT}"
+	# Replace ~ with $HOME if needed
+	BACKUP_PATH="${BACKUP_PATH/[~]/$HOME}"
+
+	if [ ! -d "$BACKUP_PATH" ]; then
+		mkdir -p $BACKUP_PATH
+	fi
+
+	DATE=`date '+%Y%m%d-%H%M%S'`
+	CURRENT_BACKUP_PATH=$BACKUP_PATH/$DATE
+	mkdir $CURRENT_BACKUP_PATH
+
+	if [ ! -d $CURRENT_BACKUP_PATH ]; then
+		echo -e "\n${RED}ERROR: backup folder could not be created${NC}"
+		exit -1
+	fi
+
+	cd $HOME/.Ignition/  
 	rm -rf smsgStore
 	rm -rf smsgDB
 	rm -f *.log
@@ -151,7 +182,7 @@ if [ -d "$HOME/.Ignition/" ]; then
 	rm -rf txleveldb
 	rm -f peers.dat
 	rm -f mncache.dat
-	cp -r * $HOME/ignitionbackup
+	cp -r * $CURRENT_BACKUP_PATH
 fi
 
 # Done
