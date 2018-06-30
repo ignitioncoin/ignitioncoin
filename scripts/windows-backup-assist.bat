@@ -1,6 +1,5 @@
 taskkill /F /IM Ignition-qt.exe
-cd ~/Desktop/
-mkdir ignitionbackup
+mkdir "%USERPROFILE%"\Desktop\ignitionbackup
 cd $env:APPDATA\Ignition\
 del -r smsgStore
 del -r smsgDB
@@ -11,4 +10,4 @@ del -r database
 del -r txleveldb
 del peers.dat
 del mncache.dat
-xcopy /E ./ ~/Desktop/ignitionbackup
+xcopy /E .\* "%USERPROFILE%"\Desktop\ignitionbackup
