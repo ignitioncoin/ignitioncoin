@@ -21,10 +21,8 @@ SOURCES_PATH_DEFAULT=$HOME
 SOURCES_PATH="$SOURCES_PATH_DEFAULT/ignitioncoin"
 BACKUP_PATH_DEFAULT=$HOME/ignitionbackup
 BACKUP_PATH=$BACKUP_PATH_DEFAULT
-REPO="https://github.com/TechniumUnlimited/ignitioncoin"
-BRANCH="v1.1"
-#REPO="https://github.com/ignitioncoin/ignitioncoin"
-#BRANCH="master"
+REPO="https://github.com/ignitioncoin/ignitioncoin"
+BRANCH="master"
 SWAP_FILE="$HOME/ignitioncoin-swap"
 
 # Useful variables

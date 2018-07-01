@@ -1123,8 +1123,11 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 std::string errorMessage = "";
                 if(!darkSendSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
-                    LogPrintf("dseep - Got bad masternode address signature %s from IP %s \n", vin.ToString().c_str(), pmn->addr.ToString());
-                    Misbehaving(pfrom->GetId(), 100);
+                    LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
+                    if(pindexBest->nHeight >= GetForkHeightOne())
+                    {
+                        Misbehaving(pfrom->GetId(), 100);
+                    }
                     return;
                 }
 
