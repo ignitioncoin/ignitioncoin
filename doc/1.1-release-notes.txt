@@ -1,0 +1,20 @@
+1/ Fork height is set to 225,000th block - This is estimated to be early august. No changes will occur on the network
+(including POW algo change) until after this block height.
+
+2/ ASIC Miners will no longer be compatible miners for $IC. Only GPUs and some CPUs will have good mining results after
+the fork height (block 225,000). This is due to the change from Scrypt (ASIC Algorithm) to Neoscrypt (ASIC-Resist
+Algorithm). We hope this will increase decentralization even more.
+
+3/ There are many scripts added to the `reporoot/scripts` folder of the repo. These scripts can do a lot of things,
+check their name for a good start to what they do - and if you have any questions on how to use them, visit discord
+chat here: https://discord.io/Ignition
+
+4/ If you upgrade after the fork height (225,000th block), you *must* re-sync the blockchain data by deleting it (while
+keeping your wallet.dat & configurations backed up).
+
+5/ Nodes that run v1.0.0.3 or prior after the forkheight, 225,000th block, will be disconnected from upgraded nodes.
+Any earnings on nodes that stay on old nodes will not be credited when they do upgrade their wallet, but coins earned
+prior to the fork height will be safely stored in the same wallet.dat file.
+
+6/ Masternodes can no longer use the "RewardAddress" and % configurations to send portions or all of their masternode
+rewards to external addresses - This is to improve the structure of masternodes to be more hardened.
