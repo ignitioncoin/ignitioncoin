@@ -13,6 +13,7 @@
 #include "init.h"
 #include "kernel.h"
 #include "net.h"
+#include "miner.h"
 #include "txdb.h"
 #include "txmempool.h"
 #include "ui_interface.h"
@@ -84,6 +85,49 @@ CScript COINBASE_FLAGS;
 const string strMessageMagic = "Ignition Signed Message:\n";
 
 std::set<uint256> setValidatedTx;
+
+// Protocol version enforcement
+int GetMinPoolPeerProto() {
+    if (pindexBest == NULL) {
+        return MIN_POOL_PEER_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightOne()-5)
+    {
+        return MIN_POOL_PEER_PROTO_VERSION_2;
+    }
+    return MIN_POOL_PEER_PROTO_VERSION_1;
+}
+
+int GetMinPeerProto() {
+    if (pindexBest == NULL) {
+        return MIN_PEER_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightOne()-5)
+    {
+        return MIN_PEER_PROTO_VERSION_2;
+    }
+    return MIN_PEER_PROTO_VERSION_1;
+}
+
+int GetMinInstantXProto() {
+    if (pindexBest == NULL) {
+        return MIN_INSTANTX_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightOne()-5) {
+        return MIN_INSTANTX_PROTO_VERSION_2;
+    }
+    return MIN_INSTANTX_PROTO_VERSION_1;
+}
+
+// Fork heights
+const int GetForkHeightOne()
+{
+    if (fTestNet)
+    {
+        return nTestnetForkOne;
+    }
+    return nForkOne;
+}
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -1331,11 +1375,6 @@ void static PruneOrphanBlocks()
     mapOrphanBlocks.erase(hash);
 }
 
-static CBigNum GetProofOfStakeLimit(int nHeight)
-{
-    return bnProofOfStakeLimit;
-}
-
 // miner's coin base reward
 // the yr1 1Mil, yr2-5 1Mil 5-10 1Mil 10-20 1Mil 20-50 1Mil distribution
 int64_t GetProofOfWorkReward(int nHeight, int64_t nFees)
@@ -1421,61 +1460,149 @@ int64_t GetProofOfStakeReward(int nHeight, int64_t nCoinAge, int64_t nFees)
     return nSubsidy + nFees;
 }
 
-static int64_t nTargetTimespan = 48 * 60;  // 48 mins
+/* Locate a block meeting the range and type specified down the block index;
+ * for example, PoW distance 1 means nRange set to 1 and fProofOfStake set to 0,
+ * search for the nearest PoW block down from and including *pindex,
+ * then continue looking for another PoW one and return its block index position
+ * or return a NULL pointer in case of any error */
+const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange,
+  const bool fProofOfStake) {
 
-// ppcoin: find last block index up to pindex
-const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake)
-{
-    while (pindex && pindex->pprev && (pindex->IsProofOfStake() != fProofOfStake))
-        pindex = pindex->pprev;
-    return pindex;
-}
+    if(!pindex) return(NULL);
 
-unsigned int GetNextTargetRequired(const CBlockIndex* pindexLast, bool fProofOfStake)
-{
-	unsigned int nTargetTemp = TARGET_SPACING;
-	// if (pindexLast->nTime > FORK_TIME)
-	// 	nTargetTemp = TARGET_SPACING2;
-  nTargetTemp = TARGET_SPACING;
+    nRange++;
 
-	// if(pindexLast->GetBlockTime() > STAKE_TIMESPAN_SWITCH_TIME)
-	// nTargetTimespan = 2 * 60; // 2 minutes
-  //
-	// if(pindexLast->GetBlockTime() > STAKE_TIMESPAN_SWITCH_TIME1)
-	// nTargetTimespan = 10 * 60; // 10 minutes
-    nTargetTimespan = 10 * 60; // 10 minutes
-
-    CBigNum bnTargetLimit = fProofOfStake ? GetProofOfStakeLimit(pindexLast->nHeight) : Params().ProofOfWorkLimit();
-
-    if (pindexLast == NULL)
-        return bnTargetLimit.GetCompact(); // genesis block
-
-
-    const CBlockIndex* pindexPrev = GetLastBlockIndex(pindexLast, fProofOfStake);
-    if (pindexPrev->pprev == NULL)
-        return bnTargetLimit.GetCompact(); // first block
-    const CBlockIndex* pindexPrevPrev = GetLastBlockIndex(pindexPrev->pprev, fProofOfStake);
-    if (pindexPrevPrev->pprev == NULL)
-        return bnTargetLimit.GetCompact(); // second block
-
-    int64_t nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
-
-    if (nActualSpacing < 0){
-        nActualSpacing = nTargetTemp;
+    while(nRange) {
+        if(pindex->IsProofOfStake() == fProofOfStake) {
+            if(!(--nRange)) return(pindex);
+        }
+        if(pindex->pprev) pindex = pindex->pprev;
+        else break;
     }
 
-    // ppcoin: target change every block
-    // ppcoin: retarget with exponential moving toward target spacing
-    CBigNum bnNew;
-    bnNew.SetCompact(pindexPrev->nBits);
-    int64_t nInterval = nTargetTimespan / nTargetTemp;
-    bnNew *= ((nInterval - 1) * nTargetTemp + nActualSpacing + nActualSpacing);
-    bnNew /= ((nInterval + 1) * nTargetTemp);
+    return(NULL);
+}
 
-    if (bnNew <= 0 || bnNew > bnTargetLimit)
-        bnNew = bnTargetLimit;
+unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfStake) {
+    CBigNum bnTargetLimit, bnNew;
+    int64 nTargetSpacing, nTargetTimespan;
 
-    return bnNew.GetCompact();
+    if(fProofOfStake) bnTargetLimit = bnProofOfStakeLimit;
+    else bnTargetLimit = Params().ProofOfWorkLimit();
+
+    /* The genesis block */
+    if(!pindexLast) return(bnTargetLimit.GetCompact());
+
+    /* The nearest block to the chain top of the type requested */
+    const CBlockIndex *pindexPrev = GetPrevBlockIndex(pindexLast, 0, fProofOfStake);
+    if(!pindexPrev) return(bnTargetLimit.GetCompact());
+
+    /* The next target block */
+    int nHeight = pindexLast->nHeight + 1;
+
+    if(nHeight < GetForkHeightOne()) {
+
+        /* The next down to the nearest block of the type requested */
+        const CBlockIndex *pindexPrevPrev = GetPrevBlockIndex(pindexPrev, 1, fProofOfStake);
+        if(!pindexPrevPrev) return(bnTargetLimit.GetCompact());
+
+        /* Legacy every block retargets of the PPC style */
+
+        nTargetSpacing = TARGET_SPACING;
+
+        nTargetTimespan = 10 * 60;
+
+        int64 nActualSpacing = pindexPrev->GetBlockTime() - pindexPrevPrev->GetBlockTime();
+
+        if(nActualSpacing < 0) nActualSpacing = nTargetSpacing;
+
+        bnNew.SetCompact(pindexPrev->nBits);
+        int64 nInterval = nTargetTimespan / nTargetSpacing;
+        bnNew *= ((nInterval - 1) * nTargetSpacing + nActualSpacing + nActualSpacing);
+        bnNew /= ((nInterval + 1) * nTargetSpacing);
+
+        if((bnNew <= 0) || (bnNew > bnTargetLimit)) bnNew = bnTargetLimit;
+
+    } else {
+
+        /* The hard fork to NeoScrypt */
+        if(!fNeoScrypt) fNeoScrypt = true;
+
+        /* PoW difficulty reset after the switch */
+        if(!fProofOfStake && (pindexPrev->nHeight < GetForkHeightOne()))
+          return(Params().NeoScryptFirstTarget().GetCompact());
+
+        /* Orbitcoin Super Shield (OSS);
+         * retargets every block using two averaging windows of 5 and 20 blocks,
+         * 0.25 damping and further oscillation limiting */
+
+        int64 nIntervalShort = 5, nIntervalLong = 20,
+              nActualTimespan, nActualTimespanShort, nActualTimespanLong, nActualTimespanAvg,
+              nActualTimespanMax, nActualTimespanMin;
+
+        nTargetSpacing = 2 * TARGET_SPACING;
+
+        nTargetTimespan = nTargetSpacing * nIntervalLong;
+
+        /* The short averaging window */
+        const CBlockIndex *pindexShort = GetPrevBlockIndex(pindexPrev,
+          nIntervalShort, fProofOfStake);
+        if(!pindexShort) return(bnTargetLimit.GetCompact());
+        nActualTimespanShort = (int64)pindexPrev->nTime - (int64)pindexShort->nTime;
+
+        /* The long averaging window */
+        const CBlockIndex *pindexLong = GetPrevBlockIndex(pindexShort,
+          nIntervalLong - nIntervalShort, fProofOfStake);
+        if(!pindexLong) return(bnTargetLimit.GetCompact());
+        nActualTimespanLong = (int64)pindexPrev->nTime - (int64)pindexLong->nTime;
+
+        /* Time warp protection */
+        nActualTimespanShort = max(nActualTimespanShort, (nTargetSpacing * nIntervalShort / 2));
+        nActualTimespanShort = min(nActualTimespanShort, (nTargetSpacing * nIntervalShort * 2));
+        nActualTimespanLong  = max(nActualTimespanLong,  (nTargetSpacing * nIntervalLong  / 2));
+        nActualTimespanLong  = min(nActualTimespanLong,  (nTargetSpacing * nIntervalLong  * 2));
+
+        /* The average of both windows */
+        nActualTimespanAvg = (nActualTimespanShort * (nIntervalLong / nIntervalShort) + nActualTimespanLong) / 2;
+
+        /* 0.25 damping */
+        nActualTimespan = nActualTimespanAvg + 3 * nTargetTimespan;
+        nActualTimespan /= 4;
+
+        fProofOfStake ? LogPrint("retarget", "RETARGET PoS ") : LogPrint("oss", "RETARGET PoW ");
+        LogPrint("retarget", "heights: Last = %d, Prev = %d, Short = %d, Long = %d\n",
+            pindexLast->nHeight, pindexPrev->nHeight, pindexShort->nHeight, pindexLong->nHeight);
+        LogPrint("retarget", "RETARGET time stamps: Last = %u, Prev = %u, Short = %u, Long = %u\n",
+            pindexLast->nTime, pindexPrev->nTime, pindexShort->nTime, pindexLong->nTime);
+        LogPrint("retarget", "RETARGET windows: short = %" PRI64d " (%" PRI64d "), long = %" PRI64d \
+            ", average = %" PRI64d ", damped = %" PRI64d "\n",
+            nActualTimespanShort, nActualTimespanShort * (nIntervalLong / nIntervalShort),
+            nActualTimespanLong, nActualTimespanAvg, nActualTimespan);
+
+        /* Oscillation limiters */
+        nActualTimespanMin = nTargetTimespan * 100 / 110; /* +10% */
+        nActualTimespanMax = nTargetTimespan * 120 / 100; /* -20% */
+        if(nActualTimespan < nActualTimespanMin) nActualTimespan = nActualTimespanMin;
+        if(nActualTimespan > nActualTimespanMax) nActualTimespan = nActualTimespanMax;
+
+        /* Retarget */
+        bnNew.SetCompact(pindexPrev->nBits);
+        bnNew *= nActualTimespan;
+        bnNew /= nTargetTimespan;
+
+        if(bnNew > bnTargetLimit) bnNew = bnTargetLimit;
+
+        LogPrint("retarget", "RETARGET nTargetTimespan = %" PRI64d ", nActualTimespan = %" PRI64d \
+            ", nTargetTimespan / nActualTimespan = %.4f\n",
+            nTargetTimespan, nActualTimespan, (float)nTargetTimespan / nActualTimespan);
+
+    }
+
+    LogPrint("retarget", "Before: %08x  %s\n", pindexPrev->nBits,
+        CBigNum().SetCompact(pindexPrev->nBits).getuint256().ToString().c_str());
+    LogPrint("retarget", "After:  %08x  %s\n", bnNew.GetCompact(), bnNew.getuint256().ToString().c_str());
+
+    return(bnNew.GetCompact());
 }
 
 bool CheckProofOfWork(uint256 hash, unsigned int nBits)
@@ -2022,6 +2149,133 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
         if (nStakeReward > nCalculatedStakeReward)
             return DoS(100, error("ConnectBlock() : coinstake pays too much(actual=%d vs calculated=%d)", nStakeReward, nCalculatedStakeReward));
+
+        if (pindex->nHeight >= GetForkHeightOne())
+        {
+            int64_t masternodePaymentShouldMax = GetMasternodePayment(pindex->nHeight, nCalculatedStakeReward);
+            int64_t masternodePaymentShouldActual = masternodePaymentShouldMax;
+            CAmount masternodePaymentAmount;
+            CScript payeeByVal;
+
+            for (int i = vtx[1].vout.size(); i--> 0;)
+            {
+                masternodePaymentAmount = vtx[1].vout[i].nValue;
+                payeeByVal = vtx[1].vout[i].scriptPubKey;
+                break;
+            }
+
+            bool foundPaymentAmount = false;
+            bool foundPayee = false;
+            bool foundPaymentAndPayee = false;
+            CScript payee;
+            CTxIn vin;
+
+            if (!masternodePayments.GetBlockPayee(pindex->nHeight, payee, vin) || payee == CScript()){
+                foundPayee = true; //doesn't require a specific payee
+                foundPaymentAmount = true;
+                foundPaymentAndPayee = true;
+            }
+
+            for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
+                if (vtx[1].vout[i].nValue == masternodePaymentAmount)
+                    foundPaymentAmount = true;
+                if (vtx[1].vout[i].scriptPubKey == payee)
+                    foundPayee = true;
+                if (vtx[1].vout[i].nValue == masternodePaymentAmount && vtx[1].vout[i].scriptPubKey == payee)
+                    foundPaymentAndPayee = true;
+            }
+
+            if (foundPaymentAndPayee)
+            {
+                unsigned int iWinerAge = 0;
+                unsigned int iMidMNCount = 0;
+
+                //To Find Last Paid blocks
+                CTxDestination address1;
+                ExtractDestination(payeeByVal, address1);
+                CIgnitioncoinAddress address2(address1);
+                std::string strAddr = address2.ToString();
+                uint256 hash4;
+                SHA256((unsigned char*)strAddr.c_str(), strAddr.length(), (unsigned char*)&hash4);
+                unsigned int iAddrHash;
+                memcpy(&iAddrHash, &hash4, 4);
+                iAddrHash = iAddrHash << 11; //max 2047 (11b) for record current numbers of masternode
+
+                LogPrint("coinstake", "ConnectBlock():MN addr:%s, AddrHash:%X, nNonce&~2047:%X, nNonce:%X\n", strAddr.c_str(), iAddrHash, (nNonce & (~2047)), nNonce); //for Debug
+
+                if ((nNonce & (~2047)) != iAddrHash)
+                {
+                    return DoS(1, error("Connect() : nNonce&~2047 (%X) != iAddrHash(%X)", (nNonce & (~2047)), iAddrHash));
+                }
+                const CBlockIndex* pIndexWork = GetPrevBlockIndex(pindex->pprev, 0, true); // previous PoS block;
+                unsigned int iLastPaid = 0;
+
+                for (iLastPaid = 1; iLastPaid < 4095; iLastPaid++)
+                {
+                    if (pIndexWork)
+                    {
+                        if ((pIndexWork->nNonce & (~2047)) == iAddrHash)
+                            break;
+                        pIndexWork = GetPrevBlockIndex(pIndexWork->pprev, 0, true); // previous PoS block;
+                    }
+                }
+                iWinerAge = iLastPaid;
+                iMidMNCount = (unsigned int)GetMidMasternodesUntilPrev();
+
+                LogPrint("coinstake", "ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
+
+                if (iWinerAge > (iMidMNCount*0.6))
+                {
+                    ;
+                }
+                else
+                {
+                    masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                }
+                if (iMidMNCount > 0)
+                {
+                    if (masternodePaymentAmount > masternodePaymentShouldActual)
+                    {
+                        LogPrintf("Connect() : (iMidMNCount=%d) masternodePaymentAmount %ld larger than %ld.\n", iMidMNCount, masternodePaymentAmount, masternodePaymentShouldActual);//for Debug
+                        return error("Connect() : (iMidMNCount=%d) masternodePaymentAmount %ld larger than %ld.", iMidMNCount, masternodePaymentAmount, masternodePaymentShouldActual);
+                    }
+                }
+                if (iMidMNCount == 0)
+                {
+                    if (masternodePaymentAmount > masternodePaymentShouldMax)
+                    {
+                        LogPrintf("Connect() : (iMidMNCount=0) masternodePaymentAmount %ld larger than %ld.\n", masternodePaymentAmount, masternodePaymentShouldActual);//for Debug
+                        return error("Connect() : (iMidMNCount=0) masternodePaymentAmount %ld larger than %ld.", masternodePaymentAmount, masternodePaymentShouldActual);
+                    }
+                }
+                if (nStakeReward > nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount))
+                {
+                    LogPrintf("ConnectBlock() : coinstake pays too much (actual=%ld vs calculated=%ld).\n", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount)); //for Debug
+                    return error("ConnectBlock() : coinstake pays too much (actual=%ld vs calculated=%ld)", nStakeReward, nCalculatedStakeReward - (masternodePaymentShouldMax - masternodePaymentAmount));
+                }
+                if (GetBlockTime() > (GetAdjustedTime() - 180))
+                {
+                    if (mnodeman.IsMNReal(strAddr))
+                        LogPrint("coinstake", "ConnectBlock() : Masternode %s checked.\n", strAddr.c_str()); //for Debug
+                    else
+                    {
+                        LogPrint("coinstake", "ConnectBlock() : Can't find masternode %s !!!!\n", strAddr.c_str()); //for Debug
+                    }
+                }
+            }
+            else
+            {
+                if (fDebug)
+                {
+                    CTxDestination address1;
+                    ExtractDestination(payee, address1);
+                    CIgnitioncoinAddress address2(address1);
+                    LogPrintf("ConnectBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n",
+                        foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindex->nHeight);
+                }
+                return DoS(100, error("ConnectBlock() : Couldn't find masternode payment or payee"));
+            }
+        }
     }
 
     // ppcoin: track money supply and mint amount info
@@ -2331,12 +2585,12 @@ bool CBlock::SetBestChain(CTxDB& txdb, CBlockIndex* pindexNew)
         const CBlockIndex* pindex = pindexBest;
         for (int i = 0; i < 100 && pindex != NULL; i++)
         {
-            if (pindex->nVersion > CBlock::CURRENT_VERSION)
+            if (pindex->nVersion > CBlock::GetCurrentBlockVersion())
                 ++nUpgraded;
             pindex = pindex->pprev;
         }
         if (nUpgraded > 0)
-            LogPrintf("SetBestChain: %d of last 100 blocks above version %d\n", nUpgraded, (int)CBlock::CURRENT_VERSION);
+            LogPrintf("SetBestChain: %d of last 100 blocks above version %d\n", nUpgraded, (int)CBlock::GetCurrentBlockVersion());
         if (nUpgraded > 100/2)
             // strMiscWarning is read by GetWarnings(), called by Qt and the JSON-RPC code to warn the user:
             strMiscWarning = _("Warning: This version is obsolete, upgrade required!");
@@ -2478,10 +2732,6 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     if (fCheckPOW && IsProofOfWork() && !CheckProofOfWork(GetPoWHash(), nBits))
         return DoS(50, error("CheckBlock() : proof of work failed"));
 
-    // Check timestamp
-    if (GetBlockTime() > FutureDrift(GetAdjustedTime()))
-        return error("CheckBlock() : block timestamp too far in the future");
-
     // First transaction must be coinbase, the rest must not be
     if (vtx.empty() || !vtx[0].IsCoinBase())
         return DoS(100, error("CheckBlock() : first tx is not coinbase"));
@@ -2561,10 +2811,17 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                         foundPayee = true; //doesn't require a specific payee
                         foundPaymentAmount = true;
                         foundPaymentAndPayee = true;
-                        if(fDebug) { LogPrintf("CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1); }
+                        LogPrint("coinstake", "CheckBlock() : Using non-specific masternode payments %d\n", pindexBest->nHeight+1);
                     }
 
                     for (unsigned int i = 0; i < vtx[1].vout.size(); i++) {
+                        if (pindex->nHeight >= GetForkHeightOne())
+                        {
+                            // Deviant fix - makes the checks useless because checks are done in the ConnectBlock function
+                            LogPrint("coinstake", "CheckBlock() : payee before - %s, payee after %s", payee.ToString(), vtx[1].vout[i].scriptPubKey.ToString());
+                            payee = vtx[1].vout[i].scriptPubKey;
+                        }
+
                         if(vtx[1].vout[i].nValue == masternodePaymentAmount )
                             foundPaymentAmount = true;
                         if(vtx[1].vout[i].scriptPubKey == payee )
@@ -2578,22 +2835,22 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
                     CIgnitioncoinAddress address2(address1);
 
                     if(!foundPaymentAndPayee) {
-                        if(fDebug) { LogPrintf("CheckBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1); }
+                        LogPrintf("CheckBlock() : Couldn't find masternode payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                         return DoS(100, error("CheckBlock() : Couldn't find masternode payment or payee"));
                     } else {
-                        LogPrintf("CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
+                        LogPrint("coinstake", "CheckBlock() : Found payment(%d|%d) or payee(%d|%s) nHeight %d. \n", foundPaymentAmount, masternodePaymentAmount, foundPayee, address2.ToString().c_str(), pindexBest->nHeight+1);
                     }
                 } else {
-                    if(fDebug) { LogPrintf("CheckBlock() : Skipping masternode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str()); }
+                    LogPrint("coinstake", "CheckBlock() : Skipping masternode payment check - nHeight %d Hash %s\n", pindexBest->nHeight+1, GetHash().ToString().c_str());
                 }
             } else {
-                if(fDebug) { LogPrintf("CheckBlock() : pindex is null, skipping masternode payment check\n"); }
+                LogPrint("coinstake", "CheckBlock() : pindex is null, skipping masternode payment check\n");
             }
         } else {
-            if(fDebug) { LogPrintf("CheckBlock() : skipping masternode payment checks\n"); }
+            LogPrint("coinstake", "CheckBlock() : skipping masternode payment checks\n");
         }
     } else {
-        if(fDebug) { LogPrintf("CheckBlock() : Is initial download, skipping masternode payment check %d\n", pindexBest->nHeight+1); }
+        LogPrint("coinstake", "CheckBlock() : Is initial download, skipping masternode payment check %d\n", pindexBest->nHeight+1);
     }
 
 
@@ -2640,7 +2897,7 @@ bool CBlock::AcceptBlock()
     AssertLockHeld(cs_main);
 
     // Remove for BIP-0034 FORK
-    if (nVersion > CURRENT_VERSION)
+    if (nVersion > CBlock::GetCurrentBlockVersion())
         return DoS(100, error("AcceptBlock() : reject unknown block version %d", nVersion));
 
     // Check for duplicate
@@ -2669,6 +2926,50 @@ bool CBlock::AcceptBlock()
     if (IsProofOfStake() && nHeight < Params().POSStartBlock())
         return DoS(100, error("AcceptBlock() : reject proof-of-stake at height <= %d", nHeight));
 
+    uint nOurTime = (uint)GetAdjustedTime();
+
+    /* Check for time stamp (future limit) */
+    if(nTime > (nOurTime + 2 * 60))
+      return(DoS(5, error("AcceptBlock() : block %s height %d has a time stamp too far in the future",
+        hash.ToString().substr(0,20).c_str(), nHeight)));
+
+    if(nHeight > GetForkHeightOne()) {
+
+        /* Check for time stamp (past limit #1) */
+        if(nTime <= (uint)pindexPrev->GetMedianTimePast(IsProofOfStake()))
+          return(DoS(20, error("AcceptBlock() : block %s height %d has a time stamp behind the median",
+            hash.ToString().substr(0,20).c_str(), nHeight)));
+
+        /* Check for time stamp (past limit #2) */
+        if(nTime <= (pindexPrev->nTime - 3 * 60))
+          return(DoS(20, error("AcceptBlock() : block %s height %d has a time stamp too far in the past",
+            hash.ToString().substr(0,20).c_str(), nHeight)));
+
+    } else {
+
+        // Check timestamp against prev
+        if (GetBlockTime() <= pindexPrev->GetPastTimeLimit() || FutureDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
+            return error("AcceptBlock() : block's timestamp is too early");
+
+    }
+
+    if((nHeight > GetForkHeightOne()) && IsProofOfWork() && !IsInitialBlockDownload()) {
+
+        /* PoW block limiter */
+        if(nTime <= ((uint)pindexPrev->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME)) {
+            return(DoS(5, error("AcceptBlock() : block %s height %d rejected by the block limiter",
+              hash.ToString().substr(0,20).c_str(), nHeight)));
+        }
+
+        /* Future travel detector for the PoW block limiter */
+        if((nTime > (nOurTime + 60)) &&
+          ((pindexPrev->GetAverageTimePast(5, 40, IsProofOfStake()) + BLOCK_LIMITER_TIME) > nOurTime)) {
+            return(DoS(5, error("AcceptBlock() : block %s height %d rejected by the future travel detector",
+              hash.ToString().substr(0,20).c_str(), nHeight)));
+        }
+
+    }
+
     // Check coinbase timestamp
     if (GetBlockTime() > FutureDrift((int64_t)vtx[0].nTime) && IsProofOfStake())
         return DoS(50, error("AcceptBlock() : coinbase timestamp is too early"));
@@ -2680,10 +2981,6 @@ bool CBlock::AcceptBlock()
     // Check proof-of-work or proof-of-stake
     if (nBits != GetNextTargetRequired(pindexPrev, IsProofOfStake()) && hash != uint256("0x474619e0a58ec88c8e2516f8232064881750e87acac3a416d65b99bd61246968") && hash != uint256("0x4f3dd45d3de3737d60da46cff2d36df0002b97c505cdac6756d2d88561840b63") && hash != uint256("0x274996cec47b3f3e6cd48c8f0b39c32310dd7ddc8328ae37762be956b9031024"))
         return DoS(100, error("AcceptBlock() : incorrect %s", IsProofOfWork() ? "proof-of-work" : "proof-of-stake"));
-
-    // Check timestamp against prev
-    if (GetBlockTime() <= pindexPrev->GetPastTimeLimit() || FutureDrift(GetBlockTime()) < pindexPrev->GetBlockTime())
-        return error("AcceptBlock() : block's timestamp is too early");
 
     // Check that all transactions are finalized
     BOOST_FOREACH(const CTransaction& tx, vtx)
@@ -2737,8 +3034,8 @@ bool CBlock::AcceptBlock()
     return true;
 }
 
-uint256 CBlockIndex::GetBlockTrust() const
-{
+/* Calculates trust score for a block given */
+uint256 CBlockIndex::GetBlockTrust() const {
     CBigNum bnTarget;
     bnTarget.SetCompact(nBits);
 
@@ -2964,13 +3261,30 @@ bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
     if (nSearchTime > nLastCoinStakeSearchTime)
     {
         int64_t nSearchInterval = 1;
-        if (wallet.CreateCoinStake(wallet, nBits, nSearchInterval, nFees, txCoinStake, key))
+        if (wallet.CreateCoinStake(wallet, nBits, nSearchInterval, nFees, txCoinStake, key, &nNonce))
         {
-            if (txCoinStake.nTime >= pindexBest->GetPastTimeLimit()+1)
+            unsigned int nPastLimit;
+            if (GetHeight() >= GetForkHeightOne())
             {
+                nPastLimit = max((pindexBest->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME + 1),
+                    PastDrift(pindexBest->GetBlockTime()));
+            }
+            else
+            {
+                nPastLimit = pindexBest->GetPastTimeLimit()+1;
+            }
+
+            if(txCoinStake.nTime >= nPastLimit) {
+
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
                 vtx[0].nTime = nTime = txCoinStake.nTime;
+                
+                if (GetHeight() >= GetForkHeightOne())
+                {
+                    nTime = max((pindexBest->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME + 1), GetMaxTransactionTime());
+                    nTime = max(GetBlockTime(), PastDrift(pindexBest->GetBlockTime()));
+                }
 
                 // we have to make sure that we have no future timestamps in
                 //    our transactions set
@@ -3572,7 +3886,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         CAddress addrFrom;
         uint64_t nNonce = 1;
         vRecv >> pfrom->nVersion >> pfrom->nServices >> nTime >> addrMe;
-        if (pfrom->nVersion < MIN_PEER_PROTO_VERSION)
+        if (pfrom->nVersion < GetMinPeerProto())
         {
             // disconnect from peers older than this proto version
             LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);
@@ -3672,6 +3986,13 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         return false;
     }
 
+    else if (pfrom->nVersion < GetMinPeerProto())
+    {
+        // Disconnect from peers older than this proto version
+        LogPrintf("partner %s using obsolete version %i; disconnecting\n", pfrom->addr.ToString(), pfrom->nVersion);
+        pfrom->fDisconnect = true;
+        return false;
+    }
 
     else if (strCommand == "verack")
     {
@@ -3937,7 +4258,10 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 std::string errorMessage = "";
                 if(!darkSendSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage)){
                     LogPrintf("dstx: Got bad masternode address signature %s \n", vin.ToString().c_str());
-                    //Misbehaving(pfrom->GetId(), 20);
+                    if(pindexBest->nHeight >= GetForkHeightOne())
+                    {                   
+                        Misbehaving(pfrom->GetId(), 20);
+                    }
                     return false;
                 }
 
@@ -4540,5 +4864,11 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 	// if(nHeight>21000)
   //      ret = blockValue * 4/5; //80%
 
+    return ret;
+}
+
+int64_t GetMasternodePaymentSmall(int nHeight, int64_t blockValue)
+{
+    int64_t ret = GetMasternodePayment(nHeight, blockValue) / 10;
     return ret;
 }

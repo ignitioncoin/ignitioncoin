@@ -119,40 +119,6 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_6">
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label_3">
-       <property name="text">
-        <string>Reward Address</string>
-       </property>
-      </widget>
-     </item> 
-     <item>
-      <widget class="QLineEdit" name="rewardaddressLineEdit"/>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_7">
-     <property name="bottomMargin">
-      <number>0</number>
-     </property>
-     <item>
-      <widget class="QLabel" name="label_7">
-       <property name="text">
-        <string>Reward %</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLineEdit" name="rewardpercentageLineEdit"/>
-     </item>
-    </layout>
-   </item>
-   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_Buttons">
      <item>
       <widget class="QPushButton" name="okButton">

@@ -3,6 +3,8 @@
 // Distributed under the MIT/X11 software license, see the accompanying
 // file COPYING or http://www.opensource.org/licenses/mit-license.php.
 
+#define __STDC_LIMIT_MACROS
+#include <limits.h>
 #include "base58.h"
 #include "stealth.h"
 #include "smessage.h"

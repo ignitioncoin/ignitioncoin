@@ -284,11 +284,6 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    darksendAction = new QAction(QIcon(":/icons/res/icons/darksend.png"), tr("&Darksend"), this);
-    darksendAction->setToolTip(tr("Mix coins anonymously"));
-    darksendAction->setCheckable(true);
-    tabGroup->addAction(darksendAction);
-
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setToolTip(tr("Show the list of addresses for receiving payments"));
     receiveCoinsAction->setCheckable(true);
@@ -300,6 +295,11 @@ void BitcoinGUI::createActions()
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(sendCoinsAction);
+
+    darksendAction = new QAction(QIcon(":/icons/res/icons/darksend.png"), tr("&Darksend"), this);
+    darksendAction->setToolTip(tr("Mix coins anonymously"));
+    darksendAction->setCheckable(true);
+    tabGroup->addAction(darksendAction);
 
     historyAction = new QAction(QIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setToolTip(tr("Browse transaction history"));
@@ -343,12 +343,12 @@ void BitcoinGUI::createActions()
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
-    connect(darksendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(darksendAction, SIGNAL(triggered()), this, SLOT(gotoDarksendPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(gotoDarksendPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -482,9 +482,9 @@ void BitcoinGUI::createToolBars()
 
     //QMenu *toolbarMenu = new QMenu();
     toolbar->addAction(overviewAction);
-    toolbar->addAction(darksendAction);
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(sendCoinsAction);
+    toolbar->addAction(darksendAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
     toolbar->addAction(masternodeManagerAction);

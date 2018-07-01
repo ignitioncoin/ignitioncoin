@@ -98,9 +98,14 @@ bool fDaemon = false;
 bool fServer = false;
 bool fCommandLine = false;
 string strMiscWarning;
+bool fTestNet = false;
 bool fNoListen = false;
 bool fLogTimestamps = false;
 volatile bool fReopenDebugLog = false;
+
+/* NeoScrypt related */
+bool fNeoScrypt = false;
+uint nNeoScryptOptions = 0;
 
 // Init OpenSSL library multithreading support
 static CCriticalSection** ppmutexOpenSSL;

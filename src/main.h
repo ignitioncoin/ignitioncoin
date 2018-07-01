@@ -11,7 +11,8 @@
 #include "txmempool.h"
 #include "net.h"
 #include "script.h"
-#include "scrypt.h"
+
+#include "neoscrypt.h"
 
 #include <list>
 
@@ -71,11 +72,26 @@ inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MO
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
 
+static const uint BLOCK_LIMITER_TIME = 240;
+
 static const int64_t DRIFT = 120;
+inline int64_t PastDrift(int64_t nTime) { return nTime - DRIFT; }
 inline int64_t FutureDrift(int64_t nTime) { return nTime + DRIFT; }
 
 /** "reject" message codes **/
 static const unsigned char REJECT_INVALID = 0x10;
+
+/** Forks **/
+/* IMPORTANT: fork one should never be before block 17 */
+/* Livenet hard forks */ 
+static const int nForkOne = 225000; 
+ 
+/* Testnet hard forks */ 
+static const int nTestnetForkOne = 250; 
+
+/* Fork testing function */
+const int GetForkHeightOne();
+
 
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }
 
@@ -132,6 +148,13 @@ void SyncWithWallets(const CTransaction& tx, const CBlock* pblock = NULL, bool f
 /** Ask wallets to resend their transactions */
 void ResendWalletTransactions(bool fForce = false);
 
+// Minimum peer version accepted by DarkSendPool
+int GetMinPoolPeerProto();
+// Disconnect from peers older than this proto version
+int GetMinPeerProto();
+// Minimum InstantX Proto Version Accepted 
+int GetMinInstantXProto();
+
 /** Register with a network node to receive its signals */
 void RegisterNodeSignals(CNodeSignals& nodeSignals);
 /** Unregister a network node */
@@ -159,7 +182,7 @@ bool IsConfirmedInNPrevBlocks(const CTxIndex& txindex, const CBlockIndex* pindex
 std::string GetWarnings(std::string strFor);
 bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock);
 uint256 WantedByOrphan(const COrphanBlock* pblockOrphan);
-const CBlockIndex* GetLastBlockIndex(const CBlockIndex* pindex, bool fProofOfStake);
+const CBlockIndex *GetPrevBlockIndex(const CBlockIndex *pindex, uint nRange, bool fProofOfStake);
 void ThreadStakeMiner(CWallet *pwallet);
 
 
@@ -182,6 +205,7 @@ bool AbortNode(const std::string &msg, const std::string &userMessage="");
 bool GetNodeStateStats(NodeId nodeid, CNodeStateStats &stats);
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue);
+int64_t GetMasternodePaymentSmall(int nHeight, CAmount nFees);
 
 struct CNodeStateStats {
     int nMisbehavior;
@@ -631,7 +655,6 @@ class CBlock
 {
 public:
     // header
-    static const int CURRENT_VERSION = 7;
     int nVersion;
     uint256 hashPrevBlock;
     uint256 hashMerkleRoot;
@@ -680,9 +703,20 @@ public:
         }
     )
 
+    static const int GetCurrentBlockVersion() {
+        if (nBestHeight == 0) {
+            return CURRENT_BLOCK_VERSION_1;
+        }
+        if(nBestHeight >= GetForkHeightOne()-5)
+        {
+            return CURRENT_BLOCK_VERSION_2;
+        }
+        return CURRENT_BLOCK_VERSION_1;
+    }
+
     void SetNull()
     {
-        nVersion = CBlock::CURRENT_VERSION;
+        nVersion = CBlock::GetCurrentBlockVersion();
         hashPrevBlock = 0;
         hashMerkleRoot = 0;
         nTime = 0;
@@ -707,9 +741,43 @@ public:
             return GetPoWHash();
     }
 
-    uint256 GetPoWHash() const
-    {
-        return scrypt_blockhash(CVOIDBEGIN(nVersion));
+    uint256 GetPoWHash() const {
+        uint256 hashPoW;
+        uint profile = 0x0;
+
+        /* All these blocks must be v2+ with valid nHeight */
+        if(GetBlockHeight() < GetForkHeightOne())
+          profile = 0x3;
+
+        profile |= nNeoScryptOptions;
+
+        neoscrypt((uchar *) &nVersion, (uchar *) &hashPoW, profile);
+
+        return(hashPoW);
+    }
+
+    /* Extracts block height from v2+ coin base;
+     * ignores nVersion because it's unreliable */
+    int GetBlockHeight() const {
+        /* Prevents a crash if called on a block header alone */
+        if(vtx.size()) {
+            /* Serialised CScript */
+            std::vector<uchar>::const_iterator scriptsig = vtx[0].vin[0].scriptSig.begin();
+            uchar i, scount = scriptsig[0];
+            /* Optimise: nTime is 4 bytes always,
+             * nHeight must be less for a long time;
+             * check against a threshold when the time comes */
+            if(scount < 4) {
+                int height = 0;
+                uchar *pheight = (uchar *) &height;
+                for(i = 0; i < scount; i++)
+                  pheight[i] = scriptsig[i + 1];
+                /* v2+ block with nHeight in coin base */
+                return(height);
+            }
+        }
+        /* Not found */
+        return(-1);
     }
 
     int64_t GetBlockTime() const
@@ -1056,18 +1124,56 @@ public:
 
     enum { nMedianTimeSpan=11 };
 
-    int64_t GetMedianTimePast() const
+    int64_t GetMedianTimePast(bool fProofOfStake) const
     {
         int64_t pmedian[nMedianTimeSpan];
         int64_t* pbegin = &pmedian[nMedianTimeSpan];
         int64_t* pend = &pmedian[nMedianTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = pindex->pprev)
+        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
         return pbegin[(pend - pbegin)/2];
+    }
+
+    /* Advanced average block time calculator */
+    uint GetAverageTimePast(uint nAvgTimeSpan, uint nMinDelay, bool fProofOfStake) const {
+        uint avg[nAvgTimeSpan];
+        uint nTempTime, i;
+        uint64 nAvgAccum;
+        const CBlockIndex *pindex = this;
+
+        /* Keep it fail safe */
+        if(!nAvgTimeSpan) return(0);
+
+        /* Initialise the elements to zero */
+        for(i = 0; i < nAvgTimeSpan; i++)
+          avg[i] = 0;
+
+        /* Fill with the time stamps */
+        for(i = nAvgTimeSpan; i && pindex; i--, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
+          avg[i - 1] = pindex->nTime;
+
+        /* Not enough input blocks */
+        if(!avg[0]) return(0);
+
+        /* Time travel aware accumulator */
+        nTempTime = avg[0];
+        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) { 
+            /* Update the accumulator either with an actual or minimal
+             * delay supplied to prevent extremely fast blocks */
+            if(avg[i] < (nTempTime + nMinDelay))
+              nTempTime += nMinDelay;
+            else
+              nTempTime  = avg[i];
+            nAvgAccum += nTempTime;
+        }
+
+        nTempTime = (uint)(nAvgAccum / (uint64)nAvgTimeSpan);
+
+        return(nTempTime);
     }
 
     bool IsProofOfWork() const
