@@ -15,10 +15,10 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</source>
+Copyright © 2017-2018 The Ignition developers</source>
         <translation>Telif Hakkı © 2009-2014 Bitcoin geliştiricileri
 Telif Hakkı © 2012-2014 NovaCoin geliştiricileri
-Telif Hakkı © 2015-2017 Ignition geliştiricileri</translation>
+Telif Hakkı © 2017-2018 Ignition geliştiricileri</translation>
     </message>
     <message>
         <location line="+15"/>

@@ -15,7 +15,7 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</source>
+Copyright © 2017-2018 The Ignition developers</source>
         <translation type="unfinished"/>
     </message>
     <message>
