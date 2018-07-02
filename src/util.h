@@ -40,6 +40,11 @@
 class CNetAddr;
 class uint256;
 
+typedef long long  int64;
+typedef unsigned long long  uint64;
+typedef unsigned int  uint;
+typedef unsigned char  uchar;
+
 static const int64_t COIN = 100000000;
 static const int64_t CENT = 1000000;
 
@@ -74,6 +79,18 @@ typedef int64_t CAmount;
   #define PRIpdx    "tx"
   #define PRIpdu    "tu"
   #define PRIpdd    "td"
+#endif
+
+#ifndef PRI64d
+#if defined(_MSC_VER) || defined(__MSVCRT__)
+#define PRI64d  "I64d"
+#define PRI64u  "I64u"
+#define PRI64x  "I64x"
+#else
+#define PRI64d  "lld"
+#define PRI64u  "llu"
+#define PRI64x  "llx"
+#endif
 #endif
 
 // This is needed because the foreach macro can't get over the comma in pair<t1, t2>
@@ -141,9 +158,13 @@ extern bool fDaemon;
 extern bool fServer;
 extern bool fCommandLine;
 extern std::string strMiscWarning;
+extern bool fTestNet;
 extern bool fNoListen;
 extern bool fLogTimestamps;
 extern volatile bool fReopenDebugLog;
+
+extern bool fNeoScrypt;
+extern uint nNeoScryptOptions;
 
 void RandAddSeed();
 void RandAddSeedPerfmon();

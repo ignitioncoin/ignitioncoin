@@ -1,0 +1,50 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePathOld": [
+                "/usr/include/c++/6",
+                "/usr/include/x86_64-linux-gnu/c++/6",
+                "/usr/include/c++/6/backward",
+                "/usr/lib/gcc/x86_64-linux-gnu/6/include",
+                "/usr/local/include",
+                "/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed",
+                "/usr/include/x86_64-linux-gnu",
+                "/usr/include",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/usr/include/x86_64-linux-gnu/qt5",
+                "${workspaceRoot}/src/leveldb/include",
+                "${workspaceRoot}/src",
+                "${workspaceRoot}"
+            ],
+            "includePath": [
+                "${workspaceRoot}/src/leveldb/include",
+                "${workspaceRoot}/src",
+                "${workspaceRoot}"
+            ],
+            "defines": [
+                "USE_UPNP"
+            ],
+            "intelliSenseMode": "clang-x64",
+            "browse": {
+                "path": [
+                    "/usr/include/c++/6",
+                    "/usr/include/x86_64-linux-gnu/c++/6",
+                    "/usr/include/c++/6/backward",
+                    "/usr/lib/gcc/x86_64-linux-gnu/6/include",
+                    "/usr/local/include",
+                    "/usr/lib/gcc/x86_64-linux-gnu/6/include-fixed",
+                    "/usr/include/x86_64-linux-gnu",
+                    "/usr/include",
+                    "${workspaceRoot}"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            },
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
