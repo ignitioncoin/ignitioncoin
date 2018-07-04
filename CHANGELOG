@@ -1,6 +1,7 @@
 v1.1.0.1
 --------
 Added CircleCI configuration
+Added stakethreshold to getstakinginfo
 
 v1.1.0.0
 --------
