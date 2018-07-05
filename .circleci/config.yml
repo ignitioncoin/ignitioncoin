@@ -4,8 +4,8 @@ version: 2
 jobs:
   build:
     docker:
-      # Ubuntu 14.04 base image
-      - image: ubuntu:14.04
+      # Ubuntu 16.04 base image
+      - image: ubuntu:16.04
         
     working_directory: ignition/src/github.com/ignitioncoin/ignitioncoin
 
@@ -14,9 +14,9 @@ jobs:
     - run:
         name: Install base dependencies
         command: | 
-          sudo apt-get -y update && sudo apt-get -y upgrade
-          sudo apt-get -y install git
-          sudo apt-get -y install build-essential libssl-dev libdb++-dev libboost-all-dev libcrypto++-dev libqrencode-dev libminiupnpc-dev libgmp-dev libgmp3-dev autoconf autogen automake libtool 
+          apt-get -y update && apt-get -y upgrade
+          apt-get -y install git
+          apt-get -y install build-essential libssl-dev libdb++-dev libboost-all-dev libcrypto++-dev libqrencode-dev libminiupnpc-dev libgmp-dev libgmp3-dev autoconf autogen automake libtool 
     - run:
         name: Install QT dependencies
         command: apt-get -y install qt5-default qt5-qmake qtbase5-dev-tools qttools5-dev-tools
@@ -24,10 +24,11 @@ jobs:
         name: Set up test directories
         command: | 
           mkdir ~/logs
+          mkdir ~/bins
           mkdir ~/logs/daemon
           mkdir ~/logs/qt
+          mkdir ~/bins/ubuntu-16.04
           mkdir ~/.Ignition
-          echo "$(nproc)"
 
     # Builds & tests
     - checkout
@@ -35,7 +36,7 @@ jobs:
         name: Build daemon
         command: | 
           cd src  
-          make -j4 -f makefile.unix USE_UPNP=1 |& tee ~/logs/daemon/daemon-make.log
+          make -j6 -f makefile.unix USE_UPNP=1 |& tee ~/logs/daemon/daemon-make.log
     - run:
         name: Test daemon
         command: |
@@ -49,17 +50,24 @@ jobs:
         name: Build QT
         command: |
           qmake USE_UPNP=1 Ignition.pro |& tee ~/logs/qt/qt-qmake.log
-          make -j4 |& tee ~/logs/qt/qt-make.log
+          make -j6 |& tee ~/logs/qt/qt-make.log
 
-      # Log artifacts
+      # Log & bin artifacts
     - store_artifacts:
         path: ~/logs/daemon/daemon-make.log
     - store_artifacts:
         path: ~/.Ignition/debug.log
         destination: /root/logs/daemon/debug.log
+    - store_artifacts:
+        path: bin/ignitiond
+        destination: /root/bins/ubuntu-16.04/ignitiond
+
     - store_artifacts: 
         path: ~/logs/daemon/daemon-test.log
     - store_artifacts:
         path: ~/logs/qt/qt-qmake.log
     - store_artifacts:
-        path: ~/logs/qt/qt-make.log    
+        path: ~/logs/qt/qt-make.log
+    - store_artifacts:
+        path: Ignition-qt
+        destination: /root/bins/ubuntu-16.04/Ignition-qt
