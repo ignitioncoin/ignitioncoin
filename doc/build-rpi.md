@@ -60,25 +60,31 @@ ______
 
 **Install BerkeleyDB-4.8**
 Download and compile BDB 4.8 from Oracle
+```
 wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 tar xzvf db-4.8.30.NC.tar.gz
 cd db-4.8.30.NC/build_unix/
 ../dist/configure --enable-cxx
 make
 sudo make install
+```
 
 Export paths
+```
 export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.4.8/include"
 export BDB_LIB_PATH="/usr/local/BerkeleyDB.4.8/lib"
-
+```
 Create symlinks
+```
 sudo ln -s /usr/local/BerkeleyDB.4.8/lib/libdb-4.8.so /usr/lib/libdb-4.8.so
 sudo ln -s /usr/local/BerkeleyDB.4.8/lib/libdb_cxx-4.8.so /usr/lib/libdb_cxx-4.8.so
-
+```
 ## Build daemon
+```
 git clone https://github.com/ignitioncoin/ignitioncoin
 cd src
 make -j2 -f makefile.unix CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" xCPUARCH=arm
+```
 
 After compilation, the swapfile will not be needed anymore, so you can disable it. Leaving it on is not recommended, since successive read/writes can eventually corrupt your SD card.
 `sudo swapoff -a`
