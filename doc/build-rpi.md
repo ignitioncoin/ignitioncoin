@@ -11,19 +11,25 @@ software written by Thomas Bernard.
 RASPBERRY PI BUILD NOTES
 ================
 The following steps have been tested on Raspbian stretch, they should work on jessie as well.
+
 You can check the release codename with `lsb_release -a`
 
 ## Set up swap
 Check if you have enough swap (should be around 1024 mb): `free -m`
+
 If not, change it: `sudo nano /etc/dphys-swapfile`
+
 CONF_SWAPSIZE=1024
 
 Turn on swap:
 `sudo dphys-swapfile swapon`
-if you get the error swapon: /var/swap: swapon failed: Device or resource busy
-then run `sudo dphys-swapfile swapoff && sudo dphys-swapfile swapon`
 
-Reboot, check `free -m`
+if you get the error swapon: /var/swap: swapon failed: Device or resource busy
+
+then run `sudo dphys-swapfile swapoff && sudo dphys-swapfile swapon && sudo reboot`
+
+Ceck `free -m` after reboot
+
 You should see 1024 mb
 
 ## Install dependencies
@@ -34,12 +40,19 @@ sudo apt-get install git automake build-essential libtool autotools-dev autoconf
 If you run Raspbian stretch you must do the following steps, if running Raspbian jessie just run sudo apt-get install libssl-dev
 ______
 Remove current libssl-dev if you have it installed
+
 `sudo apt-get remove libssl-dev`
+
 Replace stretch with jessie in the config
+
 `sudo nano /etc/apt/sources.list`
+
 Run update to receive jessie package list
+
 `sudo apt update`
+
 Check if you have the correct library version available, it should display something like this:
+
 `sudo apt-cache policy libssl-dev`
 ```
 libssl-dev:
@@ -87,5 +100,7 @@ make -j2 -f makefile.unix CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDF
 ```
 
 After compilation, the swapfile will not be needed anymore, so you can disable it. Leaving it on is not recommended, since successive read/writes can eventually corrupt your SD card.
+
 `sudo swapoff -a`
+
 `sudo reboot`
