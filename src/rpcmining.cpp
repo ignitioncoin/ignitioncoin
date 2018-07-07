@@ -154,7 +154,7 @@ Value getstakinginfo(const Array& params, bool fHelp)
 
     obj.push_back(Pair("expectedtime", nExpectedTime));
 
-    obj.push_back(Pair("stakethreshold", GetArg("-stakethreshold", 100)));
+    obj.push_back(Pair("stakethreshold", GetStakeCombineThreshold() / COIN));
     
     return obj;
 }
