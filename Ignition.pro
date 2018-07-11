@@ -10,7 +10,15 @@ CONFIG += thread
 CONFIG += static
 #CONFIG += openssl-linked
 CONFIG += openssl
-QMAKE_CFLAGS += -DSHA256 -DASM -DOPT
+
+# If we have an ARM device we can't use -DASM
+# xCPUARCH is passed in as a define (xCPUARCH=arm)
+contains(xCPUARCH, arm) {
+    message(Using ARM architecture compatible mode)
+    QMAKE_CFLAGS += -DSHA256 -DOPT
+} else {
+    QMAKE_CFLAGS += -DSHA256 -DASM -DOPT
+}
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets gui
