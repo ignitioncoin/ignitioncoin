@@ -1197,8 +1197,8 @@ void BitcoinGUI::importPrivKey()
         if (fGood) {
             if (pwalletMain->ImportPrivateKey(vchSecret)) {
                 QMessageBox::information(this, tr("Success"), tr("Private key successfully imported!"));
-                //TODO: refresh "receive" tab
-                //walletModel->getAddressTableModel()->refresh();
+                // Refresh the "receive" tab
+                walletModel->getAddressTableModel()->refresh();
             }
             else {
                 QMessageBox::warning(this, tr("Error"), tr("Error adding key to wallet"));
