@@ -40,6 +40,7 @@
 #include "messagepage.h"
 #include "blockbrowser.h"
 #include "tradingdialog.h"
+#include "importprivatekeydialog.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -377,8 +378,8 @@ void BitcoinGUI::createActions()
     encryptWalletAction->setToolTip(tr("Encrypt or decrypt wallet"));
     backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setToolTip(tr("Backup wallet to another location"));
-    importPrivKeyAction = new QAction(QIcon(":/icons/key"), tr("&Import private key..."), this);
-    importPrivKeyAction->setToolTip(tr("Import a private key"));
+    importPrivateKeyAction = new QAction(QIcon(":/icons/key"), tr("&Import private key..."), this);
+    importPrivateKeyAction->setToolTip(tr("Import a private key"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
     unlockWalletAction = new QAction(QIcon(":/icons/lock_open"),tr("&Unlock Wallet..."), this);
@@ -407,7 +408,7 @@ void BitcoinGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(encryptWalletAction, SIGNAL(triggered()), this, SLOT(encryptWallet()));
     connect(backupWalletAction, SIGNAL(triggered()), this, SLOT(backupWallet()));
-    connect(importPrivKeyAction, SIGNAL(triggered()), this, SLOT(importPrivKey()));
+    connect(importPrivateKeyAction, SIGNAL(triggered()), this, SLOT(importPrivateKey()));
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
     connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
     connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
@@ -429,7 +430,7 @@ void BitcoinGUI::createMenuBar()
     // Configure the menus
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     file->addAction(backupWalletAction);
-    file->addAction(importPrivKeyAction);
+    file->addAction(importPrivateKeyAction);
     file->addAction(exportAction);
     file->addAction(signMessageAction);
     file->addAction(verifyMessageAction);
@@ -1185,29 +1186,11 @@ void BitcoinGUI::backupWallet()
     }
 }
 
-void BitcoinGUI::importPrivKey()
+void BitcoinGUI::importPrivateKey()
 {
-    bool ok;
-    //TODO: custom dialog to get label
-    QString privateKey = QInputDialog::getText(this, tr("Import private key"), tr("Private key:"), QLineEdit::Normal, QString(), &ok);
-    if (ok && !privateKey.isEmpty())
-    {
-        CIgnitioncoinSecret vchSecret;
-        bool fGood = vchSecret.SetString(privateKey.toUtf8().constData());
-        if (fGood) {
-            if (pwalletMain->ImportPrivateKey(vchSecret)) {
-                QMessageBox::information(this, tr("Success"), tr("Private key successfully imported!"));
-                // Refresh the "receive" tab
-                walletModel->getAddressTableModel()->refresh();
-            }
-            else {
-                QMessageBox::warning(this, tr("Error"), tr("Error adding key to wallet"));
-            }
-        }
-        else {
-            QMessageBox::warning(this, tr("Error"), tr("Invalid private key"));
-        }
-    }
+    ImportPrivateKeyDialog dlg(this);
+    dlg.setModel(walletModel->getAddressTableModel());
+    dlg.exec();
 }
 
 void BitcoinGUI::changePassphrase()
