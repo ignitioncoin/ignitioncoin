@@ -20,6 +20,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "stealth.h"
+#include "base58.h"
 
 // Settings
 extern int64_t nTransactionFee;
@@ -259,6 +260,7 @@ public:
     int ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate = false);
     void ReacceptWalletTransactions();
     void ResendWalletTransactions(bool fForce = false);
+    bool ImportPrivateKey(CIgnitioncoinSecret vchSecret, string strLabel = "", bool fRescan = true);
 
     CAmount GetBalance() const;
     CAmount GetStake() const;

@@ -4598,3 +4598,38 @@ void CWallet::GetKeyBirthTimes(std::map<CKeyID, int64_t> &mapKeyBirth) const {
     for (std::map<CKeyID, CBlockIndex*>::const_iterator it = mapKeyFirstBlock.begin(); it != mapKeyFirstBlock.end(); it++)
         mapKeyBirth[it->first] = it->second->nTime - 7200; // block times can be 2h off
 }
+
+bool CWallet::ImportPrivateKey(CIgnitioncoinSecret vchSecret, string strLabel, bool fRescan) {
+    if (fWalletUnlockStakingOnly)
+        return false;
+
+    CKey key = vchSecret.GetKey();
+    CPubKey pubkey = key.GetPubKey();
+    assert(key.VerifyPubKey(pubkey));
+    CKeyID vchAddress = pubkey.GetID();
+    {
+        LOCK2(cs_main, cs_wallet);
+
+        MarkDirty();
+        SetAddressBookName(vchAddress, strLabel);
+
+        // Don't throw error in case a key is already there
+        if (HaveKey(vchAddress))
+            return true;
+
+        mapKeyMetadata[vchAddress].nCreateTime = 1;
+
+        if (!AddKeyPubKey(key, pubkey))
+            return false;
+
+        // whenever a key is imported, we need to scan the whole chain
+        nTimeFirstKey = 1; // 0 would be considered 'no value'
+
+        if (fRescan) {
+            ScanForWalletTransactions(pindexGenesisBlock, true);
+            ReacceptWalletTransactions();
+        }
+    }
+
+    return true;
+}
