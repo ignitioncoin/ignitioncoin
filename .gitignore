@@ -9,3 +9,5 @@ qrc_bitcoin\.cpp
 build/
 *.qm
 
+
+\.idea/

@@ -4,7 +4,7 @@
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
         <source>About Ignition</source>
-        <translation>O Harveste</translation>
+        <translation>O Ignitione</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -15,10 +15,10 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</source>
+Copyright © 2017-2018 The Ignition developers</source>
         <translation>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</translation>
+Copyright © 2017-2018 The Ignition developers</translation>
     </message>
     <message>
         <location line="+15"/>

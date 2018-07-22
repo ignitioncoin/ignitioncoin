@@ -11,6 +11,7 @@ class ClientModel;
 class WalletModel;
 class TransactionView;
 class OverviewPage;
+class DarksendPage;
 class AddressBookPage;
 class SendCoinsDialog;
 class SignVerifyMessageDialog;
@@ -72,6 +73,7 @@ private:
     QWidget *overviewWidget;
     QScrollArea *overviewScroll;
     OverviewPage *overviewPage;
+    DarksendPage *darksendPage;
     QWidget *transactionsPage;
     AddressBookPage *addressBookPage;
     AddressBookPage *receiveCoinsPage;
@@ -92,6 +94,7 @@ private:
 
     QMenuBar *appMenuBar;
     QAction *overviewAction;
+    QAction *darksendAction;
     QAction *historyAction;
     QAction *quitAction;
     QAction *sendCoinsAction;
@@ -115,6 +118,9 @@ private:
     QAction *blockAction;
     QAction *TradingAction;
     QAction *showBackupsAction;
+    QAction *editConfigAction;
+    QAction *editConfigExtAction;
+    QAction *openDataDirAction;
 
     QSystemTrayIcon *trayIcon;
     Notificator *notificator;
@@ -173,6 +179,8 @@ public slots:
 private slots:
     /** Switch to overview (home) page */
     void gotoOverviewPage();
+    /** Switch to darksend page */
+    void gotoDarksendPage();
     /** Switch to history (transactions) page */
     void gotoHistoryPage();
     /** Switch to address book page */
@@ -231,6 +239,12 @@ private slots:
 
     /** Show progress dialog e.g. for verifychain */
     void showProgress(const QString &title, int nProgress);
+
+    /** Edit the Ignition.conf file */
+    void editConfig();
+    void editConfigExt();
+    /** Open the data directory */
+    void openDataDir();
 };
 
 #endif // BITCOINGUI_H

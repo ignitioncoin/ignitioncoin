@@ -13,17 +13,15 @@ using namespace std;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
 
-double GetDifficulty(const CBlockIndex* blockindex)
-{
-    // Floating point number that is a multiple of the minimum difficulty,
-    // minimum difficulty = 1.0.
-    if (blockindex == NULL)
-    {
-        if (pindexBest == NULL)
-            return 1.0;
-        else
-            blockindex = GetLastBlockIndex(pindexBest, false);
-    }
+double GetDifficulty(const CBlockIndex *blockindex) {
+
+    /* The reference difficulty is 1.0 which is the lowest Bitcoin difficulty
+     * and may not match the minimal difficulty of a particular altcoin */ 
+
+    if(!blockindex && pindexBest)
+      blockindex = GetPrevBlockIndex(pindexBest, 0, false);
+
+    if(!blockindex) return(1.0);
 
     int nShift = (blockindex->nBits >> 24) & 0xff;
 
@@ -191,8 +189,8 @@ Value getdifficulty(const Array& params, bool fHelp)
             "Returns the difficulty as a multiple of the minimum difficulty.");
 
     Object obj;
-    obj.push_back(Pair("proof-of-work", GetDifficulty()));
-    obj.push_back(Pair("proof-of-stake", GetDifficulty(GetLastBlockIndex(pindexBest, true))));
+    obj.push_back(Pair("proof-of-work",        GetDifficulty(GetPrevBlockIndex(pindexBest, 0, false))));
+    obj.push_back(Pair("proof-of-stake",       GetDifficulty(GetPrevBlockIndex(pindexBest, 0, true))));
     return obj;
 }
 

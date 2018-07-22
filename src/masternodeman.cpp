@@ -530,6 +530,86 @@ std::vector<pair<int, CMasternode> > CMasternodeMan::GetMasternodeRanks(int64_t 
     return vecMasternodeRanks;
 }
 
+std::vector<pair<unsigned int, CMasternode> > CMasternodeMan::GetMasternodeScores(int64_t nBlockHeight, int minProtocol)
+{
+	std::vector<pair<unsigned int, CMasternode> > vecMasternodeScores;
+
+	//make sure we know about this block
+	uint256 hash = 0;
+	if (!GetBlockHash(hash, nBlockHeight)) return vecMasternodeScores;
+
+	// scan for winner
+	BOOST_FOREACH(CMasternode& mn, vMasternodes) {
+
+		mn.Check();
+
+		if (mn.protocolVersion < minProtocol) continue;
+		if (!mn.IsEnabled()) {
+			continue;
+		}
+
+		uint256 n = mn.CalculateScore(1, nBlockHeight);
+		unsigned int n2 = 0;
+		memcpy(&n2, &n, sizeof(n2));
+
+		vecMasternodeScores.push_back(make_pair(n2, mn));
+	}
+
+	sort(vecMasternodeScores.rbegin(), vecMasternodeScores.rend(), CompareValueOnlyMN());
+
+	return vecMasternodeScores;
+}
+
+bool CMasternodeMan::IsMNReal(std::string strMNAddr)
+{
+	//make sure we know about this block
+	uint256 hash = 0;
+	if (!GetBlockHash(hash, 0))
+		return 0;
+
+	// scan for winner
+	BOOST_FOREACH(CMasternode& mn, vMasternodes)
+	{
+		mn.Check();
+		if (mn.activeState == (CMasternode::MASTERNODE_VIN_SPENT))
+			continue;
+		//std::string strVin = mn.vin.prevout.ToStringShort();
+		CScript pubkey;
+		pubkey.SetDestination(mn.pubkey.GetID());
+		CTxDestination address1;
+		ExtractDestination(pubkey, address1);
+		CIgnitioncoinAddress address2(address1);
+		std::string strMNDBAddr;
+		strMNDBAddr = address2.ToString();
+		if (strMNAddr == strMNDBAddr)
+			return true;
+	}
+	return false;
+}
+
+unsigned int CMasternodeMan::GetMasternodeCount(int64_t nBlockHeight)
+{
+	unsigned int iMasterNodes = 0;
+
+	//make sure we know about this block
+	uint256 hash = 0;
+	if (!GetBlockHash(hash, nBlockHeight))
+		return 0;
+
+	// scan for enabled masternodes
+	BOOST_FOREACH(CMasternode& mn, vMasternodes)
+	{
+		mn.Check();
+		//if (mn.protocolVersion < minProtocol)
+		//	continue;
+		if (!mn.IsEnabled())
+			continue;
+		iMasterNodes++;
+	}
+	return iMasterNodes;
+}
+
+
 CMasternode* CMasternodeMan::GetMasternodeByRank(int nRank, int64_t nBlockHeight, int minProtocol, bool fOnlyActive)
 {
     std::vector<pair<unsigned int, CTxIn> > vecMasternodeScores;
@@ -639,7 +719,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         strMessage = addr.ToString() + boost::lexical_cast<std::string>(sigTime) + vchPubKey + vchPubKey2 + boost::lexical_cast<std::string>(protocolVersion);    
 
-        if(protocolVersion < MIN_POOL_PEER_PROTO_VERSION) {
+        if(protocolVersion < GetMinPoolPeerProto()) {
             LogPrintf("dsee - ignoring outdated masternode %s protocol version %d\n", vin.ToString().c_str(), protocolVersion);
             return;
         }
@@ -846,7 +926,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
             LogPrintf("dsee+ - reward percentage out of range %d\n", rewardPercentage);
             return;
         }
-        if(protocolVersion < MIN_POOL_PEER_PROTO_VERSION) {
+        if(protocolVersion < GetMinPoolPeerProto()) {
             LogPrintf("dsee+ - ignoring outdated masternode %s protocol version %d\n", vin.ToString().c_str(), protocolVersion);
             return;
         }
@@ -1032,7 +1112,7 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
 
         // see if we have this masternode
         CMasternode* pmn = this->Find(vin);
-        if(pmn != NULL && pmn->protocolVersion >= MIN_POOL_PEER_PROTO_VERSION)
+        if(pmn != NULL && pmn->protocolVersion >= GetMinPoolPeerProto())
         {
             // LogPrintf("dseep - Found corresponding mn for vin: %s\n", vin.ToString().c_str());
             // take this only if it's newer
@@ -1044,7 +1124,10 @@ void CMasternodeMan::ProcessMessage(CNode* pfrom, std::string& strCommand, CData
                 if(!darkSendSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage))
                 {
                     LogPrintf("dseep - Got bad masternode address signature %s \n", vin.ToString().c_str());
-                    //Misbehaving(pfrom->GetId(), 100);
+                    if(pindexBest->nHeight >= GetForkHeightOne())
+                    {
+                        Misbehaving(pfrom->GetId(), 100);
+                    }
                     return;
                 }
 

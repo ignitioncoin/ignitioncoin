@@ -4,7 +4,7 @@
     <message>
         <location filename="../forms/aboutdialog.ui" line="+14"/>
         <source>About Ignition</source>
-        <translation>Tietoa Harvestista</translation>
+        <translation>Tietoa Ignitionista</translation>
     </message>
     <message>
         <location line="+39"/>
@@ -15,10 +15,10 @@
         <location line="+41"/>
         <source>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</source>
+Copyright © 2017-2018 The Ignition developers</source>
         <translation>Copyright © 2009-2014 The Bitcoin developers
 Copyright © 2012-2014 The NovaCoin developers
-Copyright © 2015-2017 The Ignition developers</translation>
+Copyright © 2017-2018 The Ignition developers</translation>
     </message>
     <message>
         <location line="+15"/>
@@ -359,7 +359,7 @@ Tämä tuote sisältää OpenSSL-projektin kehittämää ohjelmistoa OpenSSL-ty�
     <message>
         <location line="+4"/>
         <source>Show information about Ignition</source>
-        <translation>Näytä tietoja Harvestista</translation>
+        <translation>Näytä tietoja Ignitionista</translation>
     </message>
     <message>
         <location line="+2"/>
@@ -455,7 +455,7 @@ Tämä tuote sisältää OpenSSL-projektin kehittämää ohjelmistoa OpenSSL-ty�
     <message>
         <location line="+193"/>
         <source>&amp;About Ignition</source>
-        <translation>&amp;Tietoa Harvestista</translation>
+        <translation>&amp;Tietoa Ignitionista</translation>
     </message>
     <message>
         <location line="+9"/>
@@ -1583,7 +1583,7 @@ Tämä tarkoittaa, että ainakin %2 rahansiirtopalkkio tarvitaan.</translation>
     <message>
         <location line="+7"/>
         <source>Show the Ignition-Qt help message to get a list with possible Ignition command-line options.</source>
-        <translation>Näytä Ignition-Qt:n avustusohje saadaksesi listan käytettävistä Harvestin komentokehotteen määritteistä.</translation>
+        <translation>Näytä Ignition-Qt:n avustusohje saadaksesi listan käytettävistä Ignitionin komentokehotteen määritteistä.</translation>
     </message>
     <message>
         <location line="+3"/>
@@ -1608,7 +1608,7 @@ Tämä tarkoittaa, että ainakin %2 rahansiirtopalkkio tarvitaan.</translation>
     <message>
         <location line="+25"/>
         <source>Ignition Core</source>
-        <translation>Harvestin ydin</translation>
+        <translation>Ignitionin ydin</translation>
     </message>
     <message>
         <location line="+256"/>
@@ -1628,7 +1628,7 @@ Tämä tarkoittaa, että ainakin %2 rahansiirtopalkkio tarvitaan.</translation>
     <message>
         <location filename="../rpcconsole.cpp" line="+325"/>
         <source>Welcome to the Ignition RPC console.</source>
-        <translation>Tervetuloa Harvestin RPC-konsoliin.</translation>
+        <translation>Tervetuloa Ignitionin RPC-konsoliin.</translation>
     </message>
     <message>
         <location line="+1"/>
@@ -1688,7 +1688,7 @@ Tämä tarkoittaa, että ainakin %2 rahansiirtopalkkio tarvitaan.</translation>
         <location line="+5"/>
         <location line="+5"/>
         <source>Send Coins</source>
-        <translation>Lähetä Harvesteja</translation>
+        <translation>Lähetä Ignitioneja</translation>
     </message>
     <message>
         <location line="+76"/>
@@ -2689,7 +2689,7 @@ Tämä tarkoittaa, että ainakin %2 rahansiirtopalkkio tarvitaan.</translation>
     <message>
         <location filename="../bitcoinstrings.cpp" line="+173"/>
         <source>Ignition version</source>
-        <translation>Harvestin versio</translation>
+        <translation>Ignitionin versio</translation>
     </message>
     <message>
         <location line="+1"/>

@@ -48,13 +48,13 @@ MasternodeManager::MasternodeManager(QWidget *parent) :
     int columnStatusWidth = 80;
     int columnActiveWidth = 130;
     int columnLastSeenWidth = 130;
-    
+
     ui->tableWidgetMasternodes->setColumnWidth(0, columnAddressWidth);
     ui->tableWidgetMasternodes->setColumnWidth(1, columnProtocolWidth);
     ui->tableWidgetMasternodes->setColumnWidth(2, columnStatusWidth);
     ui->tableWidgetMasternodes->setColumnWidth(3, columnActiveWidth);
     ui->tableWidgetMasternodes->setColumnWidth(4, columnLastSeenWidth);
-    
+
     ui->tableWidgetMasternodes->setContextMenuPolicy(Qt::CustomContextMenu);
     QAction *copyAddressAction = new QAction(tr("Copy Address"), this);
     QAction *copyPubkeyAction = new QAction(tr("Copy Pubkey"), this);
@@ -64,7 +64,7 @@ MasternodeManager::MasternodeManager(QWidget *parent) :
     connect(ui->tableWidgetMasternodes, SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(showContextMenu(const QPoint&)));
     connect(copyAddressAction, SIGNAL(triggered()), this, SLOT(copyAddress()));
     connect(copyPubkeyAction, SIGNAL(triggered()), this, SLOT(copyPubkey()));
-        
+
     ui->tableWidgetMasternodes->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     ui->tableWidget_2->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
@@ -74,6 +74,15 @@ MasternodeManager::MasternodeManager(QWidget *parent) :
         timer->start(30000);
 
     updateNodeList();
+
+}
+
+void MasternodeManager::on_tabWidget_currentChanged(int index)
+{
+    if (index == 1)
+    {
+        on_UpdateButton_clicked();
+    }
 }
 
 MasternodeManager::~MasternodeManager()
@@ -116,9 +125,9 @@ void MasternodeManager::updateAdrenalineNode(QString alias, QString addr, QStrin
 
     ui->tableWidget_2->setItem(nodeRow, 0, aliasItem);
     ui->tableWidget_2->setItem(nodeRow, 1, addrItem);
-    ui->tableWidget_2->setItem(nodeRow, 2, rewardPercentageItem);
-    ui->tableWidget_2->setItem(nodeRow, 3, rewardAddressItem);
-    ui->tableWidget_2->setItem(nodeRow, 4, statusItem);
+//    ui->tableWidget_2->setItem(nodeRow, 2, rewardPercentageItem);
+//    ui->tableWidget_2->setItem(nodeRow, 3, rewardAddressItem);
+    ui->tableWidget_2->setItem(nodeRow, 2, statusItem);
 }
 
 static QString seconds_to_DHMS(quint32 duration)
@@ -142,7 +151,7 @@ void MasternodeManager::updateNodeList()
     static int64_t nTimeListUpdated = GetTime();
     int64_t nSecondsToWait = nTimeListUpdated - GetTime() + 30;
     if (nSecondsToWait > 0) return;
-    
+
     TRY_LOCK(cs_masternodes, lockMasternodes);
     if(!lockMasternodes) return;
 
@@ -151,7 +160,7 @@ void MasternodeManager::updateNodeList()
     ui->tableWidgetMasternodes->clearContents();
     ui->tableWidgetMasternodes->setRowCount(0);
     std::vector<CMasternode> vMasternodes = mnodeman.GetFullMasternodeVector();
-    
+
     BOOST_FOREACH(CMasternode& mn, vMasternodes)
     {
 
@@ -167,7 +176,7 @@ void MasternodeManager::updateNodeList()
         pubkey =GetScriptForDestination(mn.pubkey.GetID());
         CTxDestination address1;
         ExtractDestination(pubkey, address1);
-        CHarvestcoinAddress address2(address1);
+        CIgnitioncoinAddress address2(address1);
         QTableWidgetItem *pubkeyItem = new QTableWidgetItem(QString::fromStdString(address2.ToString()));
 
         ui->tableWidgetMasternodes->insertRow(0);
@@ -209,26 +218,45 @@ void MasternodeManager::on_createButton_clicked()
 
 void MasternodeManager::on_startButton_clicked()
 {
+    std::string statusObj;
+
     // start the node
     QItemSelectionModel* selectionModel = ui->tableWidget_2->selectionModel();
     QModelIndexList selected = selectionModel->selectedRows();
     if(selected.count() == 0)
+    {
+        statusObj += "<br>Select a Masternode alias to start" ;
+        QMessageBox msg;
+        msg.setText(QString::fromStdString(statusObj));
+        msg.exec();
         return;
+    }
 
     QModelIndex index = selected.at(0);
     int r = index.row();
     std::string sAlias = ui->tableWidget_2->item(r, 0)->text().toStdString();
 
     if(pwalletMain->IsLocked()) {
+
+        statusObj += "<br>Please unlock your wallet to start Masternode" ;
+        QMessageBox msg;
+        msg.setText(QString::fromStdString(statusObj));
+        msg.exec();
+        return;
     }
 
-    std::string statusObj;
+
     statusObj += "<center>Alias: " + sAlias;
 
     BOOST_FOREACH(CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
-        if(mne.getAlias() == sAlias) {
-            std::string errorMessage;
-            bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), mne.getRewardAddress(), mne.getRewardPercentage(), errorMessage);
+        if(mne.getAlias() == sAlias)
+        {
+
+        std::string errorMessage;
+        std::string strRewardAddress = mne.getRewardAddress();
+        std::string strRewardPercentage = mne.getRewardPercentage();
+
+        bool result = activeMasternode.Register(mne.getIp(), mne.getPrivKey(), mne.getTxHash(), mne.getOutputIndex(), strRewardAddress, strRewardPercentage, errorMessage);
 
             if(result) {
                 statusObj += "<br>Successfully started masternode." ;
@@ -238,13 +266,14 @@ void MasternodeManager::on_startButton_clicked()
             break;
         }
     }
-    statusObj += "</center>";
-    pwalletMain->Lock();
 
+    pwalletMain->Lock();
+    statusObj += "</center>";
     QMessageBox msg;
     msg.setText(QString::fromStdString(statusObj));
-
     msg.exec();
+
+    MasternodeManager::on_UpdateButton_clicked();
 }
 
 void MasternodeManager::on_startAllButton_clicked()
@@ -286,6 +315,7 @@ void MasternodeManager::on_startAllButton_clicked()
     QMessageBox msg;
     msg.setText(QString::fromStdString(returnObj));
     msg.exec();
+    MasternodeManager::on_UpdateButton_clicked();
 }
 
 void MasternodeManager::on_UpdateButton_clicked()
@@ -328,7 +358,7 @@ void MasternodeManager::copyAddress()
     QModelIndexList selectedRows = selectionModel->selectedRows();
     if(selectedRows.count() == 0)
         return;
-    
+
     for (int i = 0; i < selectedRows.count(); i++)
     {
         QModelIndex index = selectedRows.at(i);
@@ -337,7 +367,7 @@ void MasternodeManager::copyAddress()
         if (i < selectedRows.count()-1)
             sData += "\n";
     }
-    
+
     QApplication::clipboard()->setText(QString::fromStdString(sData));
 }
 
@@ -349,7 +379,7 @@ void MasternodeManager::copyPubkey()
     QModelIndexList selectedRows = selectionModel->selectedRows();
     if(selectedRows.count() == 0)
         return;
-    
+
     for (int i = 0; i < selectedRows.count(); i++)
     {
         QModelIndex index = selectedRows.at(i);
@@ -358,6 +388,6 @@ void MasternodeManager::copyPubkey()
         if (i < selectedRows.count()-1)
             sData += "\n";
     }
-    
+
     QApplication::clipboard()->setText(QString::fromStdString(sData));
 }
