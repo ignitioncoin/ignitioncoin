@@ -529,7 +529,11 @@ public:
     */
     bool isPrime(const int checks=BN_prime_checks) const {
         CAutoBN_CTX pctx;
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        int ret = BN_is_prime_ex(bn, checks, pctx, NULL);
+#else
         int ret = BN_is_prime(bn, checks, NULL, pctx, NULL);
+#endif
         if(ret < 0){
             throw bignum_error("CBigNum::isPrime :BN_is_prime");
         }
