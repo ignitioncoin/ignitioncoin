@@ -3507,6 +3507,8 @@ int test_ecdsa_der_parse(const unsigned char *sig, size_t siglen, int certainly_
 
 #ifdef ENABLE_OPENSSL_TESTS
     ECDSA_SIG *sig_openssl;
+    const BIGNUM *sig_openssl_r = NULL;
+    const BIGNUM *sig_openssl_s = NULL;
     const unsigned char *sigptr;
     unsigned char roundtrip_openssl[2048];
     int len_openssl = 2048;
@@ -3555,18 +3557,15 @@ int test_ecdsa_der_parse(const unsigned char *sig, size_t siglen, int certainly_
 
 #ifdef ENABLE_OPENSSL_TESTS
     sig_openssl = ECDSA_SIG_new();
-    const BIGNUM *sig_openssl_r = NULL;
-    const BIGNUM *sig_openssl_s = NULL;
-#if OPENSSL_VERSION_NUMBER >= 0x10100000L
-    ECDSA_SIG_get0(sig_openssl, &sig_openssl_r, &sig_openssl_s);
-#else
-    sig_openssl_r = sig_openssl->r;
-    sig_openssl_s = sig_openssl->s;
-#endif
-    
     sigptr = sig;
     parsed_openssl = (d2i_ECDSA_SIG(&sig_openssl, &sigptr, siglen) != NULL);
     if (parsed_openssl) {
+#if OPENSSL_VERSION_NUMBER >= 0x10100000L
+        ECDSA_SIG_get0(sig_openssl, &sig_openssl_r, &sig_openssl_s);
+#else
+        sig_openssl_r = sig_openssl->r;
+        sig_openssl_s = sig_openssl->s;
+#endif
         valid_openssl = !BN_is_negative(sig_openssl_r) && !BN_is_negative(sig_openssl_s) && BN_num_bits(sig_openssl_r) > 0 && BN_num_bits(sig_openssl_r) <= 256 && BN_num_bits(sig_openssl_s) > 0 && BN_num_bits(sig_openssl_s) <= 256;
         if (valid_openssl) {
             unsigned char tmp[32] = {0};
