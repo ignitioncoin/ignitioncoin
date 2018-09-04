@@ -113,6 +113,7 @@ ifeq (${USE_WALLET}, 1)
 endif
 
 all: Ignitiond
+	@echo "\nBuild successful!"
 
 LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
 DEFS += $(addprefix -I,$(CURDIR)/leveldb/include)
