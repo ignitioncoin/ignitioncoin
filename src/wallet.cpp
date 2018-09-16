@@ -753,7 +753,7 @@ bool CWallet::AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pbl
     return false;
 }
 
-void CWallet::SyncTransaction(const CTransaction& tx, const CBlock* pblock, bool fConnect)
+void CWallet::SyncTransaction(const CTransaction& tx, const CBlock* pblock, bool fConnect, bool fFixSpentCoins)
 {
     LOCK2(cs_main, cs_wallet);
     if (!AddToWalletIfInvolvingMe(tx, pblock, true))
@@ -780,6 +780,20 @@ void CWallet::SyncTransaction(const CTransaction& tx, const CBlock* pblock, bool
     }
 
     AddToWalletIfInvolvingMe(tx, pblock, true);
+
+    if (fFixSpentCoins)
+    {
+        // Mark old coins as spent
+        set<CWalletTx*> setCoins;
+        BOOST_FOREACH(const CTxIn& txin, tx.vin)
+        {
+            CWalletTx &coin = mapWallet[txin.prevout.hash];
+            coin.BindWallet(this);
+            coin.MarkSpent(txin.prevout.n);
+            coin.WriteToDisk();
+            NotifyTransactionChanged(this, coin.GetHash(), CT_UPDATED);
+        }
+    }
 }
 
 void CWallet::EraseFromWallet(const uint256 &hash)
