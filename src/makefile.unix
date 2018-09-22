@@ -142,6 +142,7 @@ endif
 BIN = ../bin
 
 all: ignitiond
+	@echo "\nBuild successful! The ignitiond binary can be found in the \"bin\" folder."
 
 # build secp256k1
 DEFS += $(addprefix -I,$(CURDIR)/secp256k1/include)

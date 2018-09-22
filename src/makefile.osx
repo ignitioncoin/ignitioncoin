@@ -158,6 +158,7 @@ ifeq (${USE_LOWMEM}, 1)
 endif
 
 all: Ignitiond
+	@echo "\nBuild successful!"
 
 # build secp256k1
 DEFS += $(addprefix -I,$(CURDIR)/secp256k1/include)
