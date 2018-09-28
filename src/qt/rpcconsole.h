@@ -7,6 +7,7 @@
 #include "peertablemodel.h"
 
 #include <QWidget>
+#include <QCompleter>
 
 namespace Ui {
     class RPCConsole;
@@ -124,6 +125,7 @@ private:
     NodeId cachedNodeid;
     QMenu *peersTableContextMenu;
     QMenu *banTableContextMenu;
+    QCompleter *autoCompleter;
 
 };
 

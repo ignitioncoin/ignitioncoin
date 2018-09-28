@@ -20,6 +20,7 @@
 #include "ui_interface.h"
 #include "util.h"
 #include "stealth.h"
+#include "base58.h"
 
 // Settings
 extern int64_t nTransactionFee;
@@ -37,6 +38,8 @@ class CWalletDB;
 
 typedef std::map<CKeyID, CStealthKeyMetadata> StealthKeyMetaMap;
 typedef std::map<std::string, std::string> mapValue_t;
+
+extern int64_t GetStakeCombineThreshold();
 
 /** (client) version numbers for particular wallet features */
 enum WalletFeature
@@ -251,12 +254,13 @@ public:
 
     void MarkDirty();
     bool AddToWallet(const CWalletTx& wtxIn, bool fFromLoadWallet=false);
-    void SyncTransaction(const CTransaction& tx, const CBlock* pblock, bool fConnect = true);
+    void SyncTransaction(const CTransaction& tx, const CBlock* pblock, bool fConnect = true, bool fFixSpentCoins = false);
     bool AddToWalletIfInvolvingMe(const CTransaction& tx, const CBlock* pblock, bool fUpdate);
     void EraseFromWallet(const uint256 &hash);
     int ScanForWalletTransactions(CBlockIndex* pindexStart, bool fUpdate = false);
     void ReacceptWalletTransactions();
     void ResendWalletTransactions(bool fForce = false);
+    bool ImportPrivateKey(CIgnitioncoinSecret vchSecret, string strLabel = "", bool fRescan = true);
 
     CAmount GetBalance() const;
     CAmount GetStake() const;
@@ -497,6 +501,11 @@ static void WriteOrderPos(const int64_t& nOrderPos, mapValue_t& mapValue)
     mapValue["n"] = i64tostr(nOrderPos);
 }
 
+struct COutputEntry {
+    CTxDestination destination;
+    CAmount amount;
+    int vout;
+};
 
 /** A transaction with a bunch of additional info that only the owner cares about.
  * It includes any unrecorded transactions needed to link it back to the block chain.
@@ -1016,8 +1025,11 @@ public:
         return nChangeCached;
     }
 
-    void GetAmounts(std::list<std::pair<CTxDestination, int64_t> >& listReceived,
-                    std::list<std::pair<CTxDestination, int64_t> >& listSent, CAmount& nFee, std::string& strSentAccount, const isminefilter& filter) const;
+    void GetAmounts(std::list<COutputEntry>& listReceived,
+        std::list<COutputEntry>& listSent,
+        CAmount& nFee,
+        std::string& strSentAccount,
+        const isminefilter& filter) const;
 
     void GetAccountAmounts(const std::string& strAccount, CAmount& nReceived,
                            CAmount& nSent, CAmount& nFee, const isminefilter& filter) const;
