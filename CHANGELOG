@@ -1,7 +1,32 @@
-v1.1.0.1
+v1.1.1.0
 --------
-Added CircleCI configuration
-Added stakethreshold to getstakinginfo
+Added the vout index into the output of listtransactions command
+
+Update spent coins after calling sendrawtransaction command
+
+Print success and details message when build scripts are completed
+
+Updated makefile and improved build scripts
+
+Cleaned build scripts
+
+Added capabilities to facilitate paper wallet via Import private key GUI
+
+Fixed wallet locking completely rather than going back to locked for staking only mode after transaction
+
+Added autocomplete functionality for debug console window
+
+Add stakethreshold information to the getstakinginfo command
+
+Added compatibility with OpenSSL 1.1
+
+Updated CircleCI config
+
+Re-Integrated ARM build capabilities (for Raspberry Pi Builds)
+
+Created Docker Container capabilities
+
+Fixed an assert error that occurred when closing the GUI wallet
 
 v1.1.0.0
 --------
