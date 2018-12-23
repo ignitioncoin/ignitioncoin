@@ -14,15 +14,15 @@ INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include" \
- -I"$(DEPSDIR)/Cellar/boost/1.59.0/include" \
- -I"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/include" \
- -I"$(DEPSDIR)/openssl-1.0.1p/include"
+ -I"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/include" \
+ -I"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/include" \
+ -I"$(DEPSDIR)/Cellar/openssl/1.0.2n/include"
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
- -L"$(DEPSDIR)/Cellar/boost/1.59.0/lib" \
- -L"$(DEPSDIR)/Cellar/berkeley-db4/4.8.30/lib" \
- -L"$(DEPSDIR)/openssl-1.0.1p/lib"
+ -L"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/lib" \
+ -L"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/lib" \
+ -L"$(DEPSDIR)/Cellar/openssl/1.0.2n/lib"
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -40,6 +40,7 @@ LIBS += \
  $(DEPSDIR)/lib/libboost_thread-mt.a \
  $(DEPSDIR)/lib/libssl.a \
  $(DEPSDIR)/lib/libcrypto.a \
+ -lgmp \
  -lz
 else
 LIBS += \
@@ -50,6 +51,7 @@ LIBS += \
  -l boost_thread-mt \
  -l ssl \
  -l crypto \
+ -l gmp \
  -l z
 endif
 
@@ -98,6 +100,8 @@ OBJS= \
     obj/rpcsmessage.o \
     obj/script.o \
     obj/scrypt.o \
+    obj/neoscrypt.o \
+    obj/neoscrypt_asm.o \
     obj/sync.o \
     obj/txmempool.o \
     obj/util.o \
@@ -154,6 +158,7 @@ ifeq (${USE_LOWMEM}, 1)
 endif
 
 all: Ignitiond
+	@echo "\nBuild successful!"
 
 # build secp256k1
 DEFS += $(addprefix -I,$(CURDIR)/secp256k1/include)
@@ -186,6 +191,12 @@ obj/%.o: %.c
 	  sed -e 's/#.*//' -e 's/^[^:]*: *//' -e 's/ *\\$$//' \
 	      -e '/^$$/ d' -e 's/$$/ :/' < $(@:%.o=%.d) >> $(@:%.o=%.P); \
 	  rm -f $(@:%.o=%.d)
+
+obj/neoscrypt.o: neoscrypt.c
+	$(CC) $(CFLAGS) -DSHA256 -DASM -DOPT -c -o $@ $^
+
+obj/neoscrypt_asm.o: neoscrypt_asm.S
+	$(CC) -c -DSHA256 -DASM -DOPT -DMOVQ_FIX -o $@ $^
 
 Ignitiond: $(OBJS:obj/%=obj/%)
 	$(CXX) $(CFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS)

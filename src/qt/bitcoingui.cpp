@@ -40,6 +40,7 @@
 #include "messagepage.h"
 #include "blockbrowser.h"
 #include "tradingdialog.h"
+#include "importprivatekeydialog.h"
 
 #ifdef Q_OS_MAC
 #include "macdockiconhandler.h"
@@ -70,6 +71,7 @@
 #include <QScrollArea>
 #include <QScroller>
 #include <QTextDocument>
+#include <QInputDialog>
 
 #include <iostream>
 
@@ -284,11 +286,6 @@ void BitcoinGUI::createActions()
     overviewAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_1));
     tabGroup->addAction(overviewAction);
 
-    darksendAction = new QAction(QIcon(":/icons/res/icons/darksend.png"), tr("&Darksend"), this);
-    darksendAction->setToolTip(tr("Mix coins anonymously"));
-    darksendAction->setCheckable(true);
-    tabGroup->addAction(darksendAction);
-
     receiveCoinsAction = new QAction(QIcon(":/icons/receiving_addresses"), tr("&Receive"), this);
     receiveCoinsAction->setToolTip(tr("Show the list of addresses for receiving payments"));
     receiveCoinsAction->setCheckable(true);
@@ -300,6 +297,11 @@ void BitcoinGUI::createActions()
     sendCoinsAction->setCheckable(true);
     sendCoinsAction->setShortcut(QKeySequence(Qt::ALT + Qt::Key_3));
     tabGroup->addAction(sendCoinsAction);
+
+    darksendAction = new QAction(QIcon(":/icons/res/icons/darksend.png"), tr("&Darksend"), this);
+    darksendAction->setToolTip(tr("Mix coins anonymously"));
+    darksendAction->setCheckable(true);
+    tabGroup->addAction(darksendAction);
 
     historyAction = new QAction(QIcon(":/icons/history"), tr("&Transactions"), this);
     historyAction->setToolTip(tr("Browse transaction history"));
@@ -343,12 +345,12 @@ void BitcoinGUI::createActions()
     connect(blockAction, SIGNAL(triggered()), this, SLOT(gotoBlockBrowser()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(overviewAction, SIGNAL(triggered()), this, SLOT(gotoOverviewPage()));
-    connect(darksendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
-    connect(darksendAction, SIGNAL(triggered()), this, SLOT(gotoDarksendPage()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(receiveCoinsAction, SIGNAL(triggered()), this, SLOT(gotoReceiveCoinsPage()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(sendCoinsAction, SIGNAL(triggered()), this, SLOT(gotoSendCoinsPage()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
+    connect(darksendAction, SIGNAL(triggered()), this, SLOT(gotoDarksendPage()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
     connect(historyAction, SIGNAL(triggered()), this, SLOT(gotoHistoryPage()));
     connect(addressBookAction, SIGNAL(triggered()), this, SLOT(showNormalIfMinimized()));
@@ -376,6 +378,8 @@ void BitcoinGUI::createActions()
     encryptWalletAction->setToolTip(tr("Encrypt or decrypt wallet"));
     backupWalletAction = new QAction(QIcon(":/icons/filesave"), tr("&Backup Wallet..."), this);
     backupWalletAction->setToolTip(tr("Backup wallet to another location"));
+    importPrivateKeyAction = new QAction(QIcon(":/icons/key"), tr("&Import private key..."), this);
+    importPrivateKeyAction->setToolTip(tr("Import a private key"));
     changePassphraseAction = new QAction(QIcon(":/icons/key"), tr("&Change Passphrase..."), this);
     changePassphraseAction->setToolTip(tr("Change the passphrase used for wallet encryption"));
     unlockWalletAction = new QAction(QIcon(":/icons/lock_open"),tr("&Unlock Wallet..."), this);
@@ -404,6 +408,7 @@ void BitcoinGUI::createActions()
     connect(toggleHideAction, SIGNAL(triggered()), this, SLOT(toggleHidden()));
     connect(encryptWalletAction, SIGNAL(triggered()), this, SLOT(encryptWallet()));
     connect(backupWalletAction, SIGNAL(triggered()), this, SLOT(backupWallet()));
+    connect(importPrivateKeyAction, SIGNAL(triggered()), this, SLOT(importPrivateKey()));
     connect(changePassphraseAction, SIGNAL(triggered()), this, SLOT(changePassphrase()));
     connect(unlockWalletAction, SIGNAL(triggered()), this, SLOT(unlockWallet()));
     connect(lockWalletAction, SIGNAL(triggered()), this, SLOT(lockWallet()));
@@ -425,6 +430,7 @@ void BitcoinGUI::createMenuBar()
     // Configure the menus
     QMenu *file = appMenuBar->addMenu(tr("&File"));
     file->addAction(backupWalletAction);
+    file->addAction(importPrivateKeyAction);
     file->addAction(exportAction);
     file->addAction(signMessageAction);
     file->addAction(verifyMessageAction);
@@ -482,9 +488,9 @@ void BitcoinGUI::createToolBars()
 
     //QMenu *toolbarMenu = new QMenu();
     toolbar->addAction(overviewAction);
-    toolbar->addAction(darksendAction);
     toolbar->addAction(receiveCoinsAction);
     toolbar->addAction(sendCoinsAction);
+    toolbar->addAction(darksendAction);
     toolbar->addAction(historyAction);
     toolbar->addAction(addressBookAction);
     toolbar->addAction(masternodeManagerAction);
@@ -1178,6 +1184,13 @@ void BitcoinGUI::backupWallet()
             QMessageBox::warning(this, tr("Backup Failed"), tr("There was an error trying to save the wallet data to the new location."));
         }
     }
+}
+
+void BitcoinGUI::importPrivateKey()
+{
+    ImportPrivateKeyDialog dlg(this);
+    dlg.setModel(walletModel->getAddressTableModel());
+    dlg.exec();
 }
 
 void BitcoinGUI::changePassphrase()

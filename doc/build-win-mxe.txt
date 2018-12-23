@@ -1,0 +1,45 @@
+Copyright (c) 2009-2012 Bitcoin Developers
+Copyright (c) 2017-2018 IgnitionCoin Developers
+Distributed under the MIT/X11 software license, see the accompanying
+file license.txt or http://www.opensource.org/licenses/mit-license.php.
+This product includes software developed by the OpenSSL Project for use in
+the OpenSSL Toolkit (http://www.openssl.org/).  This product includes
+cryptographic software written by Eric Young (eay@cryptsoft.com) and UPnP
+software written by Thomas Bernard.
+
+
+WINDOWS MXE CROSS-COMPILING BUILD NOTES
+=======================================
+
+Basics
+------
+
+IgnitionCoin can be cross-compiled for Windows using MXE.
+The following guide is the reference of MXE cross-compiling: https://bitcointalk.org/index.php?topic=1080289.0
+
+
+Configure environment
+---------------------
+
+The following is needed to build:
+- Linux dependencies
+- MXE
+- Berkeley DB 5.3.28
+- miniupnpc 1.6.20120509
+
+The script scripts/configure-mxe.sh can be used to set up all the environment for a Debian/Ubuntu release.
+The default path for the MXE environment is /mnt/mxe-build. You can change this path using the MXE_BASEPATH variable in the configure script.
+
+
+Build
+-----
+
+The script scripts/build-win-mxe.sh can be used to build IgnitionCoin using MXE.
+If you changed the path of the MXE environment, you will also need to change the MXE_PATH variable in the build script.
+
+
+Notes
+-----
+- When switching between a Linux and a MXE build, you will need to use the scripts/clean.sh script to clean everything.
+- In older Debian/Ubuntu releases, the package libssl1.0-dev needs to be replaced by libssl-dev
+

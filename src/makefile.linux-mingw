@@ -40,8 +40,7 @@ LIBS= \
  -l z
 
 DEFS=-D_MT -DWIN32 -D_WINDOWS -DBOOST_THREAD_USE_LIB -DBOOST_SPIRIT_THREADSAFE
-DEBUGFLAGS=-g
-CFLAGS=-O2 -msse2 -w -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
+CFLAGS=-O2 -msse2 -w -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter $(DEFS) $(INCLUDEPATHS)
 LDFLAGS=-Wl,--dynamicbase -Wl,--nxcompat -static-libgcc -static-libstdc++
 
 ifndef USE_UPNP
@@ -92,6 +91,8 @@ OBJS= \
     obj/rpcsmessage.o \
     obj/script.o \
     obj/scrypt.o \
+    obj/neoscrypt.o \
+    obj/neoscrypt_asm.o \
     obj/sync.o \
     obj/txmempool.o \
     obj/util.o \
@@ -118,6 +119,7 @@ OBJS= \
     obj/crypto/sha256.o \
     obj/crypto/sha512.o \
     obj/smessage.o
+
 ifeq (${USE_WALLET}, 1)
     DEFS += -DENABLE_WALLET
     OBJS += \
@@ -131,6 +133,7 @@ ifeq (${USE_WALLET}, 1)
 endif
 
 all: Ignitiond.exe
+	@echo "\nBuild successful!"
 
 LIBS += $(CURDIR)/leveldb/libleveldb.a $(CURDIR)/leveldb/libmemenv.a
 DEFS += -I"$(CURDIR)/leveldb/include"
@@ -142,6 +145,12 @@ obj/txdb-leveldb.o: leveldb/libleveldb.a
 
 obj/%.o: %.cpp $(HEADERS)
 	$(CXX) -c $(CFLAGS) -o $@ $<
+
+obj/neoscrypt.o: neoscrypt.c
+	$(CC) $(CFLAGS) -DSHA256 -DASM -DOPT -c -o $@ $<
+
+obj/neoscrypt_asm.o: neoscrypt_asm.S
+	$(CC) -c -DSHA256 -DASM -DOPT -o $@ $<
 
 Ignitiond.exe: $(OBJS:obj/%=obj/%)
 	$(CXX) $(CFLAGS) $(LDFLAGS) -o $@ $(LIBPATHS) $^ $(LIBS) -lshlwapi

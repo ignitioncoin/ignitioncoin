@@ -6,10 +6,14 @@ USE_UPNP:=0
 USE_WALLET:=1
 USE_LOWMEM:=0
 
+CC = gcc
+CXX = g++
+CFLAGS = -O2 -fomit-frame-pointer
+
 LINK:=$(CXX)
-ARCH:=$(system lscpu | head -n 1 | awk '{print $2}')
 
 DEFS=-DBOOST_SPIRIT_THREADSAFE
+
 DEFS += $(addprefix -I,$(CURDIR) $(CURDIR)/obj $(BOOST_INCLUDE_PATH) $(BDB_INCLUDE_PATH) $(OPENSSL_INCLUDE_PATH))
 LIBS = $(addprefix -L,$(BOOST_LIB_PATH) $(BDB_LIB_PATH) $(OPENSSL_LIB_PATH))
 
@@ -55,57 +59,14 @@ LIBS+= \
    -l dl \
    -l pthread
 
-
-# Hardening
-# Make some classes of vulnerabilities unexploitable in case one is discovered.
-#
-    # This is a workaround for Ubuntu bug #691722, the default -fstack-protector causes
-    # -fstack-protector-all to be ignored unless -fno-stack-protector is used first.
-    # see: https://bugs.launchpad.net/ubuntu/+source/gcc-4.5/+bug/691722
-    HARDENING=-fno-stack-protector
-
-    # Stack Canaries
-    # Put numbers at the beginning of each stack frame and check that they are the same.
-    # If a stack buffer if overflowed, it writes over the canary number and then on return
-    # when that number is checked, it won't be the same and the program will exit with
-    # a "Stack smashing detected" error instead of being exploited.
-    HARDENING+=-fstack-protector-all -Wstack-protector
-
-    # Make some important things such as the global offset table read only as soon as
-    # the dynamic linker is finished building it. This will prevent overwriting of addresses
-    # which would later be jumped to.
-    LDHARDENING+=-Wl,-z,relro -Wl,-z,now
-
-    # Build position independent code to take advantage of Address Space Layout Randomization
-    # offered by some kernels.
-    # see doc/build-unix.txt for more information.
-    ifdef PIE
-        HARDENING+=-fPIE
-        LDHARDENING+=-pie
-    endif
-
-    # -D_FORTIFY_SOURCE=2 does some checking for potentially exploitable code patterns in
-    # the source such overflowing a statically defined buffer.
-    HARDENING+=-D_FORTIFY_SOURCE=2
-#
-
-
-DEBUGFLAGS=-g
-
-
-ifeq (${ARCH}, i686)
-    EXT_OPTIONS=-msse2
-endif
-
-
 # CXXFLAGS can be specified on the make command line, so we use xCXXFLAGS that only
 # adds some defaults in front. Unfortunately, CXXFLAGS=... $(CXXFLAGS) does not work.
-xCXXFLAGS=-O2 $(EXT_OPTIONS) -pthread -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter -Wunused-function -Wunused-variable -fpermissive -Wconversion-null\
-    $(DEBUGFLAGS) $(DEFS) $(HARDENING) $(CXXFLAGS)
+xCXXFLAGS = $(CFLAGS) -fno-stack-protector -pthread -Wall -Wextra -Wno-ignored-qualifiers -Wformat -Wformat-security -Wno-unused-parameter \
+    $(DEFS) $(CXXFLAGS)
 
 # LDFLAGS can be specified on the make command line, so we use xLDFLAGS that only
 # adds some defaults in front. Unfortunately, LDFLAGS=... $(LDFLAGS) does not work.
-xLDFLAGS=$(LDHARDENING) $(LDFLAGS)
+xLDFLAGS= -Wl,-s $(LDFLAGS)
 
 OBJS= \
     obj/alert.o \
@@ -137,6 +98,8 @@ OBJS= \
     obj/rpcsmessage.o \
     obj/script.o \
     obj/scrypt.o \
+    obj/neoscrypt.o \
+    obj/neoscrypt_asm.o \
     obj/sync.o \
     obj/txmempool.o \
     obj/util.o \
@@ -179,6 +142,7 @@ endif
 BIN = ../bin
 
 all: ignitiond
+	@echo "\nBuild successful! The ignitiond binary can be found in the \"bin\" folder."
 
 # build secp256k1
 DEFS += $(addprefix -I,$(CURDIR)/secp256k1/include)
@@ -197,6 +161,20 @@ obj/txdb-leveldb.o: leveldb/libleveldb.a
 
 # auto-generated dependencies:
 -include obj/*.P
+
+# If we have an ARM device, we can't use -DASM
+# xCPUARCH is passed in as a define (xCPUARCH=arm)
+ifeq ($(xCPUARCH),arm)
+    NEOSCRYPT_FLAGS = -DSHA256 -DOPT
+else
+    NEOSCRYPT_FLAGS = -DSHA256 -DASM -DOPT
+endif
+
+obj/neoscrypt.o: neoscrypt.c
+	$(CC) $(CFLAGS) $(NEOSCRYPT_FLAGS) -c -o $@ $^
+
+obj/neoscrypt_asm.o: neoscrypt_asm.S
+	$(CC) -c $(NEOSCRYPT_FLAGS) -o $@ $^
 
 obj/%.o: %.cpp
 	$(CXX) -c $(xCXXFLAGS) -MMD -MF $(@:%.o=%.d) -o $@ $<

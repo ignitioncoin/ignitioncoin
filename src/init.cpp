@@ -60,6 +60,9 @@ unsigned int nMinerSleep;
 bool fUseFastIndex;
 bool fOnlyTor = false;
 
+/* Assembly level processor optimisation features */
+uint opt_flags = 0;
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // Shutdown
@@ -269,6 +272,7 @@ std::string HelpMessage()
     strUsage += "  -checklevel=<n>        " + _("How thorough the block verification is (0-6, default: 1)") + "\n";
     strUsage += "  -loadblock=<file>      " + _("Imports blocks from external blk000?.dat file") + "\n";
     strUsage += "  -maxorphanblocks=<n>   " + strprintf(_("Keep at most <n> unconnectable blocks in memory (default: %u)"), DEFAULT_MAX_ORPHAN_BLOCKS) + "\n";
+    strUsage += "  -backtoblock=<n>      " + _("Rollback local block chain to block height <n>") + "\n";
 
     strUsage += "\n" + _("Block creation options:") + "\n";
     strUsage += "  -blockminsize=<n>      "   + _("Set minimum block size in bytes (default: 0)") + "\n";
@@ -372,6 +376,19 @@ bool AppInit2(boost::thread_group& threadGroup)
 #endif
 
     // ********************************************************* Step 2: parameter interactions
+
+    opt_flags = cpu_vec_exts();
+    if(GetBoolArg("-sse2", true)) {
+        /* Verify hardware SSE2 support */
+        if(opt_flags & 0x00000020) {
+            printf("SSE2 optimisations enabled\n");
+            nNeoScryptOptions |= 0x1000;
+        } else {
+            printf("SSE2 unsupported, optimisations disabled\n");
+        }
+    } else {
+        printf("SSE2 optimisations disabled\n");
+    }
 
     nNodeLifespan = GetArg("-addrlifespan", 7);
     fUseFastIndex = GetBoolArg("-fastindex", true);
@@ -546,7 +563,7 @@ bool AppInit2(boost::thread_group& threadGroup)
     }
 
     //ignore masternodes below protocol version
-    nMasternodeMinProtocol = GetArg("-masternodeminprotocol", MIN_POOL_PEER_PROTO_VERSION);
+    nMasternodeMinProtocol = GetArg("-masternodeminprotocol", GetMinPoolPeerProto());
 
     if (fDaemon)
         fprintf(stdout, "Ignition server starting\n"); 
@@ -800,7 +817,6 @@ bool AppInit2(boost::thread_group& threadGroup)
     if (!LoadBlockIndex())
         return InitError(_("Error loading block database"));
 
-
     // as LoadBlockIndex can take several minutes, it's possible the user
     // requested to kill bitcoin-qt during the last operation. If so, exit.
     // As the program has not fully started yet, Shutdown() is possibly overkill.
@@ -837,6 +853,27 @@ bool AppInit2(boost::thread_group& threadGroup)
         if (nFound == 0)
             LogPrintf("No blocks matching %s were found\n", strMatch);
         return false;
+    }
+
+    if (mapArgs.count("-backtoblock"))
+    {
+        int nNewHeight = GetArg("-backtoblock", 5000);
+        CBlockIndex* pindex = pindexBest;
+        while (pindex != NULL && pindex->nHeight > nNewHeight)
+        {
+            pindex = pindex->pprev;
+        }
+
+        if (pindex != NULL)
+        {
+            LogPrintf("Back to block index %d\n", nNewHeight);
+	        CTxDB txdbAddr("rw");
+            CBlock block;
+            block.ReadFromDisk(pindex);
+            block.SetBestChain(txdbAddr, pindex);
+        }
+        else
+            LogPrintf("Block %d not found\n", nNewHeight);
     }
 
     // ********************************************************* Step 8: load wallet

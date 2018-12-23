@@ -288,7 +288,6 @@ static const CRPCCommand vRPCCommands[] =
     { "listaddressgroupings",   &listaddressgroupings,   false,     false,     true },
     { "signmessage",            &signmessage,            false,     false,     true },
     { "getwork",                &getwork,                true,      false,     true },
-    { "getworkex",              &getworkex,              true,      false,     true },
     { "listaccounts",           &listaccounts,           false,     false,     true },
     { "getblocktemplate",       &getblocktemplate,       true,      false,     false },
     { "submitblock",            &submitblock,            false,     false,     false },
@@ -868,6 +867,17 @@ json_spirit::Value CRPCTable::execute(const std::string &strMethod, const json_s
     {
         throw JSONRPCError(RPC_MISC_ERROR, e.what());
     }
+}
+
+std::vector<std::string> CRPCTable::listCommands() const
+{
+    std::vector<std::string> commandList;
+    typedef std::map<std::string, const CRPCCommand*> commandMap;
+
+    std::transform(mapCommands.begin(), mapCommands.end(), 
+                    std::back_inserter(commandList), 
+                    boost::bind(&commandMap::value_type::first, _1));
+    return commandList;
 }
 
 std::string HelpExampleCli(string methodname, string args){

@@ -22,7 +22,7 @@ BEGIN
             VALUE "FileDescription",    "Ignition-Qt (OSS GUI client for Ignition)"
             VALUE "FileVersion",        VER_FILEVERSION_STR
             VALUE "InternalName",       "Ignition-qt"
-            VALUE "LegalCopyright",     "2009-2014 The Bitcoin developers, 2012-2014 The NovaCoin & PPCoin developers, 2015-2017 The Ignition developers"
+            VALUE "LegalCopyright",     "2009-2014 The Bitcoin developers, 2012-2014 The NovaCoin & PPCoin developers, 2017-2018 The Ignition developers"
             VALUE "LegalTrademarks1",   "Distributed under the MIT/X11 software license, see the accompanying file COPYING or http://www.opensource.org/licenses/mit-license.php."
             VALUE "OriginalFilename",   "Ignition-qt.exe"
             VALUE "ProductName",        "Ignition-Qt"
