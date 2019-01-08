@@ -1559,7 +1559,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
               nActualTimespan, nActualTimespanShort, nActualTimespanLong, nActualTimespanAvg,
               nActualTimespanMax, nActualTimespanMin;
 
-        nTargetSpacing = 2 * TARGET_SPACING;
+        if (nHeight >= Params().LastPOWBlock())
+        {
+            // Only PoS blocks
+            nTargetSpacing = TARGET_SPACING;
+        }
+        else
+        {
+            // Alternate PoW and PoS blocks
+            nTargetSpacing = 2 * TARGET_SPACING;
+        }
 
         nTargetTimespan = nTargetSpacing * nIntervalLong;
 
