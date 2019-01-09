@@ -25,10 +25,11 @@ NC='\033[0m'
 MAG='\e[1;35m'
 
 purgeOldInstallation() {
-    echo -e "${GREEN}Searching and removing old $COIN_NAME files and configurations${NC}"
+    echo -e "${GREEN}Searching for, backing up any wallet, and removing old $COIN_NAME files and configurations${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
     sudo killall $COIN_DAEMON > /dev/null 2>&1
+    # TODO - Make Backup of Wallet.dat, Ignition.conf, and masternode.conf
 	# Save Key
 	OLDKEY=$(awk -F'=' '/masternodeprivkey/ {print $2}' $CONFIGFOLDER/$CONFIG_FILE 2> /dev/null)
 	if [ "$?" -eq "0" ]; then
@@ -40,8 +41,8 @@ purgeOldInstallation() {
     #remove old files
     rm rm -- "$0" > /dev/null 2>&1
     sudo rm -rf $CONFIGFOLDER > /dev/null 2>&1
-    sudo rm -rf /usr/local/bin/$COIN_CLI /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
-    sudo rm -rf /usr/bin/$COIN_CLI /usr/bin/$COIN_DAEMON > /dev/null 2>&1
+    sudo rm -rf /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
+    sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
     echo -e "${GREEN}* Done${NONE}";
 }
