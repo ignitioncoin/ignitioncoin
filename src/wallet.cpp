@@ -3587,7 +3587,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     memcpy(&iWinerAgeU, &iWinerAge256, 4);
                     iWinerAge = (iWinerAgeU >> 20);
                     iMidMNCount = GetMidMasternodes();
-                    if (iWinerAge > (iMidMNCount*0.6))
+                    if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE))
                     {
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }

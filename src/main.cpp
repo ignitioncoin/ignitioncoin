@@ -2243,13 +2243,31 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
                 LogPrint("coinstake", "ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
 
-                if (iWinerAge > (iMidMNCount*0.6))
+                // Check if the MN has won recently by comparing the block count since the last win with the median nb of MNs
+                if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE))
                 {
                     ;
                 }
                 else
                 {
-                    masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    // If it has won too recently
+                    if (pindex->nHeight >= GetForkHeightTwo())
+                    {
+                        // If the delay since the last block is too big, it means there has been a sudden MN count drop
+                        int64_t medianTimePast = pindex->GetMedianTimePast(true, MASTERNODE_MID_MN_COUNT_TIMESPAN);
+                        if (pindex->GetBlockTime() > (medianTimePast + MASTERNODE_WINNER_AGE_BYPASS_DELAY))
+                        {
+                            ; // Bypass the protection to unfreeze the network
+                        }
+                        else
+                        {
+                            masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                        }
+                    }
+                    else
+                    {
+                        masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    }
                 }
                 if (iMidMNCount > 0)
                 {
