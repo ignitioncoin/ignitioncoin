@@ -46,9 +46,8 @@ purgeOldInstallation() {
     #remove old ufw port allow
     sudo ufw delete allow $COIN_PORT/tcp > /dev/null 2>&1
     #remove old files
-    rm rm -- "$0" > /dev/null 2>&1
     sudo rm -rf $CONFIG_FOLDER > /dev/null 2>&1
-    sudo rm -rf /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
+    sudo rm -rf /usr/local/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
     echo -e "${GREEN}* Done${NONE}";
