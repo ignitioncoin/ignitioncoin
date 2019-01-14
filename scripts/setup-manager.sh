@@ -2,8 +2,8 @@
 
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='Ignition.conf'
-CONFIGFOLDER='/root/.Ignition'
-BACKUPFOLDER="$HOME/IgnitionBackups"
+CONFIG_FOLDER='/root/.Ignition'
+BACKUP_FOLDER="$HOME/IgnitionBackups"
 COIN_DAEMON='ignitiond'
 COIN_PATH='/usr/local/bin/'
 COIN_REPO='https://github.com/ignitioncoin/ignitioncoin.git'
@@ -33,21 +33,21 @@ purgeOldInstallation() {
     #Create a backups folder inside users home directory
     test -d ~/IgnitionBackups && echo "Backups folder exists" || mkdir ~/IgnitionBackups
     iteration=0
-    while test -d "$BACKUPFOLDER/$today$suffix"; do
+    while test -d "$BACKUP_FOLDER/$today$suffix"; do
         (( ++iteration ))
         suffix="$( printf -- '-%02d' "$iteration" )"
     done
     foldername="$today$suffix"
-    mkdir $BACKUPFOLDER/$foldername
-    mv $CONFIGFOLDER/masternode.conf $BACKUPFOLDER/$foldername
-    mv $CONFIGFOLDER/Ignition.conf $BACKUPFOLDER/$foldername
-    mv $CONFIGFOLDER/wallet.dat $BACKUPFOLDER/$foldername
+    mkdir $BACKUP_FOLDER/$foldername
+    mv $CONFIG_FOLDER/masternode.conf $BACKUP_FOLDER/$foldername
+    mv $CONFIG_FOLDER/Ignition.conf $BACKUP_FOLDER/$foldername
+    mv $CONFIG_FOLDER/wallet.dat $BACKUP_FOLDER/$foldername
 
     #remove old ufw port allow
     sudo ufw delete allow $COIN_PORT/tcp > /dev/null 2>&1
     #remove old files
     rm rm -- "$0" > /dev/null 2>&1
-    sudo rm -rf $CONFIGFOLDER > /dev/null 2>&1
+    sudo rm -rf $CONFIG_FOLDER > /dev/null 2>&1
     sudo rm -rf /usr/local/bin/$COIN_DAEMON> /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
