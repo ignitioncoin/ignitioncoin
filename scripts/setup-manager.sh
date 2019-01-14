@@ -24,11 +24,10 @@ NC='\033[0m'
 MAG='\e[1;35m'
 
 purgeOldInstallation() {
-    echo -e "${GREEN}Searching for, backing up any wallet, and removing old $COIN_NAME files and configurations${NC}"
+    echo -e "${GREEN}Searching for and backing up any wallet and config files, and removing old $COIN_NAME files${NC}"
     #kill wallet daemon
     systemctl stop $COIN_NAME.service > /dev/null 2>&1
     sudo killall $COIN_DAEMON > /dev/null 2>&1
-    # TODO - Make Backup of Wallet.dat, Ignition.conf, and masternode.conf
     today="$( date +"%Y%m%d" )"
     #Create a backups folder inside users home directory
     test -d ~/IgnitionBackups && echo "Backups folder exists" || mkdir ~/IgnitionBackups
@@ -42,7 +41,6 @@ purgeOldInstallation() {
     mv $CONFIG_FOLDER/masternode.conf $BACKUP_FOLDER/$foldername
     mv $CONFIG_FOLDER/Ignition.conf $BACKUP_FOLDER/$foldername
     mv $CONFIG_FOLDER/wallet.dat $BACKUP_FOLDER/$foldername
-
     #remove old ufw port allow
     sudo ufw delete allow $COIN_PORT/tcp > /dev/null 2>&1
     #remove old files
@@ -51,4 +49,40 @@ purgeOldInstallation() {
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
     echo -e "${GREEN}* Done${NONE}";
+}
+
+function configure_systemd() {
+  cat << EOF > /etc/systemd/system/$COIN_NAME.service
+[Unit]
+Description=$COIN_NAME service
+After=network.target
+[Service]
+User=root
+Group=root
+Type=forking
+#PIDFile=$CONFIGFOLDER/$COIN_NAME.pid
+ExecStart=$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER
+ExecStop=-$COIN_PATH$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER stop
+Restart=always
+PrivateTmp=true
+TimeoutStopSec=60s
+TimeoutStartSec=10s
+StartLimitInterval=120s
+StartLimitBurst=5
+[Install]
+WantedBy=multi-user.target
+EOF
+
+  systemctl daemon-reload
+  sleep 3
+  systemctl start $COIN_NAME.service
+  systemctl enable $COIN_NAME.service >/dev/null 2>&1
+
+  if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
+    echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
+    echo -e "${GREEN}systemctl start $COIN_NAME.service"
+    echo -e "systemctl status $COIN_NAME.service"
+    echo -e "less /var/log/syslog${NC}"
+    exit 1
+  fi
 }
