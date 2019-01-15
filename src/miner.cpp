@@ -110,7 +110,7 @@ int GetMidMasternodesUntilPrev()
             vecNodes.push_back(0);
     }
     sort(vecNodes.begin(), vecNodes.end());
-    iMasternodes = vecNodes.at(iNbBlocks / 2);
+    iMasternodes = vecNodes.at((iNbBlocks-1) / 2);
     return iMasternodes;
 }
 
