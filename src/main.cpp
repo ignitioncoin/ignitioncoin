@@ -2254,8 +2254,9 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
                     if (pindex->nHeight >= GetForkHeightTwo())
                     {
                         // If the delay since the last block is too big, it means there has been a sudden MN count drop
-                        int64_t medianTimePast = pindex->GetMedianTimePast(true, MASTERNODE_MID_MN_COUNT_TIMESPAN);
-                        if (pindex->GetBlockTime() > (medianTimePast + MASTERNODE_WINNER_AGE_BYPASS_DELAY))
+                        int nTimeSpan = MASTERNODE_MID_MN_COUNT_TIMESPAN + 10; // add a small delay to make sure the MN count drops before the block time
+                        int64_t nMedianTimePast = pindex->GetMedianTimePast(true, nTimeSpan);
+                        if (pindex->GetBlockTime() > (nMedianTimePast + MASTERNODE_WINNER_AGE_BYPASS_DELAY))
                         {
                             ; // Bypass the protection to unfreeze the network
                         }
