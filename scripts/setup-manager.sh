@@ -237,8 +237,58 @@ function setup_node() {
 ##### Main #####
 clear
 
-purgeOldInstallation
-checks
-prepare_system
-compile_node
-setup_node
+#purgeOldInstallation
+#checks
+#prepare_system
+#compile_node
+#setup_node
+
+function install_ignition() {
+    echo "You chose to install the Ignition Node"
+}
+
+function compile_linux_gui() {
+    echo "You chose to compile the Ignition GUI wallet"
+}
+
+function compile_windows_exe() {
+    echo "You chose to compile windows executables"
+}
+
+function setup_masternode() {
+    echo "You chose to setup a masternode"
+}
+
+function upgrade_installation() {
+    echo "You chose to upgrade your Ignition node"
+}
+
+function install_dependencies_only() {
+    echo "You chose to install Ignition dependencies only"
+}
+
+function backup_node_data() {
+    echo "You chose to backup your wallet and settings files"
+}
+
+echo "Welcome to the interactive setup manager. Please select an option:"
+echo "Install Ignition node - [1]"
+echo "Compile GUI Wallet - [2]"
+echo "Compile Windows Executables - [3]"
+echo "Prepare masternode (will install Ignition Node if needed) - [4]"
+echo "Upgrade existing installation - [5]"
+echo "Install dependencies only - [6]"
+echo "Backup Ignition Wallet and Settings - [7]"
+
+read choice1
+
+case $choice1 in
+    "1") install_ignition;;
+    "2") compile_linux_gui;;
+    "3") compile_windows_exe;;
+    "4") setup_masternode;;
+    "5") upgrade_installation;;
+    "6") install_dependencies_only;;
+    "7") backup_node_data;;
+esac
+
