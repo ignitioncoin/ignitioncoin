@@ -319,14 +319,36 @@ function setup_masternode() {
 
 function upgrade_installation() {
     echo "You chose to upgrade your Ignition node"
+    #TODO: Adjust upgrade-unix.sh to work with setup-manager
 }
 
 function install_dependencies_only() {
     echo "You chose to install Ignition dependencies only"
+    prepare_system
 }
 
 function backup_node_data() {
     echo "You chose to backup your wallet and settings files"
+    today="$( date +"%Y%m%d" )"
+    #Create a backups folder inside users home directory
+    test -d ~/IgnitionBackups && echo "Backups folder exists" || mkdir ~/IgnitionBackups
+    iteration=0
+    while test -d "$BACKUP_FOLDER/$today$suffix"; do
+        (( ++iteration ))
+        suffix="$( printf -- '-%02d' "$iteration" )"
+    done
+    foldername="$today$suffix"
+    echo "Placing Backup Files into $BACKUP_FOLDER/$foldername"
+    mkdir $BACKUP_FOLDER/$foldername
+    cp $CONFIG_FOLDER/masternode.conf $BACKUP_FOLDER/$foldername
+    cp $CONFIG_FOLDER/Ignition.conf $BACKUP_FOLDER/$foldername
+    cp $CONFIG_FOLDER/wallet.dat $BACKUP_FOLDER/$foldername
+}
+
+function uninstall() {
+    echo "You chose to uninstall Ignition, would you like to continue"
+    #TODO: Ask if sure
+    purgeOldInstallation
 }
 
 ##### Main #####
@@ -342,6 +364,7 @@ echo "Upgrade existing installation - [5]"
 echo "Install dependencies only - [6]"
 echo "Backup Ignition wallet and settings - [7]"
 echo "Compile linux CLI binary (will not install) - [8]"
+echo "Uninstall Ignition - [9]"
 
 read choice1
 
@@ -354,5 +377,6 @@ case $choice1 in
     "6") install_dependencies_only;;
     "7") backup_node_data;;
     "8") compile_linux_daemon
+    "9") uninstall
 esac
 
