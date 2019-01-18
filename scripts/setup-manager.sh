@@ -297,6 +297,20 @@ function compile_linux_gui() {
 
 function compile_windows_exe() {
     echo "You chose to compile windows executables"
+    checks
+    prepare_system
+    if [ ! -e ../Ignition.pro ] ; then
+        echo "Cloning Ignition Coin Github Repository"
+        git clone https://github.com/ignitioncoin/ignitioncoin
+        ./ignitioncoin/scripts/clean.sh
+        ./ignitioncoin/scripts/configure-mxe.sh
+        ./ignitioncoin/scripts/build-win-mxe.sh
+    else
+        echo "Compiling Source Code"
+        ./clean.sh
+        ./configure-mxe.sh
+        ./build-win-mxe.sh
+    fi
 }
 
 function setup_masternode() {
