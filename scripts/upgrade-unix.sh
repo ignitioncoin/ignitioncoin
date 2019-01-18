@@ -108,13 +108,10 @@ fi
 echo -e "\n${GREEN}Cleaning repo${NC}"
 ./clean.sh
 
-# Add swap if needed
-if [ "$MEMORY_SIZE" -lt "2000000" ]; then
-	echo -e "\n${GREEN}Adding 1G swap to compile${NC}"
-	sudo fallocate -l 1G $SWAP_FILE
-	sudo mkswap $SWAP_FILE
-	sudo swapon $SWAP_FILE
+if [ ! -e checkswap.sh ] ; then
+    wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/checkswap.sh
 fi
+./checkswap.sh
 
 # Build daemon
 echo -e "\n${GREEN}Building daemon${NC}"

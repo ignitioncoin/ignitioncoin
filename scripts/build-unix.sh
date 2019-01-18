@@ -8,6 +8,11 @@ do
     fi
 done
 
+if [ ! -e checkswap.sh ] ; then
+    wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/checkswap.sh
+fi
+./checkswap.sh
+
 cd ../src
 make -j$NB_CORES -f makefile.unix
 

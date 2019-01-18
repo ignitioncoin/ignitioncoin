@@ -172,19 +172,6 @@ function checks() {
 }
 
 function prepare_system() {
-    grep -q "swapfile" /etc/fstab
-    # if swap doesn't exist, create it
-    if [ $? -ne 0 ]; then
-        echo 'swapfile not found. Adding swapfile.'
-        fallocate -l 4G /swapfile
-        chmod 600 /swapfile
-        mkswap /swapfile
-        swapon /swapfile
-        echo "/swapfile none swap defaults 0 0" >> /etc/fstab
-        echo "Swap space allocated."
-    else
-        echo "swapfile found. No changes made."
-    fi
     if [ -f ./install-dependencies.sh ]; then
         echo "Install-dependencies script is already available. Will not download."
         ./install-dependencies.sh
@@ -237,8 +224,6 @@ function setup_node() {
   configure_systemd
 }
 
-
-
 function install_ignition() {
     echo "You chose to install the Ignition Node"
     echo "Checking for Ignition installation"
@@ -255,16 +240,22 @@ function install_ignition() {
         if [ -e ../Ignition.pro ] ; then
             echo "Compiling Source Code"
             ./build-unix.sh
+            #TODO: Install to /usr/bin or /usr/local/bin
         else
             echo "Cloning github repository.."
             git clone https://github.com/ignitioncoin/ignitioncoin
             ./ignitioncoin/scripts/build-unix.sh
+            #TODO: Install to /usr/bin or /usr/local/bin
         fi
-
     else
         echo "Download Executable Binary For Install"
+        #TODO: Install to /usr/bin or /usr/local/bin
     fi
-
+    create_config
+    #TODO: Create Key func
+    enable_firewall
+    configure_systemd
+    important_information
 }
 
 function compile_linux_gui() {
@@ -294,11 +285,6 @@ function backup_node_data() {
 ##### Main #####
 clear
 
-#purgeOldInstallation
-#checks
-#prepare_system
-#compile_node
-#setup_node
 
 echo "Welcome to the interactive setup manager. Please select an option:"
 echo "Install Ignition node - [1]"
