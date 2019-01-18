@@ -37,6 +37,7 @@ purgeOldInstallation() {
         suffix="$( printf -- '-%02d' "$iteration" )"
     done
     foldername="$today$suffix"
+    echo "Placing Backup Files into $BACKUP_FOLDER/$foldername"
     mkdir $BACKUP_FOLDER/$foldername
     mv $CONFIG_FOLDER/masternode.conf $BACKUP_FOLDER/$foldername
     mv $CONFIG_FOLDER/Ignition.conf $BACKUP_FOLDER/$foldername
@@ -48,12 +49,7 @@ purgeOldInstallation() {
     sudo rm -rf /usr/local/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
-    echo -e "${GREEN}* Done${NONE}";
-}
-
-function compile_node() {
- #TODO
- echo "Unfinished"
+    echo -e "${GREEN}* Done Backing Up and Uninstalling...${NONE}";
 }
 
 function configure_systemd() {
@@ -173,14 +169,9 @@ function checks() {
        exit 1
     fi
 
-    if [ -n "$(pidof $COIN_DAEMON)" ] || [ -e "$COIN_DAEMOM" ] ; then
-      echo -e "${RED}$COIN_NAME is already installed.${NC}"
-      exit 1
-    fi
 }
 
 function prepare_system() {
-    echo -e "Preparing the VPS to setup. ${CYAN}$COIN_NAME${NC} ${RED}Masternode${NC}"
     if [ -f ./install-dependencies.sh ]; then
         echo "Install-dependencies script is already available. Will not download."
         ./install-dependencies.sh
@@ -234,17 +225,27 @@ function setup_node() {
   configure_systemd
 }
 
-##### Main #####
-clear
 
-#purgeOldInstallation
-#checks
-#prepare_system
-#compile_node
-#setup_node
 
 function install_ignition() {
     echo "You chose to install the Ignition Node"
+    echo "Checking for Ignition installation"
+    if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
+        purgeOldInstallation
+    else
+        echo "No installation found. Proceeding with install."
+    fi
+    checks
+    prepare_system
+    echo "Would you like to download and compile from source? y/n: "
+    read compilefromsource
+    if [ "$compilefromsource" -eq "y" ] || [ "$compilefromsource" -eq "Y" ] ; then
+        echo "Downloading and Compiling Source Code"
+
+    else
+        echo "Download Executable Binary For Install"
+    fi
+
 }
 
 function compile_linux_gui() {
@@ -270,6 +271,15 @@ function install_dependencies_only() {
 function backup_node_data() {
     echo "You chose to backup your wallet and settings files"
 }
+
+##### Main #####
+clear
+
+#purgeOldInstallation
+#checks
+#prepare_system
+#compile_node
+#setup_node
 
 echo "Welcome to the interactive setup manager. Please select an option:"
 echo "Install Ignition node - [1]"
