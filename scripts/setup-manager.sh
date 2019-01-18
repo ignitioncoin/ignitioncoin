@@ -240,16 +240,17 @@ function install_ignition() {
         if [ -e ../Ignition.pro ] ; then
             echo "Compiling Source Code"
             ./build-unix.sh
-            #TODO: Install to /usr/bin or /usr/local/bin
+            mv ../bin/ignitiond /usr/bin
         else
             echo "Cloning github repository.."
             git clone https://github.com/ignitioncoin/ignitioncoin
             ./ignitioncoin/scripts/build-unix.sh
-            #TODO: Install to /usr/bin or /usr/local/bin
+            mv ./ignitioncoin/bin/ignitiond /usr/bin
         fi
     else
         echo "Download Executable Binary For Install"
-        #TODO: Install to /usr/bin or /usr/local/bin
+        #wget github.com/ignitioncoin/ignitioncoin/releases/EXECUTABLE
+        mv ./ignitiond /usr/bin
     fi
     create_config
     #TODO: Create Key func
@@ -258,8 +259,24 @@ function install_ignition() {
     important_information
 }
 
+function compile_linux_daemon() {
+    echo "You chose to compile the Ignition CLI Daemon/Wallet"
+    if [ ! -e ../Ignition.pro ] ; then
+        echo "Cloning Ignition Coin Github Repository"
+        git clone https://github.com/ignitioncoin/ignitioncoin
+        ./ignitioncoin/scripts/build-unix.sh
+        clear
+        echo "Compile is complete, you can find the binary file in ./ignitioncoin/bin/"
+    else
+        echo "Compiling Source Code"
+        ./build-unix.sh
+        clear
+        echo "Compile is complete, you can find the binary file in ../bin/"
+    fi
+}
+
 function compile_linux_gui() {
-    echo "You chose to compile the Ignition GUI wallet"
+    echo "You chose to compile the linux GUI wallet"
 }
 
 function compile_windows_exe() {
@@ -288,12 +305,13 @@ clear
 
 echo "Welcome to the interactive setup manager. Please select an option:"
 echo "Install Ignition node - [1]"
-echo "Compile GUI Wallet - [2]"
-echo "Compile Windows Executables - [3]"
+echo "Compile GUI wallet - [2]"
+echo "Compile windows executables - [3]"
 echo "Prepare masternode (will install Ignition Node if needed) - [4]"
 echo "Upgrade existing installation - [5]"
 echo "Install dependencies only - [6]"
-echo "Backup Ignition Wallet and Settings - [7]"
+echo "Backup Ignition wallet and settings - [7]"
+echo "Compile linux CLI binary (will not install) - [8]"
 
 read choice1
 
@@ -305,5 +323,6 @@ case $choice1 in
     "5") upgrade_installation;;
     "6") install_dependencies_only;;
     "7") backup_node_data;;
+    "8") compile_linux_daemon
 esac
 
