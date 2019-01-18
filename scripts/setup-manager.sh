@@ -377,6 +377,6 @@ case $choice1 in
     "6") install_dependencies_only;;
     "7") backup_node_data;;
     "8") compile_linux_daemon
-    "9") uninstall
+    "9") uninstall;;
 esac
 
