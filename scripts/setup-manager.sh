@@ -172,6 +172,19 @@ function checks() {
 }
 
 function prepare_system() {
+    grep -q "swapfile" /etc/fstab
+    # if swap doesn't exist, create it
+    if [ $? -ne 0 ]; then
+        echo 'swapfile not found. Adding swapfile.'
+        fallocate -l 4G /swapfile
+        chmod 600 /swapfile
+        mkswap /swapfile
+        swapon /swapfile
+        echo "/swapfile none swap defaults 0 0" >> /etc/fstab
+        echo "Swap space allocated."
+    else
+        echo "swapfile found. No changes made."
+    fi
     if [ -f ./install-dependencies.sh ]; then
         echo "Install-dependencies script is already available. Will not download."
         ./install-dependencies.sh
@@ -190,7 +203,6 @@ function prepare_system() {
     automake git p7zip-full intltool"
      exit 1
     fi
-    clear
 }
 
 function important_information() {
@@ -240,7 +252,14 @@ function install_ignition() {
     echo "Would you like to download and compile from source? y/n: "
     read compilefromsource
     if [ "$compilefromsource" -eq "y" ] || [ "$compilefromsource" -eq "Y" ] ; then
-        echo "Downloading and Compiling Source Code"
+        if [ -e ../Ignition.pro ] ; then
+            echo "Compiling Source Code"
+            ./build-unix.sh
+        else
+            echo "Cloning github repository.."
+            git clone https://github.com/ignitioncoin/ignitioncoin
+            ./ignitioncoin/scripts/build-unix.sh
+        fi
 
     else
         echo "Download Executable Binary For Install"
