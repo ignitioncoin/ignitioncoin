@@ -160,7 +160,7 @@ function compile_error() {
 
 function checks() {
     if [[ $(lsb_release -d) != *16.04* ]]; then
-      echo -e "${RED}You are not running Ubuntu 16.04. Installation is cancelled.${NC}"
+      echo -e "${RED}You are not running Ubuntu 16.04. Please ensure you are running Ubuntu 16.04.${NC}"
       exit 1
     fi
 
@@ -261,6 +261,8 @@ function install_ignition() {
 
 function compile_linux_daemon() {
     echo "You chose to compile the Ignition CLI Daemon/Wallet"
+    checks
+    prepare_system
     if [ ! -e ../Ignition.pro ] ; then
         echo "Cloning Ignition Coin Github Repository"
         git clone https://github.com/ignitioncoin/ignitioncoin
@@ -277,6 +279,20 @@ function compile_linux_daemon() {
 
 function compile_linux_gui() {
     echo "You chose to compile the linux GUI wallet"
+    checks
+    prepare_system
+    if [ ! -e ../Ignition.pro ] ; then
+        echo "Cloning Ignition Coin Github Repository"
+        git clone https://github.com/ignitioncoin/ignitioncoin
+        ./ignitioncoin/scripts/build-unix.sh --with-gui
+        clear
+        echo "Compile is complete, you can find the binary file in ./ignitioncoin/bin/"
+    else
+        echo "Compiling Source Code"
+        ./build-unix.sh --with-gui
+        clear
+        echo "Compile is complete, you can find the binary file in ../bin/"
+    fi
 }
 
 function compile_windows_exe() {
