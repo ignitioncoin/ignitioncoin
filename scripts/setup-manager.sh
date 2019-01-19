@@ -346,9 +346,12 @@ function backup_node_data() {
 }
 
 function uninstall() {
-    echo "You chose to uninstall Ignition, would you like to continue"
-    #TODO: Ask if sure
-    purgeOldInstallation
+    read -p "You chose to uninstall Ignition, would you like to continue? y/n:" yn
+    case $yn in
+        [Yy]* ) purgeOldInstallation; break;;
+        [Nn]* ) exit;;
+        * ) echo "Please answer Y/n:";;
+    esac
 }
 
 ##### Main #####
