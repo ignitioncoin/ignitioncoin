@@ -9,7 +9,7 @@ COIN_PATH='/usr/local/bin/'
 COIN_REPO='https://github.com/ignitioncoin/ignitioncoin.git'
 #COIN_TGZ='http://www.mastermasternode.com/ignitioncoin/XXX.zip'
 #COIN_ZIP=$(echo $COIN_TGZ | awk -F'/' '{print $NF}')
-COIN_NAME='Ignition'
+COIN_NAME='ignition'
 COIN_PORT=44144
 RPC_PORT=44155
 NODEIP=$(curl -s4 icanhazip.com)
@@ -106,16 +106,26 @@ EOF
 }
 
 function update_config() {
+  COINKEY=$($COIN_DAEMON masternode genkey)
+  systemctl stop ignition
   sed -i 's/daemon=1/daemon=0/' $CONFIGFOLDER/$CONFIG_FILE
+  grep -Fxq "masternode=1" $CONFIG_FOLDER/$CONFIG_FILE
+  if [ $? -eq 0 ]; then
+    echo "Found previous masternode configuration. Will backup file then create configuration changes"
+    backup_node_data
+    rm $CONFIG_FOLDER/$CONFIG_FILE
+    create_config
+  fi
   cat << EOF >> $CONFIGFOLDER/$CONFIG_FILE
 logintimestamps=1
-maxconnections=50
+maxconnections=75
 #bind=$NODEIP
 masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
 #Addnodes
 EOF
+systemctl start ignition
 }
 
 function enable_firewall() {
@@ -216,12 +226,8 @@ function important_information() {
 
 function setup_node() {
   get_ip
-  create_config
-  create_key
   update_config
-  enable_firewall
-  important_information
-  configure_systemd
+  systemctl restart ignition
 }
 
 function install_ignition() {
@@ -315,10 +321,19 @@ function compile_windows_exe() {
 
 function setup_masternode() {
     echo "You chose to setup a masternode"
+    if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
+        read -p "There is already an installation of Ignition Coin. Did you want to use the currently installed software, or install the latest software? Y/n:" yn
+        case $yn in
+            [Yy]* ) install_ignition; setup_node;;
+            [Nn]* ) setup_node;;
+            * ) echo "Sorry, did not understand your command, please enter Y/n";;
+        esac
+    fi
 }
 
 function upgrade_installation() {
     echo "You chose to upgrade your Ignition node"
+    echo "Unfortunately the upgrade script is not complete. Please try again after an update."
     #TODO: Adjust upgrade-unix.sh to work with setup-manager
 }
 
@@ -350,24 +365,29 @@ function uninstall() {
     case $yn in
         [Yy]* ) purgeOldInstallation; break;;
         [Nn]* ) exit;;
-        * ) echo "Please answer Y/n:";;
+        * ) echo "Please answer Y/n";;
     esac
 }
 
 ##### Main #####
 clear
 
+if [ $# > 0 ] ; then
+    if [ $1 = "--backup" ] ; then
+        backup_node_data
+        exit 1
+    fi
+fi
 
 echo "Welcome to the interactive setup manager. Please select an option:"
-echo "Install Ignition node - [1]"
+echo "Install Ignition node (will uninstall/upgrade existing installation) - [1]"
 echo "Compile GUI wallet - [2]"
 echo "Compile windows executables - [3]"
 echo "Prepare masternode (will install Ignition Node if needed) - [4]"
-echo "Upgrade existing installation - [5]"
-echo "Install dependencies only - [6]"
-echo "Backup Ignition wallet and settings - [7]"
-echo "Compile linux CLI binary (will not install) - [8]"
-echo "Uninstall Ignition - [9]"
+echo "Install dependencies only - [5]"
+echo "Backup Ignition wallet and settings - [6]"
+echo "Compile linux CLI binary (will not install) - [7]"
+echo "Uninstall Ignition - [8]"
 
 read choice1
 
@@ -376,10 +396,9 @@ case $choice1 in
     "2") compile_linux_gui;;
     "3") compile_windows_exe;;
     "4") setup_masternode;;
-    "5") upgrade_installation;;
-    "6") install_dependencies_only;;
-    "7") backup_node_data;;
-    "8") compile_linux_daemon;;
-    "9") uninstall;;
+    "5") install_dependencies_only;;
+    "6") backup_node_data;;
+    "7") compile_linux_daemon;;
+    "8") uninstall;;
 esac
 
