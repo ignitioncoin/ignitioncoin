@@ -331,12 +331,6 @@ function setup_masternode() {
     fi
 }
 
-function upgrade_installation() {
-    echo "You chose to upgrade your Ignition node"
-    echo "Unfortunately the upgrade script is not complete. Please try again after an update."
-    #TODO: Adjust upgrade-unix.sh to work with setup-manager
-}
-
 function install_dependencies_only() {
     echo "You chose to install Ignition dependencies only"
     prepare_system
