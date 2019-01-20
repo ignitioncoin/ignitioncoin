@@ -61,9 +61,9 @@ After=network.target
 User=root
 Group=root
 Type=forking
-#PIDFile=$CONFIGFOLDER/$COIN_NAME.pid
-ExecStart=$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER
-ExecStop=-$COIN_PATH$COIN_CLI -conf=$CONFIGFOLDER/$CONFIG_FILE -datadir=$CONFIGFOLDER stop
+#PIDFile=$CONFIG_FOLDER/$COIN_NAME.pid
+ExecStart=$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIG_FOLDER/$CONFIG_FILE -datadir=$CONFIG_FOLDER
+ExecStop=-$COIN_PATH$COIN_DAEMON -conf=$CONFIG_FOLDER/$CONFIG_FILE -datadir=$CONFIG_FOLDER stop
 Restart=always
 PrivateTmp=true
 TimeoutStopSec=60s
@@ -89,10 +89,10 @@ EOF
 }
 
 function create_config() {
-  mkdir $CONFIGFOLDER >/dev/null 2>&1
+  mkdir $CONFIG_FOLDER >/dev/null 2>&1
   RPCUSER=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w10 | head -n1)
   RPCPASSWORD=$(tr -cd '[:alnum:]' < /dev/urandom | fold -w22 | head -n1)
-  cat << EOF > $CONFIGFOLDER/$CONFIG_FILE
+  cat << EOF > $CONFIG_FOLDER/$CONFIG_FILE
 rpcuser=$RPCUSER
 rpcpassword=$RPCPASSWORD
 rpcport=$RPC_PORT
@@ -108,7 +108,7 @@ EOF
 function update_config() {
   COINKEY=$($COIN_DAEMON masternode genkey)
   systemctl stop ignition
-  sed -i 's/daemon=1/daemon=0/' $CONFIGFOLDER/$CONFIG_FILE
+  sed -i 's/daemon=1/daemon=0/' $CONFIG_FOLDER/$CONFIG_FILE
   grep -Fxq "masternode=1" $CONFIG_FOLDER/$CONFIG_FILE
   if [ $? -eq 0 ]; then
     echo "Found previous masternode configuration. Will backup file then create configuration changes"
@@ -116,7 +116,7 @@ function update_config() {
     rm $CONFIG_FOLDER/$CONFIG_FILE
     create_config
   fi
-  cat << EOF >> $CONFIGFOLDER/$CONFIG_FILE
+  cat << EOF >> $CONFIG_FOLDER/$CONFIG_FILE
 logintimestamps=1
 maxconnections=75
 #bind=$NODEIP
@@ -208,7 +208,7 @@ function important_information() {
     echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"
     echo -e "${BLUE}================================================================================================================================${NC}"
     echo -e "${GREEN}$COIN_NAME Masternode is up and running listening on port${NC}${PURPLE}$COIN_PORT${NC}."
-    echo -e "${GREEN}Configuration file is:${NC}${RED}$CONFIGFOLDER/$CONFIG_FILE${NC}"
+    echo -e "${GREEN}Configuration file is:${NC}${RED}$CONFIG_FOLDER/$CONFIG_FILE${NC}"
     echo -e "${GREEN}Start:${NC}${RED}systemctl start $COIN_NAME.service${NC}"
     echo -e "${GREEN}Stop:${NC}${RED}systemctl stop $COIN_NAME.service${NC}"
     echo -e "${GREEN}VPS_IP:${NC}${GREEN}$NODEIP:$COIN_PORT${NC}"
@@ -324,7 +324,7 @@ function setup_masternode() {
     if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
         read -p "There is already an installation of Ignition Coin. Did you want to use the currently installed software, or install the latest software? Y/n:" yn
         case $yn in
-            [Yy]* ) install_ignition; setup_node;;
+            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================";;
             [Nn]* ) setup_node;;
             * ) echo "Sorry, did not understand your command, please enter Y/n";;
         esac
