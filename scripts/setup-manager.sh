@@ -212,7 +212,7 @@ function important_information() {
     echo -e "${GREEN}Start:${NC}${RED}systemctl start $COIN_NAME.service${NC}"
     echo -e "${GREEN}Stop:${NC}${RED}systemctl stop $COIN_NAME.service${NC}"
     echo -e "${GREEN}VPS_IP:${NC}${GREEN}$NODEIP:$COIN_PORT${NC}"
-    echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
+#    echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
     echo -e "${BLUE}================================================================================================================================"
     echo -e "${CYAN}Follow twitter to stay updated.  https://twitter.com/IgnitionCoin${NC}"
     echo -e "${BLUE}================================================================================================================================${NC}"
@@ -220,7 +220,7 @@ function important_information() {
     echo -e "${BLUE}================================================================================================================================${NC}"
     echo -e "${GREEN}Usage Commands.${NC}"
     echo -e "${GREEN}ignitiond masternode status${NC}"
-    echo -e "${GREEN}ignitiond getinfo.${NC}"
+    echo -e "${GREEN}ignitiond getinfo${NC}"
     echo -e "${BLUE}================================================================================================================================${NC}"
 }
 
@@ -357,7 +357,7 @@ function backup_node_data() {
 function uninstall() {
     read -p "You chose to uninstall Ignition, would you like to continue? y/n:" yn
     case $yn in
-        [Yy]* ) purgeOldInstallation; break;;
+        [Yy]* ) purgeOldInstallation;;
         [Nn]* ) exit;;
         * ) echo "Please answer Y/n";;
     esac
