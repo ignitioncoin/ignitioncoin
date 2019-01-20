@@ -50,6 +50,7 @@ purgeOldInstallation() {
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
     echo -e "${GREEN}* Done Backing Up and Uninstalling...${NONE}";
+    #TODO? Remove systemd configuration
 }
 
 function configure_systemd() {

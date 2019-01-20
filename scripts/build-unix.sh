@@ -14,7 +14,7 @@ fi
 ./checkswap.sh
 
 cd ../src
-make -j$NB_CORES -f makefile.unix
+make -j$NB_CORES -f makefile.unix &>/dev/null
 
 for var in "$@"
 do
