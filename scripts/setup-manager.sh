@@ -206,14 +206,10 @@ function prepare_system() {
 function important_information() {
     echo
     echo -e "${BLUE}================================================================================================================================${NC}"
-    echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"
-    echo -e "${BLUE}================================================================================================================================${NC}"
-    echo -e "${GREEN}$COIN_NAME Masternode is up and running listening on port${NC}${PURPLE}$COIN_PORT${NC}."
     echo -e "${GREEN}Configuration file is:${NC}${RED}$CONFIG_FOLDER/$CONFIG_FILE${NC}"
     echo -e "${GREEN}Start:${NC}${RED}systemctl start $COIN_NAME.service${NC}"
     echo -e "${GREEN}Stop:${NC}${RED}systemctl stop $COIN_NAME.service${NC}"
     echo -e "${GREEN}VPS_IP:${NC}${GREEN}$NODEIP:$COIN_PORT${NC}"
-#    echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
     echo -e "${BLUE}================================================================================================================================"
     echo -e "${CYAN}Follow twitter to stay updated.  https://twitter.com/IgnitionCoin${NC}"
     echo -e "${BLUE}================================================================================================================================${NC}"
@@ -325,7 +321,7 @@ function setup_masternode() {
     if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
         read -p "There is already an installation of Ignition Coin. Did you want to use the currently installed software, or install the latest software? Y/n:" yn
         case $yn in
-            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================";;
+            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================";     echo -e "${GREEN}$COIN_NAME Masternode is up and running listening on port${NC}${PURPLE}$COIN_PORT${NC}."; echo -e "${BLUE}================================================================================================================================${NC}"; echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"; echo -e "${BLUE}================================================================================================================================${NC}";;
             [Nn]* ) setup_node;;
             * ) echo "Sorry, did not understand your command, please enter Y/n";;
         esac
