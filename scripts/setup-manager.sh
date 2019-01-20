@@ -256,7 +256,6 @@ function install_ignition() {
         mv ./ignitiond /usr/bin
     fi
     create_config
-    #TODO: Create Key func
     enable_firewall
     configure_systemd
     important_information
@@ -321,7 +320,7 @@ function setup_masternode() {
     if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
         read -p "There is already an installation of Ignition Coin. Did you want to use the currently installed software, or install the latest software? Y/n:" yn
         case $yn in
-            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================";     echo -e "${GREEN}Ignition Masternode is up and running listening on port${NC}${PURPLE}$COIN_PORT${NC}."; echo -e "${BLUE}================================================================================================================================${NC}"; echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"; echo -e "${BLUE}================================================================================================================================${NC}";;
+            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================"; echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."; echo -e "${BLUE}================================================================================================================================${NC}"; echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"; echo -e "${BLUE}================================================================================================================================${NC}";;
             [Nn]* ) setup_node;;
             * ) echo "Sorry, did not understand your command, please enter Y/n";;
         esac
@@ -392,4 +391,3 @@ case $choice1 in
     "7") compile_linux_daemon;;
     "8") uninstall;;
 esac
-
