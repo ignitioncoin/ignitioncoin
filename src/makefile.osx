@@ -9,6 +9,10 @@
 CXX=clang++
 C=clang
 DEPSDIR=/usr/local
+DEPSDIRSLASHED=$(shell echo ${DEPSDIR} | sed 's/\//\\\//g')
+
+# Grab OpenSSL folder name dynamically 
+OPENSSLVERSION=$(shell ls -td -- $(DEPSDIR)/Cellar/openssl/* | head -n 1 | sed 's/${DEPSDIRSLASHED}\/Cellar\/openssl\///g')
 
 # For the OpenSSL include path, please make sure you're using the 
 # correct version for your machine as this dependency is constantly
@@ -20,13 +24,13 @@ INCLUDEPATHS= \
  -I"$(DEPSDIR)/include" \
  -I"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/include" \
  -I"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/include" \
- -I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"
+ -I"$(DEPSDIR)/Cellar/openssl/$(OPENSSLVERSION)/include"
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
  -L"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/lib" \
  -L"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/lib" \
- -L"$(DEPSDIR)/Cellar/openssl/1.0.2q/lib"
+ -L"$(DEPSDIR)/Cellar/openssl/$(OPENSSLVERSION)/lib"
 
 USE_UPNP:=1
 USE_WALLET:=1

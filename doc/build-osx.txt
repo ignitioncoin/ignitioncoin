@@ -13,8 +13,7 @@ MacOS Ignitiond BUILD NOTES
 
 **Tested on MacOS Mojave 10.14.2 - Darwin Kernel Version 17.3.0.  PPC is not supported because it's big-endian.**
 
-All of the commands should be executed in Terminal.app.. it's in
-/Applications/Utilities
+All of the commands should be executed in Terminal.app (located in /Applications/Utilities)
 
 You need to install XCode with all the options checked so that the compiler and everything is available in /usr not just /Developer I think it comes on the DVD but you can get the current version from http://developer.apple.com
 
@@ -30,33 +29,12 @@ git clone https://github.com/ignitioncoin/ignitioncoin
 
     `brew install qt autoconf automake libtool boost@1.59 berkeley-db@4 openssl miniupnpc gmp`
 
-5. In a separate terminal window type in `ls -td -- /usr/local/Cellar/openssl/* | head -n 1` and copy the
-version number after /usr/local/Cellar/openssl/ (in this example we'll use /usr/local/Cellar/openssl/**1.0.2q**)
-
-6. Open up `src/makefile.osx` and under `INCLUDEPATHS` AND `LIBPATHS` replace the openssl version 
-with the one copied in **Step 5** (`1.0.2q`). The lines should now read:
-    ```
-    INCLUDEPATHS= \
-    -I"$(CURDIR)" \
-    ... \
-    ... \
-    ... \
-    ... \
-    I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"
-    ```
-    ```
-    LIBPATHS= \
-     ... \
-     ... \
-     ... \
-     -L"$(DEPSDIR)/Cellar/openssl/1.0.2q/lib"
-    ```
-
-7.  Now you should be able to build Ignitiond:
+5.  Now you should be able to build Ignitiond:
     ```
     cd Ignition/src
     make -f makefile.osx
     ```
+
 #### Other Ignitiond commands
     Run:
       `./Ignitiond --help  # for a list of command-line options.`
