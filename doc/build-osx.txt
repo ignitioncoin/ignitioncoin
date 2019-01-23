@@ -6,6 +6,7 @@ OpenSSL Toolkit (http://www.openssl.org/).  This product includes cryptographic
 software written by Eric Young (eay@cryptsoft.com) and UPnP software written by
 Thomas Bernard.
 
+2017 - 2019 : Modifications by Ignition Coin
 
 MacOS Ignitiond BUILD NOTES
 ===========================
@@ -15,13 +16,13 @@ MacOS Ignitiond BUILD NOTES
 
 All of the commands should be executed in Terminal.app (located in /Applications/Utilities)
 
-You need to install XCode with all the options checked so that the compiler and everything is available in /usr not just /Developer I think it comes on the DVD but you can get the current version from http://developer.apple.com
+You need to install XCode with all the options checked so that the compiler and everything is available in /usr not just /Developer. You can get the current version from http://developer.apple.com or by running `xcode-select --install` in terminal
 
 1.  Clone the github tree to get the source code:
+    `git clone https://github.com/ignitioncoin/ignitioncoin`
 
-git clone https://github.com/ignitioncoin/ignitioncoin
-
-2.  Install XCode and it's command line tools
+2.  Install XCode and it's command line tools (for Homebrew and other compiling functions)
+    `xcode-select --install`
 
 3.  Download and install Homebrew using instructions from https://brew.sh/
 
