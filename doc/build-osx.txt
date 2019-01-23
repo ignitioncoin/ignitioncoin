@@ -33,9 +33,24 @@ git clone https://github.com/ignitioncoin/ignitioncoin
 5. In a separate terminal window type in `ls -td -- /usr/local/Cellar/openssl/* | head -n 1` and copy the
 version number after /usr/local/Cellar/openssl/ (in this example we'll use /usr/local/Cellar/openssl/**1.0.2q**)
 
-6. Open up `src/makefile.osx` and under `INCLUDEPATHS` replace the openssl version 
-with the one copied in **Step 5** (`1.0.2q`). The line should now read:
-`-I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"`
+6. Open up `src/makefile.osx` and under `INCLUDEPATHS` AND `LIBPATHS` replace the openssl version 
+with the one copied in **Step 5** (`1.0.2q`). The lines should now read:
+    ```
+    INCLUDEPATHS= \
+    -I"$(CURDIR)" \
+    ... \
+    ... \
+    ... \
+    ... \
+    I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"
+    ```
+    ```
+    LIBPATHS= \
+     ... \
+     ... \
+     ... \
+     -L"$(DEPSDIR)/Cellar/openssl/1.0.2q/lib"
+    ```
 
 7.  Now you should be able to build Ignitiond:
     ```
