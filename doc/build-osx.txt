@@ -30,11 +30,6 @@ git clone https://github.com/ignitioncoin/ignitioncoin
 
     `brew install qt autoconf automake libtool boost@1.59 berkeley-db@4 openssl miniupnpc gmp`
 
-* Optionally install qrencode 
-(and use USE_QRCODE=1 when building the binary. Example: `make -f makefile.osx USE_QRCODE=1`):
-
-    `brew install qrencode`
-
 5. In a separate terminal window type in `ls -td -- /usr/local/Cellar/openssl/* | head -n 1` and copy the
 version number after /usr/local/Cellar/openssl/ (in this example we'll use /usr/local/Cellar/openssl/**1.0.2q**)
 
