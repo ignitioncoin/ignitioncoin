@@ -26,7 +26,7 @@ LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
  -L"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/lib" \
  -L"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/lib" \
- -L"$(DEPSDIR)/Cellar/openssl/1.0.2n/lib"
+ -L"$(DEPSDIR)/Cellar/openssl/1.0.2q/lib"
 
 USE_UPNP:=1
 USE_WALLET:=1
@@ -197,7 +197,7 @@ obj/%.o: %.c
 	  rm -f $(@:%.o=%.d)
 
 obj/neoscrypt.o: neoscrypt.c
-	$(CC) $(CFLAGS) -DSHA256 -DASM -DOPT -c -o $@ $^
+	$(CC) $(printf '%s' "$(CFLAGS)" | sed 's/-std=gnu++11//g') -DSHA256 -DASM -DOPT -c -o $@ $^
 
 obj/neoscrypt_asm.o: neoscrypt_asm.S
 	$(CC) -c -DSHA256 -DASM -DOPT -DMOVQ_FIX -o $@ $^
