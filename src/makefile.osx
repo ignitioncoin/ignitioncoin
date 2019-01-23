@@ -10,13 +10,17 @@ CXX=clang++
 C=clang
 DEPSDIR=/usr/local
 
+# For the OpenSSL include path, please make sure you're using the 
+# correct version for your machine as this dependency is constantly
+# being updated and there is no common folder for the OpenSSL dependencies
+
 INCLUDEPATHS= \
  -I"$(CURDIR)" \
  -I"$(CURDIR)"/obj \
  -I"$(DEPSDIR)/include" \
  -I"$(DEPSDIR)/Cellar/boost@1.59/1.59.0/include" \
  -I"$(DEPSDIR)/Cellar/berkeley-db@4/4.8.30/include" \
- -I"$(DEPSDIR)/Cellar/openssl/1.0.2n/include"
+ -I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"
 
 LIBPATHS= \
  -L"$(DEPSDIR)/lib" \
@@ -61,13 +65,13 @@ ifdef RELEASE
 # Compile for maximum compatibility and smallest size.
 # This requires that dependencies are compiled
 # the same way.
-CFLAGS = -mmacosx-version-min=10.8 -arch x86_64 -O3
+CFLAGS = -std=gnu++11 -mmacosx-version-min=10.8 -arch x86_64 -O3
 else
 DEBUGFLAGS = -g
 endif
 
 # ppc doesn't work because we don't support big-endian
-CFLAGS += -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-unused-parameter -Wunused-function -Wunused-variable -fpermissive -Wconversion-null -Wno-deprecated-declarations\
+CFLAGS += -std=gnu++11 -Wall -Wextra -Wformat -Wno-ignored-qualifiers -Wformat-security -Wno-unused-parameter -Wunused-function -Wunused-variable -fpermissive -Wconversion-null -Wno-deprecated-declarations\
     $(DEBUGFLAGS) $(DEFS) $(INCLUDEPATHS)
 
 OBJS= \
