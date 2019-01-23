@@ -9,20 +9,14 @@ Thomas Bernard.
 
 MacOS Ignitiond BUILD NOTES
 ===========================
+**See readme-qt.rst for instructions on building Ignition QT, the graphical user interface.**
 
-
-See readme-qt.rst for instructions on building Ignition QT, the
-graphical user interface.
-
-Tested on MacOS High Sierra 10.13.2 - Darwin Kernel Version 17.3.0.  PPC is not supported because it's big-endian.
+**Tested on MacOS Mojave 10.14.2 - Darwin Kernel Version 17.3.0.  PPC is not supported because it's big-endian.**
 
 All of the commands should be executed in Terminal.app.. it's in
 /Applications/Utilities
 
-You need to install XCode with all the options checked so that the compiler and
-everything is available in /usr not just /Developer I think it comes on the DVD
-but you can get the current version from http://developer.apple.com
-
+You need to install XCode with all the options checked so that the compiler and everything is available in /usr not just /Developer I think it comes on the DVD but you can get the current version from http://developer.apple.com
 
 1.  Clone the github tree to get the source code:
 
@@ -30,23 +24,33 @@ git clone https://github.com/ignitioncoin/ignitioncoin
 
 2.  Install XCode and it's command line tools
 
-3.  Download and install Homebrew from https://brew.sh/
+3.  Download and install Homebrew using instructions from https://brew.sh/
 
 4.  Install dependencies from Homebrew
 
-brew install qt autoconf automake libtool boost@1.59 berkeley-db@4 openssl miniupnpc gmp
+    `brew install qt autoconf automake libtool boost@1.59 berkeley-db@4 openssl miniupnpc gmp`
 
-Optionally install qrencode (and set USE_QRCODE=1):
-brew install qrencode
+* Optionally install qrencode 
+(and use USE_QRCODE=1 when building the binary. Example: `make -f makefile.osx USE_QRCODE=1`):
 
-4.  Now you should be able to build Ignitiond:
+    `brew install qrencode`
 
-cd Ignition/src
-make -f makefile.osx
+5. In a separate terminal window type in `ls -td -- /usr/local/Cellar/openssl/* | head -n 1` and copy the
+version number after /usr/local/Cellar/openssl/ (in this example we'll use /usr/local/Cellar/openssl/**1.0.2q**)
 
-Run:
-  ./Ignitiond --help  # for a list of command-line options.
-Run
-  ./Ignitiond -daemon # to start the Ignition daemon.
-Run
-  ./Ignitiond help # When the daemon is running, to get a list of RPC commands
+6. Open up `src/makefile.osx` and under `INCLUDEPATHS` replace the openssl version 
+with the one copied in **Step 5** (`1.0.2q`). The line should now read:
+`-I"$(DEPSDIR)/Cellar/openssl/1.0.2q/include"`
+
+7.  Now you should be able to build Ignitiond:
+    ```
+    cd Ignition/src
+    make -f makefile.osx
+    ```
+#### Other Ignitiond commands
+    Run:
+      `./Ignitiond --help  # for a list of command-line options.`
+    Run
+      `./Ignitiond -daemon # to start the Ignition daemon.`
+    Run
+      `./Ignitiond help # When the daemon is running, to get a list of RPC commands`
