@@ -30,7 +30,7 @@ purgeOldInstallation() {
     sudo killall $COIN_DAEMON > /dev/null 2>&1
     today="$( date +"%Y%m%d" )"
     #Create a backups folder inside users home directory
-    test -d ~/IgnitionBackups && echo "Backups folder exists" || mkdir ~/IgnitionBackups
+    test -d ~/IgnitionBackups && echo "Backups folder exists, skipping directory creation..." || mkdir ~/IgnitionBackups
     iteration=0
     while test -d "$BACKUP_FOLDER/$today$suffix"; do
         (( ++iteration ))
@@ -46,7 +46,6 @@ purgeOldInstallation() {
     sudo ufw delete allow $COIN_PORT/tcp > /dev/null 2>&1
     #remove old files
     sudo rm -rf $CONFIG_FOLDER > /dev/null 2>&1
-    sudo rm -rf /usr/local/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
     systemctl disable $COIN_NAME.service
@@ -76,12 +75,10 @@ StartLimitBurst=5
 [Install]
 WantedBy=multi-user.target
 EOF
-
   systemctl daemon-reload
   sleep 3
   systemctl start $COIN_NAME.service
   systemctl enable $COIN_NAME.service >/dev/null 2>&1
-
   if [[ -z "$(ps axo cmd:100 | egrep $COIN_DAEMON)" ]]; then
     echo -e "${RED}$COIN_NAME is not running${NC}, please investigate. You should start by running the following commands as root:"
     echo -e "${GREEN}systemctl start $COIN_NAME.service"
@@ -127,6 +124,7 @@ masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
 #Addnodes
+#addnode=123.456.78.9:44144
 EOF
 systemctl start ignition
 }
@@ -146,7 +144,6 @@ function get_ip() {
   do
     NODE_IPS+=($(curl --interface $ips --connect-timeout 2 -s4 icanhazip.com))
   done
-
   if [ ${#NODE_IPS[@]} -gt 1 ]
     then
       echo -e "${GREEN}More than one IP. Please type 0 to use the first IP, 1 for the second and so on...${NC}"
@@ -176,12 +173,10 @@ function checks() {
       echo -e "${RED}You are not running Ubuntu 16.04. Please ensure you are running Ubuntu 16.04.${NC}"
       exit 1
     fi
-
     if [[ $EUID -ne 0 ]]; then
        echo -e "${RED}$0 must be run as root.${NC}"
        exit 1
     fi
-
 }
 
 function prepare_system() {
@@ -241,7 +236,7 @@ function install_ignition() {
     if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
         purgeOldInstallation
     else
-        echo "No installation found. Proceeding with install."
+        echo "No installation found. Proceeding with install..."
     fi
     checks
     prepare_system
@@ -260,7 +255,7 @@ function install_ignition() {
         fi
     else
         echo "Download Executable Binary For Install"
-        #wget github.com/ignitioncoin/ignitioncoin/releases/EXECUTABLE
+        #wget $COIN_TGZ
         mv ./ignitiond /usr/bin
     fi
     create_config
@@ -274,7 +269,7 @@ function compile_linux_daemon() {
     checks
     prepare_system
     if [ ! -e ../Ignition.pro ] ; then
-        echo "Cloning Ignition Coin Github Repository"
+        echo "Cloning Ignition Coin github repository to this directory."
         git clone https://github.com/ignitioncoin/ignitioncoin
         ./ignitioncoin/scripts/build-unix.sh
         clear
@@ -378,14 +373,15 @@ if [ $# > 0 ] ; then
 fi
 
 echo "Welcome to the interactive setup manager. Please select an option:"
-echo "Install Ignition node (will uninstall/upgrade existing installation) - [1]"
-echo "Compile GUI wallet - [2]"
-echo "Compile windows executables - [3]"
-echo "Prepare masternode (will install Ignition Node if needed) - [4]"
-echo "Install dependencies only - [5]"
-echo "Backup Ignition wallet and settings - [6]"
-echo "Compile linux CLI binary (will not install) - [7]"
-echo "Uninstall Ignition - [8]"
+echo "========================================================="
+echo "[1] - Install Ignition node (will uninstall/upgrade existing installation)"
+echo "[2] - Compile GUI wallet"
+echo "[3] - Compile windows executables"
+echo "[4] - Prepare masternode (will install Ignition Node if needed)"
+echo "[5] - Install dependencies only"
+echo "[6] - Backup Ignition wallet and settings"
+echo "[7] - Compile linux CLI binary (will not install)"
+echo "[8] - Uninstall Ignition"
 
 read choice1
 
