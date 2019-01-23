@@ -49,8 +49,9 @@ purgeOldInstallation() {
     sudo rm -rf /usr/local/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /usr/bin/$COIN_DAEMON > /dev/null 2>&1
     sudo rm -rf /tmp/*
+    sudo rm -rf /etc/systemd/system/$COIN_NAME.service
+    systemctl daemon-reload
     echo -e "${GREEN}* Done Backing Up and Uninstalling...${NONE}";
-    #TODO? Remove systemd configuration
 }
 
 function configure_systemd() {
