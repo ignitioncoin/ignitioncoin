@@ -26,7 +26,7 @@ SendMessagesEntry::SendMessagesEntry(QWidget *parent) :
     /* Do not move this to the XML file, Qt before 4.7 will choke on it */
     ui->addAsLabel->setPlaceholderText(tr("Enter a label for this address to add it to your address book"));
     ui->sendTo->setPlaceholderText(tr("Enter a Ignition address (e.g. C8gZqgY4r2RoEdqYk3QsAqFckyf9pRHN6i)"));
-    ui->publicKey->setPlaceholderText(tr("Enter the public key for the address above, it is not in the blockchain"));
+    ui->publicKey->setPlaceholderText(tr("Enter the public key for the address above, if it is not in the blockchain"));
     ui->messageText->setErrorText(tr("You cannot send a blank message!"));
 #endif
     setFocusPolicy(Qt::TabFocus);
