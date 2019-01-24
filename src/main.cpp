@@ -91,6 +91,10 @@ int GetMinPoolPeerProto() {
     if (pindexBest == NULL) {
         return MIN_POOL_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_POOL_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_POOL_PEER_PROTO_VERSION_2;
@@ -102,6 +106,10 @@ int GetMinPeerProto() {
     if (pindexBest == NULL) {
         return MIN_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_PEER_PROTO_VERSION_2;
@@ -112,6 +120,9 @@ int GetMinPeerProto() {
 int GetMinInstantXProto() {
     if (pindexBest == NULL) {
         return MIN_INSTANTX_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightTwo()) {
+        return MIN_INSTANTX_PROTO_VERSION_3;
     }
     if(pindexBest->nHeight >= GetForkHeightOne()-5) {
         return MIN_INSTANTX_PROTO_VERSION_2;
@@ -129,6 +140,14 @@ const int GetForkHeightOne()
     return nForkOne;
 }
 
+const int GetForkHeightTwo()
+{
+    if (fTestNet)
+    {
+        return nTestnetForkTwo;
+    }
+    return nForkTwo;
+}
 //////////////////////////////////////////////////////////////////////////////
 //
 // dispatching functions
@@ -1540,7 +1559,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
               nActualTimespan, nActualTimespanShort, nActualTimespanLong, nActualTimespanAvg,
               nActualTimespanMax, nActualTimespanMin;
 
-        nTargetSpacing = 2 * TARGET_SPACING;
+        if (nHeight >= Params().LastPOWBlock())
+        {
+            // Only PoS blocks
+            nTargetSpacing = TARGET_SPACING;
+        }
+        else
+        {
+            // Alternate PoW and PoS blocks
+            nTargetSpacing = 2 * TARGET_SPACING;
+        }
 
         nTargetTimespan = nTargetSpacing * nIntervalLong;
 

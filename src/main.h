@@ -85,12 +85,15 @@ static const unsigned char REJECT_INVALID = 0x10;
 /* IMPORTANT: fork one should never be before block 17 */
 /* Livenet hard forks */ 
 static const int nForkOne = 225000; 
+static const int nForkTwo = 600000; 
  
 /* Testnet hard forks */ 
-static const int nTestnetForkOne = 250; 
+static const int nTestnetForkOne = 50; 
+static const int nTestnetForkTwo = 250; 
 
 /* Fork testing function */
 const int GetForkHeightOne();
+const int GetForkHeightTwo();
 
 
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }
