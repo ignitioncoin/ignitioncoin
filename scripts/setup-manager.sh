@@ -303,11 +303,13 @@ function compile_windows_exe() {
     if [ ! -e ../Ignition.pro ] ; then
         echo "Cloning Ignition Coin Github Repository"
         git clone https://github.com/ignitioncoin/ignitioncoin
+        chmod +x ./ignitioncoin/scripts/*
         ./ignitioncoin/scripts/clean.sh
         ./ignitioncoin/scripts/configure-mxe.sh
         ./ignitioncoin/scripts/build-win-mxe.sh
     else
         echo "Compiling Source Code"
+        chmod +x ./*
         ./clean.sh
         ./configure-mxe.sh
         ./build-win-mxe.sh
