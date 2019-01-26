@@ -182,12 +182,8 @@ function checks() {
 function prepare_system() {
     if [ -f ./install-dependencies.sh ]; then
         echo "Install-dependencies script is already available. Will not download."
-        if [ -x ./install-dependencies.sh ]; then
-            ./install-dependencies.sh
-        else
-            chmod +x ./install-dependencies.sh
-            ./install-dependencies.sh
-        fi
+        chmod +x ./install-dependencies.sh
+        ./install-dependencies.sh
     else
         echo "Downloading latest install-dependencies script."
         wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/install-dependencies.sh
