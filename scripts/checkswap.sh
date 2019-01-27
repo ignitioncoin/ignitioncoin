@@ -12,9 +12,9 @@ NC_READ=$'\e[0m'
 SWAP_FILE="$HOME/ignitioncoin-swap"
 MEMORY_SIZE=`grep MemTotal /proc/meminfo | awk '{print $2}'`
 
-if [ "$MEMORY_SIZE" -lt "1000000" ]; then
-	echo -e "\n${GREEN}Adding 4G swap to compile${NC}"
-	sudo fallocate -l 4G $SWAP_FILE
+if [ "$MEMORY_SIZE" -lt "2000000" ]; then
+	echo -e "\n${GREEN}Adding 2G swap to compile${NC}"
+	sudo fallocate -l 2G $SWAP_FILE
 	chmod 600 $SWAP_FILE
 	sudo mkswap $SWAP_FILE
 	sudo swapon $SWAP_FILE
