@@ -218,6 +218,7 @@ function important_information() {
     echo -e "${GREEN}ignitiond masternode status${NC}"
     echo -e "${GREEN}ignitiond getinfo${NC}"
     echo -e "${BLUE}================================================================================================================================${NC}"
+    echo -e "$(NC)"
 }
 
 function setup_node() {
