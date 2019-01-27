@@ -250,6 +250,11 @@ function install_ignition() {
             chmod +x ./ignitioncoin/scripts
             ./ignitioncoin/scripts/build-unix.sh
             mv ./ignitioncoin/bin/ignitiond /usr/bin
+            if [ -e "$HOME"/ignition-swap ]; then
+                echo "Removing temporary swap file"
+                swapoff "$HOME"/ignition-swap
+                rm "$HOME"/ignition-swap
+            fi
         fi
     else
         echo "Download Executable Binary For Install"
