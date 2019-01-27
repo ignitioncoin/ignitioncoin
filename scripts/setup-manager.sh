@@ -239,7 +239,7 @@ function install_ignition() {
     echo "Would you like to download and compile from source? y/n: "
     read compilefromsource
     if [ "$compilefromsource" = "y" ] || [ "$compilefromsource" = "Y" ] ; then
-        if [ -e ../Ignition.pro ] ; then
+        if [ -e ../Ignition.pro ]; then
             echo "Compiling Source Code"
             chmod +x build-unix.sh
             ./build-unix.sh
