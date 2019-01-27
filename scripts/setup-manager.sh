@@ -241,11 +241,13 @@ function install_ignition() {
     if [ "$compilefromsource" = "y" ] || [ "$compilefromsource" = "Y" ] ; then
         if [ -e ../Ignition.pro ] ; then
             echo "Compiling Source Code"
+            chmod +x build-unix.sh
             ./build-unix.sh
             mv ../bin/ignitiond /usr/bin
         else
             echo "Cloning github repository.."
             git clone https://github.com/ignitioncoin/ignitioncoin
+            chmod +x ./ignitioncoin/scripts
             ./ignitioncoin/scripts/build-unix.sh
             mv ./ignitioncoin/bin/ignitiond /usr/bin
         fi
