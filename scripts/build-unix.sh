@@ -15,6 +15,7 @@ chmod +x checkswap.sh
 ./checkswap.sh
 
 cd ../src
+echo "Compiling now, please wait..."
 make -j$NB_CORES -f makefile.unix &>/dev/null
 
 for var in "$@"
