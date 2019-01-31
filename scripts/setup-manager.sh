@@ -333,6 +333,16 @@ function setup_masternode() {
             [Nn]* ) backup_node_data; setup_node;;
             * ) echo "Sorry, did not understand your command, please enter Y/n";;
         esac
+    else
+        install_ignition
+        setup_node
+        echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
+        echo -e "${BLUE}================================================================================================================================"
+        echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."
+        echo -e "${BLUE}================================================================================================================================${NC}"
+        echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/tree/master/doc${NC}"
+        echo -e "${BLUE}================================================================================================================================${NC}"
+
     fi
 }
 
