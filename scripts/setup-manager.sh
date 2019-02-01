@@ -259,8 +259,13 @@ function install_ignition() {
         fi
     else
         echo "Download Executable Binary For Install"
-        #wget $COIN_TGZ
+        mkdir ./tmp
+        cd tmp
+        wget https://github.com/$(wget https://github.com/ignitioncoin/ignitioncoin/releases/latest -O - | egrep '/.*/.*/.*tar.gz' -o)
+        tar -xvf *.tar.gz
         mv ./ignitiond /usr/bin
+        cd ..
+        rm -r ./tmp
     fi
     create_config
     enable_firewall
