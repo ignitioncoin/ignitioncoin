@@ -341,7 +341,6 @@ function setup_masternode() {
     else
         install_ignition
         setup_node
-        echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"
         echo -e "${BLUE}================================================================================================================================"
         echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."
         echo -e "${BLUE}================================================================================================================================${NC}"
