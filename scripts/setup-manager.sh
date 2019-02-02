@@ -2,7 +2,7 @@
 
 TMP_FOLDER=$(mktemp -d)
 CONFIG_FILE='Ignition.conf'
-CONFIG_FOLDER='/root/.Ignition'
+CONFIG_FOLDER='"$HOME"/.Ignition'
 BACKUP_FOLDER="$HOME/IgnitionBackups"
 COIN_DAEMON='ignitiond'
 COIN_PATH='/usr/bin/'
@@ -387,7 +387,7 @@ function uninstall() {
 clear
 
 if [ $# > 0 ] ; then
-    if [ $1 = "--backup" ] ; then
+    if [[ $1 = "--backup" ]] ; then
         backup_node_data
         exit 1
     fi
