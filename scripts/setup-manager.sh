@@ -106,7 +106,7 @@ EOF
 }
 
 function update_config() {
-  COINKEY=$($COIN_DAEMON masternode genkey)
+  read -p "${PURPLE}Please enter the ${NC}${GREEN}genkey${NC}:" COINKEY
   systemctl stop ignition
   sed -i 's/daemon=1/daemon=0/' $CONFIG_FOLDER/$CONFIG_FILE
   grep -Fxq "masternode=1" $CONFIG_FOLDER/$CONFIG_FILE
@@ -340,13 +340,14 @@ function setup_masternode() {
         esac
     else
         install_ignition
+        echo -e "${BLUE}================================================================================================================================"
+        echo -e "${GREEN}Important: To complete the Masternode setup, you must set up your controller wallet"
+        echo -e "${BLUE}================================================================================================================================${NC}"
+        echo -e "${PURPLE}Please follow this guide to setup the controller wallet, then return here to input your the genkey output: https://github.com/ignitioncoin/ignitioncoin/wiki/Setup-Manager---Masternode-Asisstant-Setup-Script-Guide${NC}"
+        echo -e "${BLUE}================================================================================================================================${NC}"
         setup_node
         echo -e "${BLUE}================================================================================================================================"
         echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."
-        echo -e "${BLUE}================================================================================================================================${NC}"
-        echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/wiki/Setup-Manager---Masternode-Asisstant-Setup-Script-Guide${NC}"
-        echo -e "${BLUE}================================================================================================================================${NC}"
-
     fi
 }
 
