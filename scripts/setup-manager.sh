@@ -334,8 +334,8 @@ function setup_masternode() {
     if [ -e /usr/bin/ignitiond ] || [ -e /usr/local/bin/ignitiond ]; then
         read -p "There is already an installation of Ignition Coin. Did you want to use the currently installed software, or install the latest software? Y/n:" yn
         case $yn in
-            [Yy]* ) install_ignition; setup_node; echo -e "${GREEN}MASTERNODE GENKEY is:${NC}${PURPLE}$COINKEY${NC}"; echo -e "${BLUE}================================================================================================================================"; echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."; echo -e "${BLUE}================================================================================================================================${NC}"; echo -e "${PURPLE}Windows Wallet Guide. https://github.com/ignitioncoin/ignitioncoin/wiki/Setup-Manager---Masternode-Asisstant-Setup-Script-Guide${NC}"; echo -e "${BLUE}================================================================================================================================${NC}";;
-            [Nn]* ) backup_node_data; setup_node;;
+            [Yy]* ) install_ignition; setup_node; echo -e "${BLUE}================================================================================================================================"; echo -e "${GREEN}Important: To complete the Masternode setup, you must set up your controller wallet"; echo -e "${BLUE}================================================================================================================================${NC}"; echo -e "${PURPLE}Please follow this guide to setup the controller wallet, then return here to input your the genkey output: https://github.com/ignitioncoin/ignitioncoin/wiki/Setup-Manager---Masternode-Asisstant-Setup-Script-Guide${NC}"; echo -e "${BLUE}================================================================================================================================${NC}"; important_information;;
+            [Nn]* ) backup_node_data; setup_node; important_information;;
             * ) echo "Sorry, did not understand your command, please enter Y/n";;
         esac
     else
@@ -346,8 +346,7 @@ function setup_masternode() {
         echo -e "${PURPLE}Please follow this guide to setup the controller wallet, then return here to input your the genkey output: https://github.com/ignitioncoin/ignitioncoin/wiki/Setup-Manager---Masternode-Asisstant-Setup-Script-Guide${NC}"
         echo -e "${BLUE}================================================================================================================================${NC}"
         setup_node
-        echo -e "${BLUE}================================================================================================================================"
-        echo -e "${GREEN}Ignition Masternode is up and running listening on port ${NC}${PURPLE}$COIN_PORT${NC}."
+        important_information
     fi
 }
 
