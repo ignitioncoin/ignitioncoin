@@ -3587,12 +3587,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     memcpy(&iWinerAgeU, &iWinerAge256, 4);
                     iWinerAge = (iWinerAgeU >> 20);
                     iMidMNCount = GetMidMasternodes();
-                    if (iWinerAge > (iMidMNCount*0.6))
+                    if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE) || (pindexPrev->nHeight + 1) >= GetForkHeightTwo())
                     {
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }
                     else
-                    {
+                    {                        
+                        // This makes the block check fail. Keep it only before fork 2 for compatibility purpose
                         masternodePayment = GetMasternodePaymentSmall(pindexPrev->nHeight + 1, nFees);
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }

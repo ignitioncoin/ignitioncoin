@@ -34,6 +34,10 @@ class uint256;
 #define MASTERNODE_EXPIRATION_SECONDS          (65*60)
 #define MASTERNODE_REMOVAL_SECONDS             (70*60)
 
+#define MASTERNODE_MID_MN_COUNT_TIMESPAN        101 // 101 Blocks (after fork two)
+#define MASTERNODE_MIN_WINNER_AGE_PERCENTAGE    0.6 // Winner age must be > 60% mid MN count
+#define MASTERNODE_WINNER_AGE_BYPASS_DELAY      (5*60*60) // 5 hours between median time and current time
+
 using namespace std;
 
 class CMasternode;
