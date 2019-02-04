@@ -382,6 +382,19 @@ function uninstall() {
     esac
 }
 
+function compile_only() {
+    echo "What would you like to compile?"
+    echo "[1] - Compile GUI wallet"
+    echo "[2] - Compile windows executables"
+    echo "[3] - Compile linux CLI binary (will not install)"
+    read compilechoice
+    case $compilechoice in
+        "1") compile_linux_gui;;
+        "2") compile_linux_daemon;;
+        "3") compile_windows_exe;;
+    esac
+}
+
 ##### Main #####
 clear
 
@@ -395,23 +408,19 @@ fi
 echo "Welcome to the interactive setup manager. Please select an option:"
 echo "========================================================="
 echo "[1] - Install Ignition node (will uninstall/upgrade existing installation)"
-echo "[2] - Compile GUI wallet"
-echo "[3] - Compile windows executables"
-echo "[4] - Prepare masternode (will install Ignition Node if needed)"
-echo "[5] - Install dependencies only"
-echo "[6] - Backup Ignition wallet and settings"
-echo "[7] - Compile linux CLI binary (will not install)"
-echo "[8] - Uninstall Ignition"
+echo "[2] - Compile only (will compile linux daemon, linux GUI, or windows GUI - no install)"
+echo "[3] - Prepare masternode (will install Ignition Node if needed)"
+echo "[4] - Install dependencies only"
+echo "[5] - Backup Ignition wallet and settings"
+echo "[6] - Uninstall Ignition"
 
 read choice1
 
 case $choice1 in
     "1") install_ignition;;
-    "2") compile_linux_gui;;
-    "3") compile_windows_exe;;
-    "4") setup_masternode;;
-    "5") install_dependencies_only;;
-    "6") backup_node_data;;
-    "7") compile_linux_daemon;;
-    "8") uninstall;;
+    "2") compile_only;;
+    "3") setup_masternode;;
+    "4") install_dependencies_only;;
+    "5") backup_node_data;;
+    "6") uninstall;;
 esac
