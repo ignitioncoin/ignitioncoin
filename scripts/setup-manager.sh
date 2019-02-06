@@ -60,8 +60,8 @@ function configure_systemd() {
 Description=$COIN_NAME service
 After=network.target
 [Service]
-User=root
-Group=root
+User=$(id -un)
+Group=$(id -gn)
 Type=forking
 #PIDFile=$CONFIG_FOLDER/$COIN_NAME.pid
 ExecStart=$COIN_PATH$COIN_DAEMON -daemon -conf=$CONFIG_FOLDER/$CONFIG_FILE -datadir=$CONFIG_FOLDER
