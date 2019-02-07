@@ -100,7 +100,6 @@ rpcallowip=127.0.0.1
 listen=1
 server=1
 daemon=1
-maxconnections=50
 port=$COIN_PORT
 EOF
 }
@@ -128,6 +127,7 @@ maxconnections=75
 masternode=1
 externalip=$NODEIP:$COIN_PORT
 masternodeprivkey=$COINKEY
+masternodeaddr=$NODEIP:$COIN_PORT
 #Addnodes
 #addnode=123.456.78.9:44144
 EOF
