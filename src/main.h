@@ -88,8 +88,8 @@ static const int nForkOne = 225000;
 static const int nForkTwo = 600000; 
  
 /* Testnet hard forks */ 
-static const int nTestnetForkOne = 50; 
-static const int nTestnetForkTwo = 250; 
+static const int nTestnetForkOne = 100; 
+static const int nTestnetForkTwo = 700; 
 
 /* Fork testing function */
 const int GetForkHeightOne();
