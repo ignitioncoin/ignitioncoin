@@ -384,9 +384,9 @@ function uninstall() {
 
 function compile_only() {
     echo "What would you like to compile?"
-    echo "[1] - Compile GUI wallet"
-    echo "[2] - Compile windows executables"
-    echo "[3] - Compile linux CLI binary (will not install)"
+    echo "[1] - Compile Linux GUI wallet"
+    echo "[2] - Compile Linux CLI binary"
+    echo "[3] - Compile Windows executables"
     read compilechoice
     case $compilechoice in
         "1") compile_linux_gui;;
