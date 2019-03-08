@@ -10,7 +10,8 @@ NC='\033[0m'
 
 # Install dependencies
 echo -e "\n${GREEN}Installing dependencies${NC}"
-sudo apt-get install p7zip-full autoconf automake autopoint bash bison bzip2 cmake flex gettext git g++ gperf intltool libffi-dev libtool libltdl-dev libssl1.0-dev libxml-parser-perl make openssl patch perl pkg-config python ruby scons sed unzip wget xz-utils g++-multilib libc6-dev-i386
+sudo chmod +x install-dependencies.sh
+./install-dependencies.sh
 
 # Prepare the folders
 sudo mkdir $MXE_BASEPATH
