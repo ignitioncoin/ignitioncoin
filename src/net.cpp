@@ -946,7 +946,7 @@ void SocketSendData(CNode *pnode)
             else
             {
                 // could not send full message; stop sending more
-                LogPrintf("socket send error: interruption\n");
+                LogPrint("net", "socket send error: interruption\n");
                 IdleNodeCheck(pnode);
                 break;
             }
@@ -959,14 +959,14 @@ void SocketSendData(CNode *pnode)
                 int nErr = WSAGetLastError();
                 if (nErr != WSAEWOULDBLOCK && nErr != WSAEMSGSIZE && nErr != WSAEINTR && nErr != WSAEINPROGRESS)
                 {
-                    LogPrintf("socket send error %d\n", nErr);
+                    LogPrint("net", "socket send error %d\n", nErr);
                     IdleNodeCheck(pnode);
                     break;
                 }
             }
 
             // couldn't send anything at all
-            LogPrintf("socket send error: data failure\n");
+            LogPrint("net", "socket send error: data failure\n");
             IdleNodeCheck(pnode);
             break;
         }
