@@ -1,3 +1,22 @@
+v1.1.2.0
+--------
+Fixed an issue with debugging network connections that would bloat debug logs
+
+Implemented a new script that can interactively assist in the following:
+
+Installing Node Software
+
+Compiling Node (on Linux) - including CLI, GUI, and Cross-Compiling for Windows
+
+Backing up node data, including the conf file, masternode configuration, and wallet
+
+Installing required dependencies
+
+Partially automated masternode setup
+
+Uninstalling Node
+
+
 v1.1.1.0
 --------
 Added the vout index into the output of listtransactions command
