@@ -91,6 +91,10 @@ int GetMinPoolPeerProto() {
     if (pindexBest == NULL) {
         return MIN_POOL_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_POOL_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_POOL_PEER_PROTO_VERSION_2;
@@ -102,6 +106,10 @@ int GetMinPeerProto() {
     if (pindexBest == NULL) {
         return MIN_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_PEER_PROTO_VERSION_2;
@@ -112,6 +120,9 @@ int GetMinPeerProto() {
 int GetMinInstantXProto() {
     if (pindexBest == NULL) {
         return MIN_INSTANTX_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightTwo()) {
+        return MIN_INSTANTX_PROTO_VERSION_3;
     }
     if(pindexBest->nHeight >= GetForkHeightOne()-5) {
         return MIN_INSTANTX_PROTO_VERSION_2;
@@ -129,6 +140,14 @@ const int GetForkHeightOne()
     return nForkOne;
 }
 
+const int GetForkHeightTwo()
+{
+    if (fTestNet)
+    {
+        return nTestnetForkTwo;
+    }
+    return nForkTwo;
+}
 //////////////////////////////////////////////////////////////////////////////
 //
 // dispatching functions
@@ -1540,7 +1559,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
               nActualTimespan, nActualTimespanShort, nActualTimespanLong, nActualTimespanAvg,
               nActualTimespanMax, nActualTimespanMin;
 
-        nTargetSpacing = 2 * TARGET_SPACING;
+        if (nHeight >= Params().LastPOWBlock())
+        {
+            // Only PoS blocks
+            nTargetSpacing = TARGET_SPACING;
+        }
+        else
+        {
+            // Alternate PoW and PoS blocks
+            nTargetSpacing = 2 * TARGET_SPACING;
+        }
 
         nTargetTimespan = nTargetSpacing * nIntervalLong;
 
@@ -2224,13 +2252,32 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
                 LogPrint("coinstake", "ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
 
-                if (iWinerAge > (iMidMNCount*0.6))
+                // Check if the MN has won recently by comparing the block count since the last win with the median nb of MNs
+                if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE))
                 {
                     ;
                 }
                 else
                 {
-                    masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    // If it has won too recently
+                    if (pindex->nHeight >= GetForkHeightTwo())
+                    {
+                        // If the delay since the last block is too big, it means there has been a sudden MN count drop
+                        int nTimeSpan = MASTERNODE_MID_MN_COUNT_TIMESPAN + 10; // add a small delay to make sure the MN count drops before the block time
+                        int64_t nMedianTimePast = pindex->GetMedianTimePast(true, nTimeSpan);
+                        if (pindex->GetBlockTime() > (nMedianTimePast + MASTERNODE_WINNER_AGE_BYPASS_DELAY))
+                        {
+                            ; // Bypass the protection to unfreeze the network
+                        }
+                        else
+                        {
+                            masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                        }
+                    }
+                    else
+                    {
+                        masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    }
                 }
                 if (iMidMNCount > 0)
                 {
@@ -4861,8 +4908,8 @@ int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
     int64_t ret = blockValue * 1/2; //50%
 
-	// if(nHeight>21000)
-  //      ret = blockValue * 4/5; //80%
+	if(nHeight >= GetForkHeightTwo())
+        ret = blockValue * 55/100; //55%
 
     return ret;
 }

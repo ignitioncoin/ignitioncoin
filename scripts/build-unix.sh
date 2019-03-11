@@ -8,8 +8,15 @@ do
     fi
 done
 
+if [ ! -e checkswap.sh ] ; then
+    wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/checkswap.sh
+fi
+chmod +x checkswap.sh
+./checkswap.sh
+
 cd ../src
-make -j$NB_CORES -f makefile.unix
+echo "Compiling now, please wait..."
+make -j$NB_CORES -f makefile.unix &>/dev/null
 
 for var in "$@"
 do

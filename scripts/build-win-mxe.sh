@@ -14,6 +14,11 @@ NC_READ=$'\e[0m'
 
 cd ..
 
+if [ ! -e checkswap.sh ] ; then
+    wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/checkswap.sh
+fi
+./checkswap.sh
+
 MXE_INCLUDE_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/include
 MXE_LIB_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/lib
 
