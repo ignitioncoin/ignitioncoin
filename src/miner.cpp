@@ -91,15 +91,7 @@ int GetMidMasternodesUntilPrev()
     const CBlockIndex *pBlockCurr = pindexBest;
     if (pBlockCurr)
         pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block;
-
-    int iNbBlocks = 361;
-    if (pBlockCurr->nHeight >= GetForkHeightTwo())
-    {
-        // Less blocks to adapt quickly to sudden MN count drops
-        iNbBlocks = MASTERNODE_MID_MN_COUNT_TIMESPAN;
-    }
-
-    for (int i = 0; i < iNbBlocks; i++)
+    for (int i = 0; i < 361; i++)
     {
         if (pBlockCurr)
         {
@@ -110,7 +102,7 @@ int GetMidMasternodesUntilPrev()
             vecNodes.push_back(0);
     }
     sort(vecNodes.begin(), vecNodes.end());
-    iMasternodes = vecNodes.at((iNbBlocks-1) / 2);
+    iMasternodes = vecNodes.at(180);
     return iMasternodes;
 }
 
