@@ -12,8 +12,6 @@ BLUE_READ=$'\e[34m'
 NC='\033[0m'
 NC_READ=$'\e[0m'
 
-cd ..
-
 if [ ! -e checkswap.sh ] ; then
     wget https://raw.githubusercontent.com/ignitioncoin/ignitioncoin/master/scripts/checkswap.sh
 fi
