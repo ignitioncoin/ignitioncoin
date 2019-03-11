@@ -17,6 +17,8 @@ if [ ! -e checkswap.sh ] ; then
 fi
 ./checkswap.sh
 
+cd ..
+
 MXE_INCLUDE_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/include
 MXE_LIB_PATH=$MXE_PATH/usr/i686-w64-mingw32.static/lib
 
