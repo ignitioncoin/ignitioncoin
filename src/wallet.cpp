@@ -3592,7 +3592,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }
                     else
-                    {
+                    {                        
                         masternodePayment = GetMasternodePaymentSmall(pindexPrev->nHeight + 1, nFees);
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }

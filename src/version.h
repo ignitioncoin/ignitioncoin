@@ -41,7 +41,7 @@ static const int MIN_PEER_PROTO_VERSION_2 = 60029;
 
 // minimum peer version accepted by DarkSendPool
 static const int MIN_POOL_PEER_PROTO_VERSION_1 = 60028;
-static const int MIN_POOL_PEER_PROTO_VERSION_2 = 60029; 
+static const int MIN_POOL_PEER_PROTO_VERSION_2 = 60029;
 
 // minimum peer version accepted for InstantX
 static const int MIN_INSTANTX_PROTO_VERSION_1 = 60028;
