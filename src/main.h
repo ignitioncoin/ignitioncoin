@@ -85,9 +85,11 @@ static const unsigned char REJECT_INVALID = 0x10;
 /* IMPORTANT: fork one should never be before block 17 */
 /* Livenet hard forks */ 
 static const int nForkOne = 225000;
+static const int nForkTwo = 478152;
 
 /* Testnet hard forks */ 
 static const int nTestnetForkOne = 250;
+static const int nTestnetForkTwo = 700;
 
 /* Fork testing function */
 const int GetForkHeightOne();
@@ -1125,14 +1127,14 @@ public:
 
     enum { nMedianTimeSpan=11 };
 
-    int64_t GetMedianTimePast(bool fProofOfStake) const
+    int64_t GetMedianTimePast(bool fProofOfStake, int nTimeSpan = nMedianTimeSpan) const
     {
-        int64_t pmedian[nMedianTimeSpan];
-        int64_t* pbegin = &pmedian[nMedianTimeSpan];
-        int64_t* pend = &pmedian[nMedianTimeSpan];
+        int64_t pmedian[nTimeSpan];
+        int64_t* pbegin = &pmedian[nTimeSpan];
+        int64_t* pend = &pmedian[nTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
+        for (int i = 0; i < nTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
