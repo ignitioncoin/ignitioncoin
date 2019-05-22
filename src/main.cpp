@@ -155,7 +155,7 @@ const int GetMaxBlockSize()
     {
         return 20000000;
     }
-    ret = ((pindexBest->nHeight / 525,600).trunc() - 5) + 20 * 1000000;
+    ret = (trunc((pindexBest->nHeight / 525,600)) - 5) + 20 * 1000000;
     if (ret < 20) {
         ret = 20000000;
     }
