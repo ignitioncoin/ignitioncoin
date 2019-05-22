@@ -93,7 +93,7 @@ int GetMidMasternodesUntilPrev()
         pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block;
 
     int iNbBlocks = 361;
-    if (pBlockCurr->nHeight != NULL && pBlockCurr->nHeight > GetForkHeightTwo())
+    if (pBlockCurr != NULL && pBlockCurr->nHeight > GetForkHeightTwo())
     {
         // Less blocks to adapt quickly to sudden MN count drops
         iNbBlocks = MASTERNODE_MID_MN_COUNT_TIMESPAN;
