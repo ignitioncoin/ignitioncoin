@@ -95,6 +95,8 @@ static const int nTestnetForkTwo = 700;
 const int GetForkHeightOne();
 const int GetForkHeightTwo();
 
+const int GetMaxBlockSize();
+
 
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }
 
