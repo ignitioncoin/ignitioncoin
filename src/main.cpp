@@ -151,6 +151,7 @@ const int GetForkHeightTwo()
 
 const int GetMaxBlockSize()
 {
+    int ret;
     if (fTestNet)
     {
         return 20000000;
