@@ -156,13 +156,13 @@ const int GetMaxBlockSize()
     {
         return 20000000;
     }
+    if (pindexBest->nHeight < GetForkHeightTwo())
+    {
+        return MAX_BLOCK_SIZE;
+    }
     ret = ((trunc((pindexBest->nHeight / 525,600)) - 5) + 20) * 1000000;
     if (ret < 20000000) {
         ret = 20000000;
-    }
-    if (pindexBest->nHeight < GetForkHeightTwo())
-    {
-        ret = MAX_BLOCK_SIZE;
     }
     return ret;
 }
