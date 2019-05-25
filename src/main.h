@@ -57,7 +57,7 @@ static const unsigned int MAX_BLOCK_SIGOPS = MAX_BLOCK_SIZE/50;
 /** Maxiumum number of signature check operations in an IsStandard() P2SH script */
 static const unsigned int MAX_P2SH_SIGOPS = 15;
 /** The maximum number of sigops we're willing to relay/mine in a single tx */
-static const unsigned int MAX_TX_SIGOPS = MAX_BLOCK_SIGOPS/5;
+static const unsigned int MAX_TX_SIGOPS = ((GetMaxBlockSize()/50)/5);
 /** The maximum number of orphan transactions kept in memory */
 static const unsigned int MAX_ORPHAN_TRANSACTIONS = MAX_BLOCK_SIZE/100;
 /** Default for -maxorphanblocks, maximum number of orphan blocks kept in memory */
@@ -83,11 +83,11 @@ static const unsigned char REJECT_INVALID = 0x10;
 
 /** Forks **/
 /* IMPORTANT: fork one should never be before block 17 */
-/* Livenet hard forks */ 
+/* Livenet hard forks */
 static const int nForkOne = 225000;
 static const int nForkTwo = 478152;
 
-/* Testnet hard forks */ 
+/* Testnet hard forks */
 static const int nTestnetForkOne = 250;
 static const int nTestnetForkTwo = 700;
 
@@ -157,7 +157,7 @@ void ResendWalletTransactions(bool fForce = false);
 int GetMinPoolPeerProto();
 // Disconnect from peers older than this proto version
 int GetMinPeerProto();
-// Minimum InstantX Proto Version Accepted 
+// Minimum InstantX Proto Version Accepted
 int GetMinInstantXProto();
 
 /** Register with a network node to receive its signals */
@@ -1166,7 +1166,7 @@ public:
 
         /* Time travel aware accumulator */
         nTempTime = avg[0];
-        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) { 
+        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) {
             /* Update the accumulator either with an actual or minimal
              * delay supplied to prevent extremely fast blocks */
             if(avg[i] < (nTempTime + nMinDelay))
