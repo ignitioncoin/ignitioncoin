@@ -154,7 +154,15 @@ const int GetMaxBlockSize()
     int ret;
     if (fTestNet)
     {
-        return 20000000;
+        if (pindexBest->nHeight < GetForkHeightTwo())
+        {
+            return MAX_BLOCK_SIZE;
+        }
+        ret = ((trunc((pindexBest->nHeight / 150)) - 5) + 20) * 1000000;
+        if (ret < 20000000) {
+            ret = 20000000;
+        }
+        return ret;
     }
     if (pindexBest->nHeight < GetForkHeightTwo())
     {
