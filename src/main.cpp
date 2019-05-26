@@ -163,7 +163,7 @@ inline const int GetMaxBlockSize()
     }
     else
     {
-        ret = ((trunc((pindexBest->nHeight / 525,600)) - 5) + 20) * 1000000;
+        ret = ((trunc((pindexBest->nHeight / 525,600)) - 3) + 20) * 1000000;
     }
 
     if (ret < 20000000) {
