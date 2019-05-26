@@ -151,27 +151,25 @@ const int GetForkHeightTwo()
 
 inline const int GetMaxBlockSize()
 {
-    int ret;
-    if (fTestNet)
-    {
-        if (pindexBest->nHeight < GetForkHeightTwo())
-        {
-            return MAX_BLOCK_SIZE;
-        }
-        ret = ((trunc((pindexBest->nHeight / 150)) - 5) + 20) * 1000000;
-        if (ret < 20000000) {
-            ret = 20000000;
-        }
-        return ret;
-    }
     if (pindexBest->nHeight < GetForkHeightTwo())
     {
         return MAX_BLOCK_SIZE;
     }
-    ret = ((trunc((pindexBest->nHeight / 525,600)) - 5) + 20) * 1000000;
+
+    int ret;
+    if (fTestNet)
+    {
+        ret = ((trunc((pindexBest->nHeight / 150)) - 5) + 20) * 1000000;
+    }
+    else
+    {
+        ret = ((trunc((pindexBest->nHeight / 525,600)) - 5) + 20) * 1000000;
+    }
+
     if (ret < 20000000) {
         ret = 20000000;
     }
+
     return ret;
 }
 
