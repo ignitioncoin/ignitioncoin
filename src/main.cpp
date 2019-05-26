@@ -885,7 +885,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
         if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptToMemoryPool : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, GetMaxTransactionSigOps());
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -1047,7 +1047,7 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptableInputs : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, GetMaxTransactionSigOps());
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
