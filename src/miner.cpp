@@ -151,7 +151,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     pblock->vtx.push_back(txNew);
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", (GetMaxBlockSizeGen()/2);
+    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", (GetMaxBlockSizeGen()/2));
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
     nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(GetMaxBlockSize()-1000), nBlockMaxSize));
 
