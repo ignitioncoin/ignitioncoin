@@ -476,7 +476,7 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
     // computing signature hashes is O(ninputs*txsize). Limiting transactions
     // to MAX_STANDARD_TX_SIZE mitigates CPU exhaustion attacks.
     unsigned int sz = tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
-    if (sz >= (GetMaxTransactionSize()) {
+    if (sz >= GetMaxTransactionSize()) {
         reason = "tx-size";
         return false;
     }
