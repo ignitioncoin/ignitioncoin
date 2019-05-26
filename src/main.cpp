@@ -882,10 +882,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
         // merely non-standard transaction.
         unsigned int nSigOps = GetLegacySigOpCount(tx);
         nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-        if (nSigOps > (GetMaxTransactionSigOps())
+        if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptToMemoryPool : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, (GetMaxTransactionSigOps()));
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps());
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -1047,7 +1047,7 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptableInputs : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, (GetMaxTransactionSigOps()));
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps());
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -2144,7 +2144,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         nInputs += tx.vin.size();
         nSigOps += GetLegacySigOpCount(tx);
 
-        if (nSigOps > (GetMaxBlockSigOps()))
+        if (nSigOps > GetMaxBlockSigOps())
             return DoS(100, error("ConnectBlock() : too many sigops"));
 
         CDiskTxPos posThisTx(pindex->nFile, pindex->nBlockPos, nTxPos);
