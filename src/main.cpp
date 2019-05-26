@@ -476,7 +476,7 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
     // computing signature hashes is O(ninputs*txsize). Limiting transactions
     // to MAX_STANDARD_TX_SIZE mitigates CPU exhaustion attacks.
     unsigned int sz = tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
-    if (sz >= (GetMaxBlockSize()/2)/5) {
+    if (sz >= (GetMaxTransactionSize()) {
         reason = "tx-size";
         return false;
     }
@@ -882,10 +882,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
         // merely non-standard transaction.
         unsigned int nSigOps = GetLegacySigOpCount(tx);
         nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-        if (nSigOps > ((GetMaxBlockSize()/50)/5))
+        if (nSigOps > (GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptToMemoryPool : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, ((GetMaxBlockSize()/50)/5)));
+                                hash.ToString(), nSigOps, (GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -1044,10 +1044,10 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         // merely non-standard transaction.
         unsigned int nSigOps = GetLegacySigOpCount(tx);
         nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-        if (nSigOps > ((GetMaxBlockSize()/50)/5))
+        if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptableInputs : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, ((GetMaxBlockSize()/50)/5)));
+                                hash.ToString(), nSigOps, (GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -2144,7 +2144,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         nInputs += tx.vin.size();
         nSigOps += GetLegacySigOpCount(tx);
 
-        if (nSigOps > (GetMaxBlockSize()/50))
+        if (nSigOps > (GetMaxBlockSigOps()))
             return DoS(100, error("ConnectBlock() : too many sigops"));
 
         CDiskTxPos posThisTx(pindex->nFile, pindex->nBlockPos, nTxPos);
@@ -2164,7 +2164,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             // this is to prevent a "rogue miner" from creating
             // an incredibly-expensive-to-validate block.
             nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-            if (nSigOps > (GetMaxBlockSize()/50))
+            if (nSigOps > GetMaxBlockSigOps())
                 return DoS(100, error("ConnectBlock() : too many sigops"));
 
             int64_t nTxValueIn = tx.GetValueIn(mapInputs);
@@ -2954,7 +2954,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     {
         nSigOps += GetLegacySigOpCount(tx);
     }
-    if (nSigOps > (GetMaxBlockSize()/50))
+    if (nSigOps > GetMaxBlockSigOps())
         return DoS(100, error("CheckBlock() : out-of-bounds SigOpCount"));
 
     // Check merkle root
@@ -4408,7 +4408,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             AddOrphanTx(tx);
 
             // DoS prevention: do not allow mapOrphanTransactions to grow unbounded
-            unsigned int nEvicted = LimitOrphanTxSize(GetMaxBlockSize()/100);
+            unsigned int nEvicted = LimitOrphanTxSize(GetMaxOrphanTransactionSize());
             if (nEvicted > 0)
                 LogPrint("mempool", "mapOrphan overflow, removed %u tx\n", nEvicted);
         }

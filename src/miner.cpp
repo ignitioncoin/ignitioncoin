@@ -151,7 +151,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     pblock->vtx.push_back(txNew);
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", (GetMaxBlockSize()/2)/2);
+    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", (GetMaxBlockSizeGen()/2);
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
     nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(GetMaxBlockSize()-1000), nBlockMaxSize));
 
@@ -285,7 +285,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
             // Legacy limits on sigOps:
             unsigned int nTxSigOps = GetLegacySigOpCount(tx);
-            if (nBlockSigOps + nTxSigOps >= (GetMaxBlockSize() / 50))
+            if (nBlockSigOps + nTxSigOps >= GetMaxBlockSigOps())
                 continue;
 
             // Timestamp limit
@@ -317,7 +317,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             int64_t nTxFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
 
             nTxSigOps += GetP2SHSigOpCount(tx, mapInputs);
-            if (nBlockSigOps + nTxSigOps >= (GetMaxBlockSize() / 50))
+            if (nBlockSigOps + nTxSigOps >= GetMaxBlockSigOps())
                 continue;
 
             // Note that flags: we don't want to set mempool/IsStandard()

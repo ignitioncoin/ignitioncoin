@@ -657,7 +657,7 @@ Value getblocktemplate(const Array& params, bool fHelp)
     }
     result.push_back(Pair("mutable", aMutable));
     result.push_back(Pair("noncerange", "00000000ffffffff"));
-    result.push_back(Pair("sigoplimit", (int64_t)(GetMaxBlockSize()/50)));
+    result.push_back(Pair("sigoplimit", (int64_t)(GetMaxBlockSigOps())));
     result.push_back(Pair("sizelimit", (int64_t)GetMaxBlockSize()));
     result.push_back(Pair("curtime", (int64_t)pblock->nTime));
     result.push_back(Pair("bits", strprintf("%08x", pblock->nBits)));
