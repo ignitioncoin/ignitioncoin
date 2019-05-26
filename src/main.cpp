@@ -149,7 +149,7 @@ const int GetForkHeightTwo()
     return nForkTwo;
 }
 
-const int GetMaxBlockSize()
+inline const int GetMaxBlockSize()
 {
     int ret;
     if (fTestNet)
@@ -174,6 +174,16 @@ const int GetMaxBlockSize()
     }
     return ret;
 }
+
+inline const int GetMaxBlockSizeGen() { return GetMaxBlockSize / 2; }
+
+inline const int GetMaxTransactionSize() { return GetMaxBlockSizeGen / 5; }
+
+inline const int GetMaxBlockSigOps() { return GetMaxBlockSize() / 50; }
+
+inline const int GetMaxTransactionSigOps() { return GetMaxBlockSigOps() / 5; }
+
+inline const int GetMaxOrphanTransactionSize() { return GetMaxBlockSize() / 100; }
 
 //////////////////////////////////////////////////////////////////////////////
 //
