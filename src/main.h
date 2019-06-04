@@ -721,6 +721,10 @@ public:
         if (nBestHeight == 0) {
             return CURRENT_BLOCK_VERSION_1;
         }
+        if(nBestHeight >= GetForkHeightTwo()-5)
+        {
+            return CURRENT_BLOCK_VERSION_3;
+        }
         if(nBestHeight >= GetForkHeightOne()-5)
         {
             return CURRENT_BLOCK_VERSION_2;

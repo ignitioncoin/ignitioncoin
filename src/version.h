@@ -73,5 +73,6 @@ static const int MEMPOOL_GD_VERSION = 60002;
 
 static const int CURRENT_BLOCK_VERSION_1 = 7;
 static const int CURRENT_BLOCK_VERSION_2 = 8;
+static const int CURRENT_BLOCK_VERSION_3 = 9;
 
 #endif
