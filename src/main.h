@@ -97,15 +97,15 @@ const int GetForkHeightTwo();
 
 const int GetMaxBlockSize();
 
-const int GetMaxBlockSizeGen() { return GetMaxBlockSize() / 2; }
+const int GetMaxBlockSizeGen();
 
-const int GetMaxTransactionSize() { return GetMaxBlockSizeGen() / 5; }
+const int GetMaxTransactionSize();
 
-const int GetMaxBlockSigOps() { return GetMaxBlockSize() / 50; }
+const int GetMaxBlockSigOps();
 
-const int GetMaxTransactionSigOps() { return GetMaxBlockSigOps() / 5; }
+const int GetMaxTransactionSigOps();
 
-const int GetMaxOrphanTransactionSize() { return GetMaxBlockSize() / 100; }
+const int GetMaxOrphanTransactionSize();
 
 
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }

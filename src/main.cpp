@@ -173,6 +173,16 @@ inline const int GetMaxBlockSize()
     return ret;
 }
 
+const int GetMaxBlockSizeGen() { return GetMaxBlockSize() / 2; }
+
+const int GetMaxTransactionSize() { return GetMaxBlockSizeGen() / 5; }
+
+const int GetMaxBlockSigOps() { return GetMaxBlockSize() / 50; }
+
+const int GetMaxTransactionSigOps() { return GetMaxBlockSigOps() / 5; }
+
+const int GetMaxOrphanTransactionSize() { return GetMaxBlockSize() / 100; }
+
 //////////////////////////////////////////////////////////////////////////////
 //
 // dispatching functions
