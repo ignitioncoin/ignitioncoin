@@ -149,7 +149,7 @@ const int GetForkHeightTwo()
     return nForkTwo;
 }
 
-inline const int GetMaxBlockSize()
+const int GetMaxBlockSize()
 {
     if (pindexBest->nHeight < GetForkHeightTwo())
     {
