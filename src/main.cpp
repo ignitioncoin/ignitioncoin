@@ -91,6 +91,10 @@ int GetMinPoolPeerProto() {
     if (pindexBest == NULL) {
         return MIN_POOL_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_POOL_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_POOL_PEER_PROTO_VERSION_2;
@@ -102,6 +106,10 @@ int GetMinPeerProto() {
     if (pindexBest == NULL) {
         return MIN_PEER_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo())
+    {
+        return MIN_PEER_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5)
     {
         return MIN_PEER_PROTO_VERSION_2;
@@ -112,6 +120,9 @@ int GetMinPeerProto() {
 int GetMinInstantXProto() {
     if (pindexBest == NULL) {
         return MIN_INSTANTX_PROTO_VERSION_1;
+    }
+    if(pindexBest->nHeight >= GetForkHeightTwo()) {
+        return MIN_INSTANTX_PROTO_VERSION_3;
     }
     if(pindexBest->nHeight >= GetForkHeightOne()-5) {
         return MIN_INSTANTX_PROTO_VERSION_2;
@@ -128,6 +139,49 @@ const int GetForkHeightOne()
     }
     return nForkOne;
 }
+
+const int GetForkHeightTwo()
+{
+    if (fTestNet)
+    {
+        return nTestnetForkTwo;
+    }
+    return nForkTwo;
+}
+
+const int GetMaxBlockSize()
+{
+    if (pindexBest->nHeight < GetForkHeightTwo())
+    {
+        return MAX_BLOCK_SIZE;
+    }
+
+    int ret;
+    if (fTestNet)
+    {
+        ret = ((trunc((pindexBest->nHeight / 150)) - 5) + 20) * 1000000;
+    }
+    else
+    {
+        ret = ((trunc((pindexBest->nHeight / 525,600)) - 3) + 20) * 1000000;
+    }
+
+    if (ret < 20000000) {
+        ret = 20000000;
+    }
+
+    return ret;
+}
+
+const int GetMaxBlockSizeGen() { return GetMaxBlockSize() / 2; }
+
+const int GetMaxTransactionSize() { return GetMaxBlockSizeGen() / 5; }
+
+const int GetMaxBlockSigOps() { return GetMaxBlockSize() / 50; }
+
+const int GetMaxTransactionSigOps() { return GetMaxBlockSigOps() / 5; }
+
+const int GetMaxOrphanTransactionSize() { return GetMaxBlockSize() / 100; }
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -431,7 +485,7 @@ bool IsStandardTx(const CTransaction& tx, string& reason)
     // computing signature hashes is O(ninputs*txsize). Limiting transactions
     // to MAX_STANDARD_TX_SIZE mitigates CPU exhaustion attacks.
     unsigned int sz = tx.GetSerializeSize(SER_NETWORK, CTransaction::CURRENT_VERSION);
-    if (sz >= MAX_STANDARD_TX_SIZE) {
+    if (sz >= GetMaxTransactionSize()) {
         reason = "tx-size";
         return false;
     }
@@ -684,7 +738,7 @@ bool CTransaction::CheckTransaction() const
     if (vout.empty())
         return DoS(10, error("CTransaction::CheckTransaction() : vout empty"));
     // Size limits
-    if (::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+    if (::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > GetMaxBlockSize())
         return DoS(100, error("CTransaction::CheckTransaction() : size limits failed"));
 
     // Check for negative or overflow output values
@@ -837,10 +891,10 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CTransaction &tx, bool fLimitFree,
         // merely non-standard transaction.
         unsigned int nSigOps = GetLegacySigOpCount(tx);
         nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-        if (nSigOps > MAX_TX_SIGOPS)
+        if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptToMemoryPool : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, MAX_TX_SIGOPS));
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -999,10 +1053,10 @@ bool AcceptableInputs(CTxMemPool& pool, const CTransaction &txo, bool fLimitFree
         // merely non-standard transaction.
         unsigned int nSigOps = GetLegacySigOpCount(tx);
         nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-        if (nSigOps > MAX_TX_SIGOPS)
+        if (nSigOps > GetMaxTransactionSigOps())
             return tx.DoS(0,
                           error("AcceptableInputs : too many sigops %s, %d > %d",
-                                hash.ToString(), nSigOps, MAX_TX_SIGOPS));
+                                hash.ToString(), nSigOps, GetMaxTransactionSigOps()));
 
         int64_t nFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
         unsigned int nSize = ::GetSerializeSize(tx, SER_NETWORK, PROTOCOL_VERSION);
@@ -1540,6 +1594,16 @@ unsigned int GetNextTargetRequired(const CBlockIndex *pindexLast, bool fProofOfS
               nActualTimespan, nActualTimespanShort, nActualTimespanLong, nActualTimespanAvg,
               nActualTimespanMax, nActualTimespanMin;
 
+        if (nHeight >= Params().LastPOWBlock())
+        {
+            // Only PoS Blocks
+            nTargetSpacing = TARGET_SPACING;
+        }
+        else
+        {
+            // Alternate PoW and PoS Blocks
+            nTargetSpacing = 2 * TARGET_SPACING;
+        }
         nTargetSpacing = 2 * TARGET_SPACING;
 
         nTargetTimespan = nTargetSpacing * nIntervalLong;
@@ -2089,7 +2153,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
         nInputs += tx.vin.size();
         nSigOps += GetLegacySigOpCount(tx);
 
-        if (nSigOps > MAX_BLOCK_SIGOPS)
+        if (nSigOps > GetMaxBlockSigOps())
             return DoS(100, error("ConnectBlock() : too many sigops"));
 
         CDiskTxPos posThisTx(pindex->nFile, pindex->nBlockPos, nTxPos);
@@ -2109,7 +2173,7 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
             // this is to prevent a "rogue miner" from creating
             // an incredibly-expensive-to-validate block.
             nSigOps += GetP2SHSigOpCount(tx, mapInputs);
-            if (nSigOps > MAX_BLOCK_SIGOPS)
+            if (nSigOps > GetMaxBlockSigOps())
                 return DoS(100, error("ConnectBlock() : too many sigops"));
 
             int64_t nTxValueIn = tx.GetValueIn(mapInputs);
@@ -2224,13 +2288,31 @@ bool CBlock::ConnectBlock(CTxDB& txdb, CBlockIndex* pindex, bool fJustCheck)
 
                 LogPrint("coinstake", "ConnectBlock(): iWinerAge=%u,iMidMNCount=%u,nHeight=%d\n", iWinerAge, iMidMNCount, pindex->nHeight); //for Debug
 
-                if (iWinerAge > (iMidMNCount*0.6))
+                // Check if the MN has wron recently by comparing the block count since the last win with the median nb of MNs
+                if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE))
                 {
                     ;
                 }
                 else
                 {
-                    masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    // If it has won too recently
+                    if (pindex->nHeight >= GetForkHeightTwo())
+                    {
+                        int nTimeSpan = MASTERNODE_MID_MN_COUNT_TIMESPAN + 10; // add a small delay to make sure the MN count drops before the block time
+                        int64_t nMedianTimePast = pindex->GetMedianTimePast(true, nTimeSpan);
+                        if (pindex->GetBlockTime() > (nMedianTimePast + MASTERNODE_WINNER_AGE_BYPASS_DELAY))
+                        {
+                            ; // Bypass the protection to unfreeze the network
+                        }
+                        else
+                        {
+                            masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                        }
+                    }
+                    else
+                    {
+                        masternodePaymentShouldActual = GetMasternodePaymentSmall(pindex->nHeight, nCalculatedStakeReward);
+                    }
                 }
                 if (iMidMNCount > 0)
                 {
@@ -2725,7 +2807,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     // that can be verified before saving an orphan block.
 
     // Size limits
-    if (vtx.empty() || vtx.size() > MAX_BLOCK_SIZE || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > MAX_BLOCK_SIZE)
+    if (vtx.empty() || vtx.size() > GetMaxBlockSize() || ::GetSerializeSize(*this, SER_NETWORK, PROTOCOL_VERSION) > GetMaxBlockSize())
         return DoS(100, error("CheckBlock() : size limits failed"));
 
     // First transaction must be coinbase, the rest must not be
@@ -2881,7 +2963,7 @@ bool CBlock::CheckBlock(bool fCheckPOW, bool fCheckMerkleRoot, bool fCheckSig) c
     {
         nSigOps += GetLegacySigOpCount(tx);
     }
-    if (nSigOps > MAX_BLOCK_SIGOPS)
+    if (nSigOps > GetMaxBlockSigOps())
         return DoS(100, error("CheckBlock() : out-of-bounds SigOpCount"));
 
     // Check merkle root
@@ -3279,7 +3361,7 @@ bool CBlock::SignBlock(CWallet& wallet, int64_t nFees)
                 // make sure coinstake would meet timestamp protocol
                 //    as it would be the same as the block timestamp
                 vtx[0].nTime = nTime = txCoinStake.nTime;
-                
+
                 if (GetHeight() >= GetForkHeightOne())
                 {
                     nTime = max((pindexBest->GetMedianTimePast(IsProofOfStake()) + BLOCK_LIMITER_TIME + 1), GetMaxTransactionTime());
@@ -3553,7 +3635,7 @@ bool LoadExternalBlockFile(FILE* fileIn)
                 fseek(blkdat.Get(), nPos, SEEK_SET);
                 unsigned int nSize;
                 blkdat >> nSize;
-                if (nSize > 0 && nSize <= MAX_BLOCK_SIZE)
+                if (nSize > 0 && nSize <= GetMaxBlockSize())
                 {
                     CBlock block;
                     blkdat >> block;
@@ -4259,7 +4341,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
                 if(!darkSendSigner.VerifyMessage(pmn->pubkey2, vchSig, strMessage, errorMessage)){
                     LogPrintf("dstx: Got bad masternode address signature %s \n", vin.ToString().c_str());
                     if(pindexBest->nHeight >= GetForkHeightOne())
-                    {                   
+                    {
                         Misbehaving(pfrom->GetId(), 20);
                     }
                     return false;
@@ -4335,7 +4417,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
             AddOrphanTx(tx);
 
             // DoS prevention: do not allow mapOrphanTransactions to grow unbounded
-            unsigned int nEvicted = LimitOrphanTxSize(MAX_ORPHAN_TRANSACTIONS);
+            unsigned int nEvicted = LimitOrphanTxSize(GetMaxOrphanTransactionSize());
             if (nEvicted > 0)
                 LogPrint("mempool", "mapOrphan overflow, removed %u tx\n", nEvicted);
         }
@@ -4859,10 +4941,10 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
 
 int64_t GetMasternodePayment(int nHeight, int64_t blockValue)
 {
-    int64_t ret = blockValue * 1/2; //50%
+    int64_t ret = blockValue * 1/2; // 50%
 
-	// if(nHeight>21000)
-  //      ret = blockValue * 4/5; //80%
+    if(nHeight >= GetForkHeightTwo())
+        ret = blockValue * 55/100; //55%
 
     return ret;
 }

@@ -67,7 +67,7 @@ static const int64_t MIN_TX_FEE = 1000;
 /** Fees smaller than this (in satoshi) are considered zero fee (for relaying) */
 static const int64_t MIN_RELAY_TX_FEE = MIN_TX_FEE;
 /** No amount larger than this (in satoshi) is valid */
-static const int64_t MAX_MONEY = 5000000 * COIN; // 1M PoW coins
+static const int64_t MAX_MONEY = 5000000 * COIN; // 5M PoW coins
 inline bool MoneyRange(int64_t nValue) { return (nValue >= 0 && nValue <= MAX_MONEY); }
 /** Threshold for nLockTime: below this value it is interpreted as block number, otherwise as UNIX timestamp. */
 static const unsigned int LOCKTIME_THRESHOLD = 500000000; // Tue Nov  5 00:53:20 1985 UTC
@@ -83,15 +83,29 @@ static const unsigned char REJECT_INVALID = 0x10;
 
 /** Forks **/
 /* IMPORTANT: fork one should never be before block 17 */
-/* Livenet hard forks */ 
+/* Livenet hard forks */
 static const int nForkOne = 225000;
+static const int nForkTwo = 521352;
 
-/* Testnet hard forks */ 
+/* Testnet hard forks */
 static const int nTestnetForkOne = 250;
+static const int nTestnetForkTwo = 700;
 
 /* Fork testing function */
 const int GetForkHeightOne();
 const int GetForkHeightTwo();
+
+const int GetMaxBlockSize();
+
+const int GetMaxBlockSizeGen();
+
+const int GetMaxTransactionSize();
+
+const int GetMaxBlockSigOps();
+
+const int GetMaxTransactionSigOps();
+
+const int GetMaxOrphanTransactionSize();
 
 
 inline int64_t GetMNCollateral(int nHeight) { return 3000; }
@@ -153,7 +167,7 @@ void ResendWalletTransactions(bool fForce = false);
 int GetMinPoolPeerProto();
 // Disconnect from peers older than this proto version
 int GetMinPeerProto();
-// Minimum InstantX Proto Version Accepted 
+// Minimum InstantX Proto Version Accepted
 int GetMinInstantXProto();
 
 /** Register with a network node to receive its signals */
@@ -708,6 +722,10 @@ public:
         if (nBestHeight == 0) {
             return CURRENT_BLOCK_VERSION_1;
         }
+        if(nBestHeight >= GetForkHeightTwo())
+        {
+            return CURRENT_BLOCK_VERSION_3;
+        }
         if(nBestHeight >= GetForkHeightOne()-5)
         {
             return CURRENT_BLOCK_VERSION_2;
@@ -1125,14 +1143,14 @@ public:
 
     enum { nMedianTimeSpan=11 };
 
-    int64_t GetMedianTimePast(bool fProofOfStake) const
+    int64_t GetMedianTimePast(bool fProofOfStake, int nTimeSpan = nMedianTimeSpan) const
     {
-        int64_t pmedian[nMedianTimeSpan];
-        int64_t* pbegin = &pmedian[nMedianTimeSpan];
-        int64_t* pend = &pmedian[nMedianTimeSpan];
+        int64_t pmedian[nTimeSpan];
+        int64_t* pbegin = &pmedian[nTimeSpan];
+        int64_t* pend = &pmedian[nTimeSpan];
 
         const CBlockIndex* pindex = this;
-        for (int i = 0; i < nMedianTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
+        for (int i = 0; i < nTimeSpan && pindex; i++, pindex = GetPrevBlockIndex(pindex->pprev, 0, fProofOfStake))
             *(--pbegin) = pindex->GetBlockTime();
 
         std::sort(pbegin, pend);
@@ -1162,7 +1180,7 @@ public:
 
         /* Time travel aware accumulator */
         nTempTime = avg[0];
-        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) { 
+        for(i = 1, nAvgAccum = nTempTime; i < nAvgTimeSpan; i++) {
             /* Update the accumulator either with an actual or minimal
              * delay supplied to prevent extremely fast blocks */
             if(avg[i] < (nTempTime + nMinDelay))

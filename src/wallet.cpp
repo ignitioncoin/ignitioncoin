@@ -2553,7 +2553,7 @@ bool CWallet::CreateTransaction(const vector<pair<CScript, int64_t> >& vecSend, 
 
                 // Limit size
                 unsigned int nBytes = ::GetSerializeSize(*(CTransaction*)&wtxNew, SER_NETWORK, PROTOCOL_VERSION);
-                if (nBytes >= MAX_STANDARD_TX_SIZE)
+                if (nBytes >= GetMaxTransactionSize())
                 {
                     strFailReason = _(" Transaction too large");
                     return false;
@@ -3587,12 +3587,13 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
                     memcpy(&iWinerAgeU, &iWinerAge256, 4);
                     iWinerAge = (iWinerAgeU >> 20);
                     iMidMNCount = GetMidMasternodes();
-                    if (iWinerAge > (iMidMNCount*0.6))
+                    if (iWinerAge > (iMidMNCount * MASTERNODE_MIN_WINNER_AGE_PERCENTAGE) || (pindexPrev->nHeight + 1) >= GetForkHeightTwo())
                     {
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }
                     else
-                    {                        
+                    {
+                        // This makes the block check fail. Keep it only before fork 2 for compatibility purpose
                         masternodePayment = GetMasternodePaymentSmall(pindexPrev->nHeight + 1, nFees);
                         payee = GetScriptForDestination(winningNode->pubkey.GetID());
                     }
@@ -3656,7 +3657,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
             LogPrintf("Masternode payment to %s\n", address2.ToString().c_str());
         }
-        
+
         // Set output amount
         if(hasPayment && txNew.vout.size() == 4 && (payeerewardpercent == 0 || payeerewardpercent == 100)) // 2 stake outputs, stake was split, plus a masternode payment, no reward split
         {
@@ -3724,7 +3725,7 @@ bool CWallet::CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int
 
     // Limit size
     unsigned int nBytes = ::GetSerializeSize(txNew, SER_NETWORK, PROTOCOL_VERSION);
-    if (nBytes >= MAX_BLOCK_SIZE_GEN/5)
+    if (nBytes >= (GetMaxBlockSizeGen()/5))
         return error("CreateCoinStake : exceeded coinstake size limit");
 
     // Successfully generated coinstake

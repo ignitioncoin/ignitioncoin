@@ -39,7 +39,7 @@ public:
 uint64_t nLastBlockTx = 0;
 uint64_t nLastBlockSize = 0;
 int64_t nLastCoinStakeSearchInterval = 0;
- 
+
 // We want to sort transactions by priority and fee, so:
 typedef boost::tuple<double, double, CTransaction*> TxPriority;
 class TxPriorityCompare
@@ -91,7 +91,15 @@ int GetMidMasternodesUntilPrev()
     const CBlockIndex *pBlockCurr = pindexBest;
     if (pBlockCurr)
         pBlockCurr = GetPrevBlockIndex(pBlockCurr->pprev, 0, true); // previous PoS block;
-    for (int i = 0; i < 361; i++)
+
+    int iNbBlocks = 361;
+    if (pBlockCurr && pBlockCurr->nHeight > GetForkHeightTwo())
+    {
+        // Less blocks to adapt quickly to sudden MN count drops
+        iNbBlocks = MASTERNODE_MID_MN_COUNT_TIMESPAN;
+    }
+
+    for (int i = 0; i < iNbBlocks; i++)
     {
         if (pBlockCurr)
         {
@@ -102,7 +110,7 @@ int GetMidMasternodesUntilPrev()
             vecNodes.push_back(0);
     }
     sort(vecNodes.begin(), vecNodes.end());
-    iMasternodes = vecNodes.at(180);
+    iMasternodes = vecNodes.at((iNbBlocks-1) / 2);
     return iMasternodes;
 }
 
@@ -143,9 +151,9 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
     pblock->vtx.push_back(txNew);
 
     // Largest block you're willing to create:
-    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", MAX_BLOCK_SIZE_GEN/2);
+    unsigned int nBlockMaxSize = GetArg("-blockmaxsize", (GetMaxBlockSizeGen()/2));
     // Limit to betweeen 1K and MAX_BLOCK_SIZE-1K for sanity:
-    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(MAX_BLOCK_SIZE-1000), nBlockMaxSize));
+    nBlockMaxSize = std::max((unsigned int)1000, std::min((unsigned int)(GetMaxBlockSize()-1000), nBlockMaxSize));
 
     // How much of the block should be dedicated to high-priority transactions,
     // included regardless of the fees they pay
@@ -277,7 +285,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
             // Legacy limits on sigOps:
             unsigned int nTxSigOps = GetLegacySigOpCount(tx);
-            if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS)
+            if (nBlockSigOps + nTxSigOps >= GetMaxBlockSigOps())
                 continue;
 
             // Timestamp limit
@@ -309,7 +317,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
             int64_t nTxFees = tx.GetValueIn(mapInputs)-tx.GetValueOut();
 
             nTxSigOps += GetP2SHSigOpCount(tx, mapInputs);
-            if (nBlockSigOps + nTxSigOps >= MAX_BLOCK_SIGOPS)
+            if (nBlockSigOps + nTxSigOps >= GetMaxBlockSigOps())
                 continue;
 
             // Note that flags: we don't want to set mempool/IsStandard()
@@ -366,7 +374,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
 
         // Fill in header
         pblock->hashPrevBlock  = pindexPrev->GetBlockHash();
-        
+
         if (pindexPrev->nHeight + 1 >= GetForkHeightOne())
         {
             pblock->nTime          = max((pindexPrev->GetMedianTimePast(false) + BLOCK_LIMITER_TIME + 1),
@@ -377,7 +385,7 @@ CBlock* CreateNewBlock(CReserveKey& reservekey, bool fProofOfStake, int64_t* pFe
         {
             pblock->nTime          = max(pindexPrev->GetPastTimeLimit()+1, pblock->GetMaxTransactionTime());
         }
-        
+
         if (!fProofOfStake)
             pblock->UpdateTime(pindexPrev);
         pblock->nNonce         = 0;

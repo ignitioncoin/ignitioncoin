@@ -22,6 +22,9 @@ int CMasternodePayments::GetMinMasternodePaymentsProto() {
     if (pindexBest == NULL) {
         return MIN_MASTERNODE_PAYMENT_PROTO_VERSION_1;
     }
+    if(pindexBest->nHeight >= GetForkHeightTwo()) {
+        return MIN_MASTERNODE_PAYMENT_PROTO_VERSION_3;
+    }
     if(pindexBest->nHeight >= GetForkHeightOne()-5) {
         return MIN_MASTERNODE_PAYMENT_PROTO_VERSION_2;
     }
