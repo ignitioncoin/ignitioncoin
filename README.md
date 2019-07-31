@@ -1,4 +1,4 @@
-Ignition Release Tree [![GitHub version](https://img.shields.io/badge/Version-1.1.2.0-brightgreen.svg)](https://github.com/ignitioncoin/ignitioncoin)
+Ignition Release Tree [![GitHub version](https://img.shields.io/badge/Version-1.2.0.0-brightgreen.svg)](https://github.com/ignitioncoin/ignitioncoin)
 
 Ignition is a PoW (NeoScrypt) / PoS / Master Node hybrid cryptocurrency, with a 5 million coin maximum supply, which is generated at a slower rate every 1 Million IC, until it's limit is reached. Master Node cost 3000IC, block size is 20MB, and block time is ~2Minutes.
 
