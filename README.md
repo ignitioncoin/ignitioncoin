@@ -26,7 +26,7 @@ White Paper: https://ignitioncoin.org/wp-content/uploads/2018/01/Ignition-Coin-W
 
 CoinMarketCap: https://coinmarketcap.com/currencies/ignition/
 
-Exchanges IC is available on (as of 5/30/2018): CoinExchange, CryptoBridge, BTCPOP, BiteBTC, SatoWallet Exchange, Wadax and CryptalDash Exchange
+Exchanges IC is available on (as of 5/30/2018): CoinExchange, CryptoBridge, NovaExchange, BTCPOP, BiteBTC, SatoWallet Exchange, Wadax and CryptalDash Exchange
 
 For compiling on different architectures, see the docs/build-*os* documents. Otherwise, view releases page for windows qt-wallets.
 
