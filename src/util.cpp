@@ -1213,13 +1213,13 @@ static void WriteConfigFile(FILE* configFile)
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-    boost::filesystem::ifstream streamConfig(GetConfigFile());
-    if (!streamConfig.good()){
-        // Create empty darksilk.conf if it does not excist
-        FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
-        if (configFile != NULL)
-            fclose(configFile);
-        return; // Nothing to read, so just return
+  boost::filesystem::ifstream streamConfig(GetConfigFile());
+  if (!streamConfig.good()){
+  FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
+  if (configFile != NULL) {
+      WriteConfigFile(configFile);
+      fclose(configFile);
+    return;
     }
 
     set<string> setOptions;
