@@ -1221,7 +1221,7 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
       fclose(configFile);
     return;
     }
-
+}
     set<string> setOptions;
     setOptions.insert("*");
 
