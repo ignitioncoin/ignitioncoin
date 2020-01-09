@@ -1215,12 +1215,14 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
 {
   boost::filesystem::ifstream streamConfig(GetConfigFile());
   if (!streamConfig.good()){
-  FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
-  if (configFile != NULL) {
-      WriteConfigFile(configFile);
-      fclose(configFile);
-    return;
-    }
+  // Create empty Ignition.conf if it does not excist
+        FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
+        if (configFile != NULL) {
+    WriteConfigFile(configFile);
+    fclose(configFile);
+    streamConfig.open(GetConfigFile());
+  }
+  return; // Nothing to read, so just return
 }
     set<string> setOptions;
     setOptions.insert("*");
