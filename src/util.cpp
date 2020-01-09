@@ -1105,6 +1105,30 @@ boost::filesystem::path GetDefaultDataDir()
 static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
 static CCriticalSection csPathCached;
 
+static std::string GenerateRandomString(unsigned int len) {
+    if (len == 0){
+        len = 24;
+    }
+    srand(time(NULL) + len); //seed srand before using
+    std::vector<unsigned char> vchRandString;
+    static const unsigned char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (unsigned int i = 0; i < len; ++i) {
+        vchRandString.push_back(alphanum[rand() % (sizeof(alphanum) - 1)]);
+    }
+    std::string strPassword(vchRandString.begin(), vchRandString.end());
+    return strPassword;
+}
+
+static unsigned int RandomIntegerRange(unsigned int nMin, unsigned int nMax)
+{
+  srand(time(NULL) + nMax); //seed srand before using
+  return nMin + rand() % (nMax - nMin) + 1;
+}
+
 const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
@@ -1158,31 +1182,7 @@ boost::filesystem::path GetMasternodeConfigFile()
     return pathConfigFile;
 }
 
-static std::string GenerateRandomString(unsigned int len) {
-    if (len == 0){
-        len = 24;
-    }
-    srand(time(NULL) + len); //seed srand before using
-    std::vector<unsigned char> vchRandString;
-    static const unsigned char alphanum[] =
-        "0123456789"
-        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        "abcdefghijklmnopqrstuvwxyz";
-
-    for (unsigned int i = 0; i < len; ++i) {
-        vchRandString.push_back(alphanum[rand() % (sizeof(alphanum) - 1)]);
-    }
-    std::string strPassword(vchRandString.begin(), vchRandString.end());
-    return strPassword;
-}
-
-static unsigned int RandomIntegerRange(unsigned int nMin, unsigned int nMax)
-{
-  srand(time(NULL) + nMax); //seed srand before using
-  return nMin + rand() % (nMax - nMin) + 1;
-}
-
-static void WriteConfigFile(FILE* configFile)
+void WriteConfigFile(FILE* configFile)
 {
     std::string sRPCpassword = "rpcpassword=" + GenerateRandomString(RandomIntegerRange(18, 24)) + "\n";
     std::string sUserID = "rpcuser=" + GenerateRandomString(RandomIntegerRange(7, 11)) + "\n";
@@ -1213,17 +1213,18 @@ static void WriteConfigFile(FILE* configFile)
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
-  boost::filesystem::ifstream streamConfig(GetConfigFile());
-  if (!streamConfig.good()){
-  // Create empty Ignition.conf if it does not excist
+    boost::filesystem::ifstream streamConfig(GetConfigFile());
+    if (!streamConfig.good()){
+        // Create empty Ignition.conf if it does not excist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
         if (configFile != NULL) {
     WriteConfigFile(configFile);
     fclose(configFile);
     streamConfig.open(GetConfigFile());
-    return; // Nothing to read, so just return
   }
+  return; // Nothing to read, so just return
 }
+
     set<string> setOptions;
     setOptions.insert("*");
 
