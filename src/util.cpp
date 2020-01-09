@@ -1221,8 +1221,8 @@ void ReadConfigFile(map<string, string>& mapSettingsRet,
     WriteConfigFile(configFile);
     fclose(configFile);
     streamConfig.open(GetConfigFile());
+    return; // Nothing to read, so just return
   }
-  return; // Nothing to read, so just return
 }
     set<string> setOptions;
     setOptions.insert("*");
