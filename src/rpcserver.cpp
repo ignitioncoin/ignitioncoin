@@ -228,6 +228,8 @@ static const CRPCCommand vRPCCommands[] =
     { "addnode",                &addnode,                true,      true,      false },
     { "getaddednodeinfo",       &getaddednodeinfo,       true,      true,      false },
     { "ping",                   &ping,                   true,      false,     false },
+    { "getnetworkinfo",         &getnetworkinfo,         true,      false,     false },
+    { "getblockchaininfo",      &getblockchaininfo,      true,      false,     false },
     { "setban",                 &setban,                 true,      false,     false },
     { "listbanned",             &listbanned,             true,      false,     false },
     { "clearbanned",            &clearbanned,            true,      false,     false },
@@ -255,7 +257,7 @@ static const CRPCCommand vRPCCommands[] =
     { "spork",                  &spork,                  true,      false,      false },
     { "masternode",             &masternode,             true,      false,      true },
     { "masternodelist",         &masternodelist,         true,      false,      false },
-    
+
 #ifdef ENABLE_WALLET
     { "darksend",               &darksend,               false,     false,      true },
     { "getmininginfo",          &getmininginfo,          true,      false,     false },
@@ -874,8 +876,8 @@ std::vector<std::string> CRPCTable::listCommands() const
     std::vector<std::string> commandList;
     typedef std::map<std::string, const CRPCCommand*> commandMap;
 
-    std::transform(mapCommands.begin(), mapCommands.end(), 
-                    std::back_inserter(commandList), 
+    std::transform(mapCommands.begin(), mapCommands.end(),
+                    std::back_inserter(commandList),
                     boost::bind(&commandMap::value_type::first, _1));
     return commandList;
 }

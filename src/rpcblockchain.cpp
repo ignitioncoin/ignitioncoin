@@ -16,7 +16,7 @@ extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spiri
 double GetDifficulty(const CBlockIndex *blockindex) {
 
     /* The reference difficulty is 1.0 which is the lowest Bitcoin difficulty
-     * and may not match the minimal difficulty of a particular altcoin */ 
+     * and may not match the minimal difficulty of a particular altcoin */
 
     if(!blockindex && pindexBest)
       blockindex = GetPrevBlockIndex(pindexBest, 0, false);
@@ -291,4 +291,82 @@ Value getcheckpoint(const Array& params, bool fHelp)
     result.push_back(Pair("policy", "rolling"));
 
     return result;
+}
+
+Value getblockchaininfo(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+            "getblockchaininfo\n"
+            "Returns an object containing various state info regarding block chain processing.\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"chain\": \"xxxx\",        (string) current network name as defined in BIP70 (main, test, regtest)\n"
+            "  \"blocks\": xxxxxx,         (numeric) the current number of blocks processed in the server\n"
+            "  \"headers\": xxxxxx,        (numeric) the current number of headers we have validated\n"
+            "  \"bestblockhash\": \"...\", (string) the hash of the currently best block\n"
+            "  \"difficulty\": xxxxxx,     (numeric) the current difficulty\n"
+            "  \"mediantime\": xxxxxx,     (numeric) median time for the current best block\n"
+            "  \"verificationprogress\": xxxx, (numeric) estimate of verification progress [0..1]\n"
+            "  \"chainwork\": \"xxxx\"     (string) total amount of work in active chain, in hexadecimal\n"
+            "  \"pruned\": xx,             (boolean) if the blocks are subject to pruning\n"
+            "  \"pruneheight\": xxxxxx,    (numeric) heighest block available\n"
+            "  \"softforks\": [            (array) status of softforks in progress\n"
+            "     {\n"
+            "        \"id\": \"xxxx\",        (string) name of softfork\n"
+            "        \"version\": xx,         (numeric) block version\n"
+            "        \"enforce\": {           (object) progress toward enforcing the softfork rules for new-version blocks\n"
+            "           \"status\": xx,       (boolean) true if threshold reached\n"
+            "           \"found\": xx,        (numeric) number of blocks with the new version found\n"
+            "           \"required\": xx,     (numeric) number of blocks required to trigger\n"
+            "           \"window\": xx,       (numeric) maximum size of examined window of recent blocks\n"
+            "        },\n"
+            "        \"reject\": { ... }      (object) progress toward rejecting pre-softfork blocks (same fields as \"enforce\")\n"
+            "     }, ...\n"
+            "  ],\n"
+            "  \"bip9_softforks\": [       (array) status of BIP9 softforks in progress\n"
+            "     {\n"
+            "        \"id\": \"xxxx\",        (string) name of the softfork\n"
+            "        \"status\": \"xxxx\",    (string) one of \"defined\", \"started\", \"lockedin\", \"active\", \"failed\"\n"
+            "     }\n"
+            "  ]\n"
+            "}\n"
+            "\nExamples:\n"
+            + HelpExampleCli("getblockchaininfo", "")
+            + HelpExampleRpc("getblockchaininfo", "")
+        );
+
+    LOCK(cs_main);
+
+    UniValue obj(UniValue::VOBJ);
+    obj.push_back(Pair("chain",                 Params().NetworkIDString()));
+    obj.push_back(Pair("blocks",                (int)chainActive.Height()));
+    obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));
+    obj.push_back(Pair("bestblockhash",         chainActive.Tip()->GetBlockHash().GetHex()));
+    obj.push_back(Pair("difficulty",            (double)GetDifficulty()));
+    obj.push_back(Pair("mediantime",            (int64_t)chainActive.Tip()->GetMedianTimePast()));
+    obj.push_back(Pair("verificationprogress",  Checkpoints::GuessVerificationProgress(Params().Checkpoints(), chainActive.Tip())));
+    obj.push_back(Pair("chainwork",             chainActive.Tip()->nChainWork.GetHex()));
+    obj.push_back(Pair("pruned",                fPruneMode));
+
+    const Consensus::Params& consensusParams = Params().GetConsensus();
+    CBlockIndex* tip = chainActive.Tip();
+    UniValue softforks(UniValue::VARR);
+    UniValue bip9_softforks(UniValue::VARR);
+    softforks.push_back(SoftForkDesc("bip34", 2, tip, consensusParams));
+    softforks.push_back(SoftForkDesc("bip66", 3, tip, consensusParams));
+    softforks.push_back(SoftForkDesc("bip65", 4, tip, consensusParams));
+    bip9_softforks.push_back(BIP9SoftForkDesc("csv", consensusParams, Consensus::DEPLOYMENT_CSV));
+    obj.push_back(Pair("softforks",             softforks));
+    obj.push_back(Pair("bip9_softforks", bip9_softforks));
+
+    if (fPruneMode)
+    {
+        CBlockIndex *block = chainActive.Tip();
+        while (block && block->pprev && (block->pprev->nStatus & BLOCK_HAVE_DATA))
+            block = block->pprev;
+
+        obj.push_back(Pair("pruneheight",        block->nHeight));
+    }
+    return obj;
 }
