@@ -338,7 +338,7 @@ Value getblockchaininfo(const Array& params, bool fHelp)
 
     LOCK(cs_main);
 
-    Value obj(UniValue::VOBJ);
+    Value obj(Value::VOBJ);
     obj.push_back(Pair("chain",                 Params().NetworkIDString()));
     obj.push_back(Pair("blocks",                (int)chainActive.Height()));
     obj.push_back(Pair("headers",               pindexBestHeader ? pindexBestHeader->nHeight : -1));
@@ -393,7 +393,7 @@ Value gettxoutsetinfo(const Array& params, bool fHelp)
             + HelpExampleRpc("gettxoutsetinfo", "")
         );
 
-    UniValue ret(UniValue::VOBJ);
+    Value ret(Value::VOBJ);
 
     CCoinsStats stats;
     FlushStateToDisk();
@@ -480,7 +480,7 @@ Value gettxout(const Array& params, bool fHelp)
     else
         ret.push_back(Pair("confirmations", pindex->nHeight - coins.nHeight + 1));
     ret.push_back(Pair("value", ValueFromAmount(coins.vout[n].nValue)));
-    UniValue o(UniValue::VOBJ);
+    Value o(Value::VOBJ);
     ScriptPubKeyToJSON(coins.vout[n].scriptPubKey, o, true);
     ret.push_back(Pair("scriptPubKey", o));
     ret.push_back(Pair("version", coins.nVersion));
