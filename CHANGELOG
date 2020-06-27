@@ -1,3 +1,12 @@
+v1.2.0
+-------
+Activated hard fork to implement the end of Proof of Work, to 100% Proof of Stake algorithm, 
+changing reward structure from 50% PoW, 25%PoS/25%MN to 45%PoS 55% MN.
+
+Upgraded the Difficulty Algorithm
+
+Fixed several minor issues
+
 v1.1.2.0
 --------
 Fixed an issue with debugging network connections that would bloat debug logs
