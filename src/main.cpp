@@ -1301,7 +1301,7 @@ int CTxIndex::GetDepthInMainChain() const
 }
 
 // Return transaction in tx, and if it was found inside a block, its hash is placed in hashBlock
-bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock)
+bool GetTransaction(const uint256 &hash, CTransaction &tx, uint256 &hashBlock, bool s)
 {
     {
         LOCK(cs_main);

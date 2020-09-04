@@ -47,6 +47,32 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, Object& out, bool fIncludeH
     out.push_back(Pair("addresses", a));
 }
 
+void spj(const CScript& scriptPubKey, Object& out, bool fIncludeHex)
+{
+    txnouttype type;
+    vector<CTxDestination> addresses;
+    int nRequired;
+
+    out.push_back(Pair("asm", scriptPubKey.ToString()));
+
+    if (fIncludeHex)
+        out.push_back(Pair("hex", HexStr(scriptPubKey.begin(), scriptPubKey.end())));
+
+    if (!ExtractDestinations(scriptPubKey, type, addresses, nRequired))
+    {
+        out.push_back(Pair("type", GetTxnOutputType(type)));
+        return;
+    }
+
+    out.push_back(Pair("reqSigs", nRequired));
+    out.push_back(Pair("type", GetTxnOutputType(type)));
+
+    Array a;
+    BOOST_FOREACH(const CTxDestination& addr, addresses)
+        a.push_back(CBitcoinAddress(addr).ToString());
+    out.push_back(Pair("addresses", a));
+}
+
 void TxToJSON(const CTransaction& tx, const uint256 hashBlock, Object& entry)
 {
     entry.push_back(Pair("txid", tx.GetHash().GetHex()));
@@ -664,85 +690,4 @@ Value searchrawtransactions(const Array &params, bool fHelp)
         it++;
     }
     return result;
-}
-
-Value gettxoutproof(const Array& params, bool fHelp)
-{
-    if (fHelp || (params.size() != 1 && params.size() != 2))
-        throw runtime_error(
-            "gettxoutproof [\"txid\",...] ( blockhash )\n"
-            "\nReturns a hex-encoded proof that \"txid\" was included in a block.\n"
-            "\nNOTE: By default this function only works sometimes. This is when there is an\n"
-            "unspent output in the utxo for this transaction. To make it always work,\n"
-            "you need to maintain a transaction index, using the -txindex command line option or\n"
-            "specify the block in which the transaction is included in manually (by blockhash).\n"
-            "\nReturn the raw transaction data.\n"
-            "\nArguments:\n"
-            "1. \"txids\"       (string) A json array of txids to filter\n"
-            "    [\n"
-            "      \"txid\"     (string) A transaction hash\n"
-            "      ,...\n"
-            "    ]\n"
-            "2. \"block hash\"  (string, optional) If specified, looks for txid in the block with this hash\n"
-            "\nResult:\n"
-            "\"data\"           (string) A string that is a serialized, hex-encoded data for the proof.\n"
-        );
-
-    set<uint256> setTxids;
-    uint256 oneTxid;
-    UniValue txids = params[0].get_array();
-    for (unsigned int idx = 0; idx < txids.size(); idx++) {
-        const UniValue& txid = txids[idx];
-        if (txid.get_str().length() != 64 || !IsHex(txid.get_str()))
-            throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid txid ")+txid.get_str());
-        uint256 hash(uint256S(txid.get_str()));
-        if (setTxids.count(hash))
-            throw JSONRPCError(RPC_INVALID_PARAMETER, string("Invalid parameter, duplicated txid: ")+txid.get_str());
-       setTxids.insert(hash);
-       oneTxid = hash;
-    }
-
-    LOCK(cs_main);
-
-    CBlockIndex* pblockindex = NULL;
-
-    uint256 hashBlock;
-    if (params.size() > 1)
-    {
-        hashBlock = uint256S(params[1].get_str());
-        if (!mapBlockIndex.count(hashBlock))
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
-        pblockindex = mapBlockIndex[hashBlock];
-    } else {
-        CCoins coins;
-        if (pcoinsTip->GetCoins(oneTxid, coins) && coins.nHeight > 0 && coins.nHeight <= chainActive.Height())
-            pblockindex = chainActive[coins.nHeight];
-    }
-
-    if (pblockindex == NULL)
-    {
-        CTransaction tx;
-        if (!GetTransaction(oneTxid, tx, Params().GetConsensus(), hashBlock, false) || hashBlock.IsNull())
-            throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Transaction not yet in block");
-        if (!mapBlockIndex.count(hashBlock))
-            throw JSONRPCError(RPC_INTERNAL_ERROR, "Transaction index corrupt");
-        pblockindex = mapBlockIndex[hashBlock];
-    }
-
-    CBlock block;
-    if(!ReadBlockFromDisk(block, pblockindex, Params().GetConsensus()))
-        throw JSONRPCError(RPC_INTERNAL_ERROR, "Can't read block from disk");
-
-    unsigned int ntxFound = 0;
-    BOOST_FOREACH(const CTransaction&tx, block.vtx)
-        if (setTxids.count(tx.GetHash()))
-            ntxFound++;
-    if (ntxFound != setTxids.size())
-        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "(Not all) transactions not found in specified block");
-
-    CDataStream ssMB(SER_NETWORK, PROTOCOL_VERSION);
-    CMerkleBlock mb(block, setTxids);
-    ssMB << mb;
-    std::string strHex = HexStr(ssMB.begin(), ssMB.end());
-    return strHex;
 }

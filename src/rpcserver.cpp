@@ -231,8 +231,6 @@ static const CRPCCommand vRPCCommands[] =
     { "getnetworkinfo",         &getnetworkinfo,         true,      false,     false },
     { "getblockchaininfo",      &getblockchaininfo,      true,      false,     false },
     { "gettxout",               &gettxout,               true,      false,     false },
-    { "gettxoutproof",          &gettxoutproof,          true,      false,     false },
-    { "gettxoutsetinfo",        &gettxoutsetinfo,        true,      false,     false },
     { "setban",                 &setban,                 true,      false,     false },
     { "listbanned",             &listbanned,             true,      false,     false },
     { "clearbanned",            &clearbanned,            true,      false,     false },

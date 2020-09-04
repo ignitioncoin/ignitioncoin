@@ -158,7 +158,6 @@ static const CRPCConvertParam vRPCConvertParams[] =
     { "signrawtransaction", 2 },
     { "gettxout", 1 },
     { "gettxout", 2 },
-    { "gettxoutproof", 0 },
     { "keypoolrefill", 0 },
     { "importprivkey", 2 },
     { "importaddress", 2 },

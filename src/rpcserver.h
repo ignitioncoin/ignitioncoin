@@ -101,8 +101,6 @@ extern std::vector<unsigned char> ParseHexO(const json_spirit::Object& o, std::s
 
 extern json_spirit::Value getblockchaininfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value getnetworkinfo(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value gettxoutproof(const json_spirit::Array& params, bool fHelp);
-extern json_spirit::Value gettxoutsetinfo(const json_spirit::Array& params, bool fHelp);
 extern json_spirit::Value gettxout(const json_spirit::Array& params, bool fHelp);
 
 extern json_spirit::Value getconnectioncount(const json_spirit::Array& params, bool fHelp); // in rpcnet.cpp
