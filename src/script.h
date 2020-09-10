@@ -119,6 +119,9 @@ enum
     // Using a non-push operator in the scriptSig causes script failure (softfork safe, BIP62 rule 2).
     SCRIPT_VERIFY_SIGPUSHONLY = (1U << 5),
 
+    // BIP65 Bob Atomic Swap Support CLTV
+    SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY = (1U << 6),
+
     // Require minimal encodings for all push operations (OP_0... OP_16, OP_1NEGATE where possible, direct
     // pushes up to 75 bytes, OP_PUSHDATA up to 255 bytes, OP_PUSHDATA2 for anything larger). Evaluating
     // any other push causes the script to fail (BIP62 rule 3).
@@ -163,6 +166,7 @@ static const unsigned int MANDATORY_SCRIPT_VERIFY_FLAGS = SCRIPT_VERIFY_NONE;
 static const unsigned int STANDARD_SCRIPT_VERIFY_FLAGS = MANDATORY_SCRIPT_VERIFY_FLAGS |
                                                          SCRIPT_VERIFY_STRICTENC |
                                                          SCRIPT_VERIFY_NULLDUMMY |
+                                                         SCRIPT_VERIFY_CHECKLOCKTIMEVERIFY |
                                                          SCRIPT_VERIFY_DISCOURAGE_UPGRADABLE_NOPS;
 
 // For convenience, standard but not mandatory verify flags.
@@ -320,7 +324,8 @@ enum opcodetype
 
     // expansion
     OP_NOP1 = 0xb0,
-    OP_NOP2 = 0xb1,
+    OP_CHECKLOCKTIMEVERIFY = 0xb1,
+    OP_NOP2 = OP_CHECKLOCKTIMEVERIFY,
     OP_NOP3 = 0xb2,
     OP_NOP4 = 0xb3,
     OP_NOP5 = 0xb4,

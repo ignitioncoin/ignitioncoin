@@ -241,7 +241,7 @@ Value getaddednodeinfo(const Array& params, bool fHelp)
     return ret;
 }
 
-// ppcoin: send alert.  
+// ppcoin: send alert.
 // There is a known deadlock situation with ThreadMessageHandler
 // ThreadMessageHandler: holds cs_vSend and acquiring cs_main in SendMessages()
 // ThreadRPCServer: holds cs_main and acquiring cs_vSend in alert.RelayTo()/PushMessage()/BeginMessage()
@@ -281,8 +281,8 @@ Value sendalert(const Array& params, bool fHelp)
     key.SetPrivKey(CPrivKey(vchPrivKey.begin(), vchPrivKey.end()), false); // if key is not correct openssl may crash
     if (!key.Sign(Hash(alert.vchMsg.begin(), alert.vchMsg.end()), alert.vchSig))
         throw runtime_error(
-            "Unable to sign alert, check private key?\n");  
-    if(!alert.ProcessAlert()) 
+            "Unable to sign alert, check private key?\n");
+    if(!alert.ProcessAlert())
         throw runtime_error(
             "Failed to process alert.\n");
     // Relay alert
@@ -316,6 +316,59 @@ Value getnettotals(const Array& params, bool fHelp)
     obj.push_back(Pair("totalbytesrecv", CNode::GetTotalBytesRecv()));
     obj.push_back(Pair("totalbytessent", CNode::GetTotalBytesSent()));
     obj.push_back(Pair("timemillis", GetTimeMillis()));
+    return obj;
+}
+
+Value getnetworkinfo(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() != 0)
+        throw runtime_error(
+                "getnetworkinfo\n"
+                " Returns an object containing various state info regarding P2P networking.\n"
+                "\nResult:\n"
+                "{\n"
+                "  \"version\": xxxxx,            (numeric) the server version\n"
+                "  \"subver\": \"/s:n.n.n.n/\",     (string)  this clients subversion string\n"
+                "  \"protocolversion\": xxxxx,    (numeric) the protocol version\n"
+                "  \"localservices\": \"xxxx\",     (hex string) Our local service bits as a 16 char string.\n"
+                "  \"timeoffset\": xxxxx,         (numeric) the time offset\n"
+                "  \"connections\": xxxxx,        (numeric) the number of connections\n"
+                "  \"networkconnections\": [      (array)  the state of each possible network connection type\n"
+                "    \"name\": \"xxx\",             (string) network name\n"
+                "    \"limited\" : true|false,    (boolean) if service is limited\n"
+                "  ]\n"
+                "  \"localaddresses\": [          (array) list of local addresses\n"
+                "    \"address\": \"xxxx\",         (string) network address\n"
+                "    \"port\": xxx,               (numeric) network port\n"
+                "    \"score\": xxx               (numeric) relative score\n"
+                "  ]\n"
+                "}\n"
+        );
+
+    LOCK(cs_main);
+
+    Object obj;
+    obj.push_back(Pair("version",        (int)CLIENT_VERSION));
+    obj.push_back(Pair("subversion",     FormatSubVersion(CLIENT_NAME, CLIENT_VERSION, std::vector<string>())));
+    obj.push_back(Pair("protocolversion",(int)PROTOCOL_VERSION));
+  //obj.push_back(Pair("localservices",  strprintf("%016", PRIx64, nLocalServices)));
+    obj.push_back(Pair("timeoffset",     GetTimeOffset()));
+    obj.push_back(Pair("connections",    (int)vNodes.size()));
+  //obj.push_back(Pair("relayfee",       ValueFromAmount(minRelayTxFee.GetFeePerK())));
+    Array localAddresses;
+    {
+        LOCK(cs_mapLocalHost);
+        BOOST_FOREACH(const PAIRTYPE(CNetAddr, LocalServiceInfo) &item, mapLocalHost)
+        {
+            Object rec;
+            rec.push_back(Pair("address", item.first.ToString()));
+            rec.push_back(Pair("port", item.second.nPort));
+            rec.push_back(Pair("score", item.second.nScore));
+            localAddresses.push_back(rec);
+        }
+    }
+    obj.push_back(Pair("localaddresses", localAddresses));
+
     return obj;
 }
 

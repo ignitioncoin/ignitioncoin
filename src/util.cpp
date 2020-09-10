@@ -1105,6 +1105,30 @@ boost::filesystem::path GetDefaultDataDir()
 static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
 static CCriticalSection csPathCached;
 
+static std::string GenerateRandomString(unsigned int len) {
+    if (len == 0){
+        len = 24;
+    }
+    srand(time(NULL) + len); //seed srand before using
+    std::vector<unsigned char> vchRandString;
+    static const unsigned char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (unsigned int i = 0; i < len; ++i) {
+        vchRandString.push_back(alphanum[rand() % (sizeof(alphanum) - 1)]);
+    }
+    std::string strPassword(vchRandString.begin(), vchRandString.end());
+    return strPassword;
+}
+
+static unsigned int RandomIntegerRange(unsigned int nMin, unsigned int nMax)
+{
+  srand(time(NULL) + nMax); //seed srand before using
+  return nMin + rand() % (nMax - nMin) + 1;
+}
+
 const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
@@ -1158,17 +1182,48 @@ boost::filesystem::path GetMasternodeConfigFile()
     return pathConfigFile;
 }
 
+void WriteConfigFile(FILE* configFile)
+{
+    std::string sRPCpassword = "rpcpassword=" + GenerateRandomString(RandomIntegerRange(18, 24)) + "\n";
+    std::string sUserID = "rpcuser=" + GenerateRandomString(RandomIntegerRange(7, 11)) + "\n";
+    fputs (sUserID.c_str(), configFile);
+    fputs (sRPCpassword.c_str(), configFile);
+    fputs ("rpcport=44155\n", configFile);
+    fputs ("port=44144\n", configFile);
+    fputs ("daemon=1\n", configFile);
+    fputs ("listen=1\n", configFile);
+    fputs ("server=1\n", configFile);
+    fputs ("stake=1\n",configFile);
+    fputs ("maxconnections=24\n", configFile);
+    fputs ("addnode=74.83.71.175:44144\n", configFile);
+    fputs ("addnode=136.244.98.14:44144\n", configFile);
+    fputs ("addnode=45.76.39.119:44144\n", configFile);
+    fputs ("addnode=80.211.168.225:44151\n", configFile);
+    fputs ("addnode=192.243.101.236:44144\n", configFile);
+    fputs ("addnode=94.225.98.61:44144\n", configFile);
+    fputs ("addnode=173.212.250.110:44144\n", configFile);
+    fputs ("addnode=74.83.71.175:44149\n", configFile);
+    fputs ("addnode=45.76.220.138:44144\n", configFile);
+    fputs ("addnode=136.244.105.40:44144\n", configFile);
+    fputs ("addnode=95.179.153.186:44144\n", configFile);
+    fclose(configFile);
+    ReadConfigFile(mapArgs, mapMultiArgs);
+}
+
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()){
-        // Create empty darksilk.conf if it does not excist
+        // Create empty Ignition.conf if it does not excist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
-        if (configFile != NULL)
-            fclose(configFile);
-        return; // Nothing to read, so just return
-    }
+        if (configFile != NULL) {
+    WriteConfigFile(configFile);
+    fclose(configFile);
+    streamConfig.open(GetConfigFile());
+  }
+  return; // Nothing to read, so just return
+}
 
     set<string> setOptions;
     setOptions.insert("*");
