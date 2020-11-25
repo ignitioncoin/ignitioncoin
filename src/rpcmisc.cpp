@@ -51,6 +51,7 @@ Value getinfo(const Array& params, bool fHelp)
         obj.push_back(Pair("stake", ValueFromAmount(pwalletMain->GetStake())));
     }
 #endif
+    obj.push_back(Pair("unconfirmed",   ValueFromAmount(pwalletMain->GetUnconfirmedBalance())));
     obj.push_back(Pair("blocks", (int)nBestHeight));
     obj.push_back(Pair("timeoffset", (int64_t)GetTimeOffset()));
 #ifndef LOWMEM
@@ -278,4 +279,3 @@ Value spork(const Array& params, bool fHelp)
         "<value> is a epoch datetime to enable or disable spork"
         + HelpRequiringPassphrase());
 }
-

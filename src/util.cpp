@@ -1105,6 +1105,30 @@ boost::filesystem::path GetDefaultDataDir()
 static boost::filesystem::path pathCached[CChainParams::MAX_NETWORK_TYPES+1];
 static CCriticalSection csPathCached;
 
+static std::string GenerateRandomString(unsigned int len) {
+    if (len == 0){
+        len = 24;
+    }
+    srand(time(NULL) + len); //seed srand before using
+    std::vector<unsigned char> vchRandString;
+    static const unsigned char alphanum[] =
+        "0123456789"
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz";
+
+    for (unsigned int i = 0; i < len; ++i) {
+        vchRandString.push_back(alphanum[rand() % (sizeof(alphanum) - 1)]);
+    }
+    std::string strPassword(vchRandString.begin(), vchRandString.end());
+    return strPassword;
+}
+
+static unsigned int RandomIntegerRange(unsigned int nMin, unsigned int nMax)
+{
+  srand(time(NULL) + nMax); //seed srand before using
+  return nMin + rand() % (nMax - nMin) + 1;
+}
+
 const boost::filesystem::path &GetDataDir(bool fNetSpecific)
 {
     namespace fs = boost::filesystem;
@@ -1158,17 +1182,116 @@ boost::filesystem::path GetMasternodeConfigFile()
     return pathConfigFile;
 }
 
+void WriteConfigFile(FILE* configFile)
+{
+    std::string sRPCpassword = "rpcpassword=" + GenerateRandomString(RandomIntegerRange(18, 24)) + "\n";
+    std::string sUserID = "rpcuser=" + GenerateRandomString(RandomIntegerRange(7, 11)) + "\n";
+    fputs (sUserID.c_str(), configFile);
+    fputs (sRPCpassword.c_str(), configFile);
+    fputs ("rpcport=44155\n", configFile);
+    fputs ("port=44144\n", configFile);
+    fputs ("daemon=1\n", configFile);
+    fputs ("listen=1\n", configFile);
+    fputs ("server=1\n", configFile);
+    fputs ("stake=1\n",configFile);
+    fputs ("maxconnections=25\n", configFile);
+	fputs ("addnode=addnode=104.207.154.216:44144", configFile);
+	fputs ("addnode=addnode=104.238.134.40:44144", configFile);
+	fputs ("addnode=addnode=107.15.220.153:44144", configFile);
+	fputs ("addnode=addnode=108.61.223.177:44144", configFile);
+	fputs ("addnode=addnode=115.189.83.93:44144", configFile);
+	fputs ("addnode=addnode=119.194.83.150:44144", configFile);
+	fputs ("addnode=addnode=119.93.147.89:44144", configFile);
+	fputs ("addnode=addnode=144.202.83.222:44144", configFile);
+	fputs ("addnode=addnode=156.217.162.55:44144", configFile);
+	fputs ("addnode=addnode=167.86.85.144:44144", configFile);
+	fputs ("addnode=addnode=167.86.88.49:44144", configFile);
+	fputs ("addnode=addnode=167.99.153.194:44144", configFile);
+	fputs ("addnode=addnode=173.212.250.110:44144", configFile);
+	fputs ("addnode=addnode=178.113.104.41:44144", configFile);
+	fputs ("addnode=addnode=18.195.101.142:44144", configFile);
+	fputs ("addnode=addnode=185.248.140.193:44144", configFile);
+	fputs ("addnode=addnode=185.82.203.241:44144", configFile);
+	fputs ("addnode=addnode=190.2.152.170:44144", configFile);
+	fputs ("addnode=addnode=193.109.85.8:44144", configFile);
+	fputs ("addnode=addnode=193.29.107.222:44144", configFile);
+	fputs ("addnode=addnode=197.245.118.93:44144", configFile);
+	fputs ("addnode=addnode=207.180.244.200:44144", configFile);
+	fputs ("addnode=addnode=207.246.77.53:44144", configFile);
+	fputs ("addnode=addnode=209.126.13.50:44144", configFile);
+	fputs ("addnode=addnode=209.250.225.55:44144", configFile);
+	fputs ("addnode=addnode=212.227.72.203:44144", configFile);
+	fputs ("addnode=addnode=216.250.114.165:44144", configFile);
+	fputs ("addnode=addnode=24.235.57.110:44144", configFile);
+	fputs ("addnode=addnode=3.16.129.60:44144", configFile);
+	fputs ("addnode=addnode=37.153.237.21:44144", configFile);
+	fputs ("addnode=addnode=45.12.221.164:44144", configFile);
+	fputs ("addnode=addnode=45.77.69.168:44144", configFile);
+	fputs ("addnode=addnode=46.101.235.143:44144", configFile);
+	fputs ("addnode=addnode=46.151.159.53:44144", configFile);
+	fputs ("addnode=addnode=46.63.87.7:44144", configFile);
+	fputs ("addnode=addnode=50.5.204.210:44144", configFile);
+	fputs ("addnode=addnode=51.68.172.97:44144", configFile);
+	fputs ("addnode=addnode=51.68.189.247:44144", configFile);
+	fputs ("addnode=addnode=51.89.139.159:44144", configFile);
+	fputs ("addnode=addnode=54.38.157.195:44144", configFile);
+	fputs ("addnode=addnode=62.171.128.147:44144", configFile);
+	fputs ("addnode=addnode=62.75.206.169:44144", configFile);
+	fputs ("addnode=addnode=64.56.30.4:44144", configFile);
+	fputs ("addnode=addnode=66.42.72.200:44144", configFile);
+	fputs ("addnode=addnode=67.1.24.35:44144", configFile);
+	fputs ("addnode=addnode=70.30.57.10:44144", configFile);
+	fputs ("addnode=addnode=72.182.71.216:44144", configFile);
+	fputs ("addnode=addnode=72.83.7.96:44144", configFile);
+	fputs ("addnode=addnode=73.208.20.185:44144", configFile);
+	fputs ("addnode=addnode=77.116.70.40:44144", configFile);
+	fputs ("addnode=addnode=77.121.166.45:44144", configFile);
+	fputs ("addnode=addnode=78.159.157.94:44144", configFile);
+	fputs ("addnode=addnode=78.56.89.204:44144", configFile);
+	fputs ("addnode=addnode=79.115.197.155:44144", configFile);
+	fputs ("addnode=addnode=79.117.211.92:44144", configFile);
+	fputs ("addnode=addnode=81.32.113.97:44144", configFile);
+	fputs ("addnode=addnode=82.165.74.140:44144", configFile);
+	fputs ("addnode=addnode=82.165.75.34:44144", configFile);
+	fputs ("addnode=addnode=82.223.9.101:44144", configFile);
+	fputs ("addnode=addnode=85.156.240.197:44144", configFile);
+	fputs ("addnode=addnode=85.92.108.226:44144", configFile);
+	fputs ("addnode=addnode=87.189.145.190:44144", configFile);
+	fputs ("addnode=addnode=87.225.105.6:44144", configFile);
+	fputs ("addnode=addnode=87.74.134.28:44144", configFile);
+	fputs ("addnode=addnode=88.212.55.252:44144", configFile);
+	fputs ("addnode=addnode=88.218.227.63:44144", configFile);
+	fputs ("addnode=addnode=89.179.125.135:44144", configFile);
+	fputs ("addnode=addnode=91.6.215.133:44144", configFile);
+	fputs ("addnode=addnode=93.224.180.57:44144", configFile);
+	fputs ("addnode=addnode=95.131.157.68:44144", configFile);
+	fputs ("addnode=addnode=95.174.65.74:44144", configFile);
+	fputs ("addnode=addnode=95.179.147.152:44144", configFile);
+	fputs ("addnode=addnode=95.216.114.70:44144", configFile);
+	fputs ("addnode=addnode=95.217.78.80:44144", configFile);
+	fputs ("addnode=addnode=95.217.85.170:44144", configFile);
+	fputs ("addnode=addnode=95.232.8.70:44144", configFile);
+	fputs ("addnode=addnode=98.206.242.209:44144", configFile);
+	fputs ("addnode=addnode=99.227.72.140:44144", configFile);
+	fputs ("addnode=addnode=99.251.61.9:44144", configFile);
+    fclose(configFile);
+    ReadConfigFile(mapArgs, mapMultiArgs);
+}
+
 void ReadConfigFile(map<string, string>& mapSettingsRet,
                     map<string, vector<string> >& mapMultiSettingsRet)
 {
     boost::filesystem::ifstream streamConfig(GetConfigFile());
     if (!streamConfig.good()){
-        // Create empty darksilk.conf if it does not excist
+        // Create empty Ignition.conf if it does not excist
         FILE* configFile = fopen(GetConfigFile().string().c_str(), "a");
-        if (configFile != NULL)
-            fclose(configFile);
-        return; // Nothing to read, so just return
-    }
+        if (configFile != NULL) {
+    WriteConfigFile(configFile);
+    fclose(configFile);
+    streamConfig.open(GetConfigFile());
+  }
+  return; // Nothing to read, so just return
+}
 
     set<string> setOptions;
     setOptions.insert("*");

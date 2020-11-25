@@ -7,16 +7,18 @@
 #include "main.h"
 #include "kernel.h"
 #include "checkpoints.h"
+#include "spork.h"
 
 using namespace json_spirit;
 using namespace std;
 
 extern void TxToJSON(const CTransaction& tx, const uint256 hashBlock, json_spirit::Object& entry);
+extern void spj(const CScript& scriptPubKey, Object& out, bool fIncludeHex);
 
 double GetDifficulty(const CBlockIndex *blockindex) {
 
     /* The reference difficulty is 1.0 which is the lowest Bitcoin difficulty
-     * and may not match the minimal difficulty of a particular altcoin */ 
+     * and may not match the minimal difficulty of a particular altcoin */
 
     if(!blockindex && pindexBest)
       blockindex = GetPrevBlockIndex(pindexBest, 0, false);
@@ -227,7 +229,99 @@ Value getblockhash(const Array& params, bool fHelp)
     return pblockindex->phashBlock->GetHex();
 }
 
+//New getblock RPC Command for Innovaium Compatibility
 Value getblock(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 1 || params.size() > 2)
+        throw runtime_error(
+            "getblock \"blockhash\" ( verbosity ) \n"
+            "\nIf verbosity is 0, returns a string that is serialized, hex-encoded data for block 'hash'.\n"
+            "If verbosity is 1, returns an Object with information about block <hash>.\n"
+            "If verbosity is 2, returns an Object with information about block <hash> and information about each transaction. \n"
+            "\nArguments:\n"
+            "1. \"blockhash\"          (string, required) The block hash\n"
+            "2. verbosity              (numeric, optional, default=1) 0 for hex encoded data, 1 for a json object, and 2 for json object with transaction data\n"
+            "\nResult (for verbosity = 0):\n"
+            "\"data\"             (string) A string that is serialized, hex-encoded data for block 'hash'.\n"
+            "\nResult (for verbosity = 1):\n"
+            "{\n"
+            "  \"hash\" : \"hash\",     (string) the block hash (same as provided)\n"
+            "  \"confirmations\" : n,   (numeric) The number of confirmations, or -1 if the block is not on the main chain\n"
+            "  \"size\" : n,            (numeric) The block size\n"
+            "  \"strippedsize\" : n,    (numeric) The block size excluding witness data\n"
+            "  \"weight\" : n           (numeric) The block weight as defined in BIP 141\n"
+            "  \"height\" : n,          (numeric) The block height or index\n"
+            "  \"version\" : n,         (numeric) The block version\n"
+            "  \"versionHex\" : \"00000000\", (string) The block version formatted in hexadecimal\n"
+            "  \"merkleroot\" : \"xxxx\", (string) The merkle root\n"
+            "  \"tx\" : [               (array of string) The transaction ids\n"
+            "     \"transactionid\"     (string) The transaction id\n"
+            "     ,...\n"
+            "  ],\n"
+            "  \"time\" : ttt,          (numeric) The block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"mediantime\" : ttt,    (numeric) The median block time in seconds since epoch (Jan 1 1970 GMT)\n"
+            "  \"nonce\" : n,           (numeric) The nonce\n"
+            "  \"bits\" : \"1d00ffff\", (string) The bits\n"
+            "  \"difficulty\" : x.xxx,  (numeric) The difficulty\n"
+            "  \"chainwork\" : \"xxxx\",  (string) Expected number of hashes required to produce the chain up to this block (in hex)\n"
+            "  \"previousblockhash\" : \"hash\",  (string) The hash of the previous block\n"
+            "  \"nextblockhash\" : \"hash\"       (string) The hash of the next block\n"
+            "}\n"
+            "\nResult (for verbosity = 2):\n"
+            "{\n"
+            "  ...,                     Same output as verbosity = 1.\n"
+            "  \"tx\" : [               (array of Objects) The transactions in the format of the getrawtransaction RPC. Different from verbosity = 1 \"tx\" result.\n"
+            "         ,...\n"
+            "  ],\n"
+            "  ,...                     Same output as verbosity = 1.\n"
+            "}\n"
+            "\nExamples:\n"
+        );
+
+    LOCK(cs_main);
+
+    std::string strHash = params[0].get_str();
+    	uint256 hash(strHash);
+    //std::string strHash = params[0].get_str();
+	//uint256 hash(uint256S(strHash));
+
+    int verbosity = 1;
+    if (params.size() > 1) {
+            verbosity = params[1].get_bool() ? 1 : 0;
+    }
+
+    if (mapBlockIndex.count(hash) == 0)
+        throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, "Block not found");
+
+    CBlock block;
+    CBlockIndex* pblockindex = mapBlockIndex[hash];
+
+	if(!block.ReadFromDisk(pblockindex, true)){
+        // Block not found on disk. This could be because we have the block
+        // header in our index but don't have the block (for example if a
+        // non-whitelisted node sends us an unrequested long chain of valid
+        // blocks, we add the headers to our index, but don't accept the
+        // block).
+		throw JSONRPCError(RPC_MISC_ERROR, "Block not found on disk");
+	}
+
+	block.ReadFromDisk(pblockindex, true);
+
+    if (verbosity <= 0)
+    {
+        CDataStream ssBlock(SER_NETWORK, PROTOCOL_VERSION);
+        ssBlock << block;
+        std::string strHex = HexStr(ssBlock.begin(), ssBlock.end());
+		//strHex.insert(0, "testar ");
+        return strHex;
+    }
+
+    //return blockToJSON(block, pblockindex, verbosity >= 2);
+	return blockToJSON(block, pblockindex, params.size() > 1 ? params[1].get_bool() : false);
+}
+
+//Old getblock RPC Command, Not deprecated
+Value getblock_old(const Array& params, bool fHelp)
 {
     if (fHelp || params.size() < 1 || params.size() > 2)
         throw runtime_error(
@@ -292,3 +386,151 @@ Value getcheckpoint(const Array& params, bool fHelp)
 
     return result;
 }
+
+Value getblockchaininfo(const Array& params, bool fHelp)
+{
+  if (fHelp || params.size() != 0)
+      throw runtime_error(
+              "getblockchaininfo\n"
+              "Returns an object containing various state info regarding block chain processing.\n"
+              "\nResult:\n"
+              "{\n"
+              "  \"chain\": \"xxxx\",        (string) current chain (main, testnet)\n"
+              "  \"blocks\": xxxxxx,         (numeric) the current number of blocks processed in the server\n"
+              "  \"bestblockhash\": \"...\", (string) the hash of the currently best block\n"
+              "  \"difficulty\": xxxxxx,     (numeric) the current difficulty\n"
+              "  \"initialblockdownload\": xxxx, (bool) estimate of whether this IC node is in Initial Block Download mode.\n"
+              "  \"verificationprogress\": xxxx, (numeric) estimate of verification progress [0..1]\n"
+              "  \"chainwork\": \"xxxx\"     (string) total amount of work in active chain, in hexadecimal\n"
+              "  \"moneysupply\": xxxx, (numeric) the current supply of IC in circulation\n"
+              "}\n"
+      );
+
+  proxyType proxy;
+  GetProxy(NET_IPV4, proxy);
+
+  Object obj, diff;
+  std::string chain = "testnet";
+  if(!fTestNet)
+      chain = "main";
+      obj.push_back(Pair("chain",          chain));
+    obj.push_back(Pair("blocks",         (int)nBestHeight));
+    //obj.push_back(Pair("headers",      pindexBestHeader ? pindexBestHeader->nHeight : -1));
+    obj.push_back(Pair("bestblockhash",  hashBestChain.GetHex()));
+    diff.push_back(Pair("proof-of-work",  GetDifficulty()));
+    diff.push_back(Pair("proof-of-stake", GetDifficulty(GetPrevBlockIndex(pindexBest, 0, true))));
+    obj.push_back(Pair("difficulty",     diff));
+    obj.push_back(Pair("initialblockdownload",  IsInitialBlockDownload()));
+    obj.push_back(Pair("verificationprogress", Checkpoints::AutoSelectSyncCheckpoint()));
+    obj.push_back(Pair("chainwork",      leftTrim(pindexBest->nChainTrust.GetHex(), '0')));
+    obj.push_back(Pair("moneysupply",    ValueFromAmount(pindexBest->nMoneySupply)));
+    //obj.push_back(Pair("size_on_disk",   CalculateCurrentUsage()));
+    return obj;
+}
+
+Value gettxout(const Array& params, bool fHelp)
+{
+    if (fHelp || params.size() < 2 || params.size() > 3)
+        throw runtime_error(
+            "gettxout \"txid\" n ( includemempool )\n"
+            "\nReturns details about an unspent transaction output.\n"
+            "\nArguments:\n"
+            "1. \"txid\"       (string, required) The transaction id\n"
+            "2. n              (numeric, required) vout value\n"
+            "3. includemempool  (boolean, optional) Whether to included the mem pool\n"
+            "\nResult:\n"
+            "{\n"
+            "  \"bestblock\" : \"hash\",    (string) the block hash\n"
+            "  \"confirmations\" : n,       (numeric) The number of confirmations\n"
+            "  \"value\" : x.xxx,           (numeric) The transaction value in btc\n"
+            "  \"scriptPubKey\" : {         (json object)\n"
+            "     \"asm\" : \"code\",       (string) \n"
+            "     \"hex\" : \"hex\",        (string) \n"
+            "     \"reqSigs\" : n,          (numeric) Number of required signatures\n"
+            "     \"type\" : \"pubkeyhash\", (string) The type, eg pubkeyhash\n"
+            "     \"addresses\" : [          (array of string) array of bitcoin addresses\n"
+            "        \"bitcoinaddress\"     (string) bitcoin address\n"
+            "        ,...\n"
+            "     ]\n"
+            "  },\n"
+            "  \"version\" : n,            (numeric) The version\n"
+            "  \"coinbase\" : true|false   (boolean) Coinbase or not\n"
+            "  \"coinstake\" : true|false  (boolean) Coinstake or not\n"
+            "}\n"
+        );
+
+    LOCK(cs_main);
+
+    Object ret;
+
+    uint256 hash;
+    hash.SetHex(params[0].get_str());
+    int n = params[1].get_int();
+    bool mem = true;
+    if (params.size() == 3)
+        mem = params[2].get_bool();
+
+    CTransaction tx;
+    uint256 hashBlock = 0;
+    if (!GetTransaction(hash, tx, hashBlock, mem))
+      return Value::null;
+
+    if (n<0 || (unsigned int)n>=tx.vout.size() || tx.vout[n].IsNull())
+      return Value::null;
+
+    ret.push_back(Pair("bestblock", pindexBest->GetBlockHash().GetHex()));
+    if (hashBlock == 0)
+      ret.push_back(Pair("confirmations", 0));
+    else
+    {
+      map<uint256, CBlockIndex*>::iterator mi = mapBlockIndex.find(hashBlock);
+      if (mi != mapBlockIndex.end() && (*mi).second)
+      {
+        CBlockIndex* pindex = (*mi).second;
+        if (pindex->IsInMainChain())
+        {
+          bool isSpent=false;
+          CBlockIndex* p = pindex;
+          p=p->pnext;
+          for (; p; p = p->pnext)
+          {
+            CBlock block;
+            CBlockIndex* pblockindex = mapBlockIndex[p->GetBlockHash()];
+            block.ReadFromDisk(pblockindex, true);
+            BOOST_FOREACH(const CTransaction& tx, block.vtx)
+            {
+              BOOST_FOREACH(const CTxIn& txin, tx.vin)
+              {
+                if( hash == txin.prevout.hash &&
+                   (int64_t)txin.prevout.n )
+                {
+                  printf("spent at block %s\n", block.GetHash().GetHex().c_str());
+                  isSpent=true; break;
+                }
+              }
+
+              if(isSpent) break;
+            }
+
+            if(isSpent) break;
+          }
+
+          if(isSpent)
+            return Value::null;
+
+          ret.push_back(Pair("confirmations", pindexBest->nHeight - pindex->nHeight + 1));
+        }
+        else
+          return Value::null;
+      }
+    }
+
+    ret.push_back(Pair("value", ValueFromAmount(tx.vout[n].nValue)));
+    Object o;
+    spj(tx.vout[n].scriptPubKey, o, true);
+    ret.push_back(Pair("scriptPubKey", o));
+    ret.push_back(Pair("coinbase", tx.IsCoinBase()));
+    ret.push_back(Pair("coinstake", tx.IsCoinStake()));
+
+    return ret;
+  }
