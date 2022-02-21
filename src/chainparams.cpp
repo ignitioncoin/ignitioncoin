@@ -101,6 +101,7 @@ public:
 		base58Prefixes[STEALTH_ADDRESS] = std::vector<unsigned char>(1, 76); // X
 		base58Prefixes[EXT_PUBLIC_KEY] = list_of(0x04)(0x88)(0x06)(0x2D).convert_to_container<std::vector<unsigned char> >();
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
+
 //Replacing centralized seeders with a snapshot of masternodes and few others on 2022-02-20
 		vSeeds.push_back(CDNSSeedData("161.97.136.254", "161.97.136.254"));
 		vSeeds.push_back(CDNSSeedData("161.97.137.0", "161.97.137.0"));
@@ -197,6 +198,7 @@ public:
 		vSeeds.push_back(CDNSSeedData("70.30.62.117", "70.30.62.117"));
 		vSeeds.push_back(CDNSSeedData("70.173.186.75", "70.173.186.75"));
 		vSeeds.push_back(CDNSSeedData("161.97.136.252", "161.97.136.252"));
+
 		convertSeeds(vFixedSeeds, pnSeed, ARRAYLEN(pnSeed), nDefaultPort);
 
 		nPoolMaxTransactions = 3;
