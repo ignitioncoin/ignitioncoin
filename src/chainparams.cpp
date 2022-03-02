@@ -103,6 +103,8 @@ public:
 		base58Prefixes[EXT_SECRET_KEY] = list_of(0x04)(0x88)(0xAD)(0xE4).convert_to_container<std::vector<unsigned char> >();
 
 //Replacing centralized seeders with a snapshot of masternodes and few others on 2022-02-20
+		vSeeds.push_back(CDNSSeedData("seednode-america", "america.ignitioncoin.org"));
+		vSeeds.push_back(CDNSSeedData("seednode-explorer", "explorer.ignitioncoin.org"));
 		vSeeds.push_back(CDNSSeedData("161.97.136.254", "161.97.136.254"));
 		vSeeds.push_back(CDNSSeedData("161.97.137.0", "161.97.137.0"));
 		vSeeds.push_back(CDNSSeedData("161.97.137.1", "161.97.137.1"));
